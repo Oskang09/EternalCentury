@@ -1,0 +1,7 @@
+name: eternalcentury
+main: com.eternalcentury.ReactantPlugin
+version: 0.0.1
+api-version: 1.15
+depend:
+  - Reactant
+  - NBTAPI
