@@ -2,15 +2,15 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
-group = "com.eternalcentury"
+group = "com.ec"
 version = "0.0.1"
 
-val kotlinVersion = "1.5.0"
+val kotlinVersion = "1.5.10"
 
 plugins {
     java
-    kotlin("jvm") version "1.5.0"
-        id("com.github.johnrengelman.shadow") version "5.0.0"
+    kotlin("jvm") version "1.5.10"
+    id("com.github.johnrengelman.shadow") version "5.0.0"
 }
 
 java {
@@ -32,14 +32,20 @@ repositories {
 }
 
 dependencies {
-    compileOnly(kotlin("stdlib-jdk8", kotlinVersion))
-    compileOnly("dev.reactant:reactant:0.2.0")
-    compileOnly("org.spigotmc:spigot-api:1.16.4-R0.1-SNAPSHOT")
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7")
-    compileOnly("fr.minuskube.inv:smart-invs:1.2.7")
+    implementation(kotlin("stdlib-jdk8", kotlinVersion))
+    implementation(kotlin("reflect", kotlinVersion))
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
+    implementation("dev.reactant:reactant:0.2.0")
+    implementation("org.spigotmc:spigot-api:1.16.4-R0.1-SNAPSHOT")
+    implementation("com.github.MilkBowl:VaultAPI:1.7")
+    implementation("com.github.tr7zw:Item-NBT-API:2.7.1")
+    implementation("com.github.Oskang09:UniversalGUI:v3.0.0")
+    implementation("com.github.PlaceholderAPI:PlaceholderAPI:2.10.9")
+    implementation("fr.minuskube.inv:smart-invs:1.2.7")
     implementation(fileTree("src/main/libs"))
+
+    shadow("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
+    shadow("net.oneandone.reflections8:reflections8:0.11.5")
 }
 
 
@@ -50,7 +56,7 @@ val sourcesJar by tasks.registering(Jar::class) {
 }
 
     val shadowJar = (tasks["shadowJar"] as ShadowJar).apply {
-
+        configurations = listOf(project.configurations.shadow.get())
     }
 
     val deployPlugin by tasks.registering(Copy::class) {

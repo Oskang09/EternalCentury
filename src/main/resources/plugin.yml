@@ -1,7 +1,11 @@
-name: eternalcentury
-main: com.eternalcentury.ReactantPlugin
+name: EternalCentury
+main: com.ec.ECCore
 version: 0.0.1
-api-version: 1.15
+api-version: 1.16
 depend:
   - Reactant
   - NBTAPI
+  - SmartInvs
+  - UniversalGUI
+  - PlaceholderAPI
+  - Citizens
