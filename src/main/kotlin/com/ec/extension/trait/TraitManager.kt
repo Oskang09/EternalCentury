@@ -1,7 +1,6 @@
 package com.ec.extension.trait
 
 import com.ec.extension.GlobalManager
-import com.ec.minecraft.trait.RepairTrait
 import dev.reactant.reactant.core.component.Component
 import net.citizensnpcs.api.CitizensAPI
 import net.citizensnpcs.api.trait.TraitInfo

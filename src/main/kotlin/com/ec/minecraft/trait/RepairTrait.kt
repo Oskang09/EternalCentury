@@ -2,19 +2,10 @@ package com.ec.minecraft.trait
 
 import com.ec.extension.trait.TraitAPI
 import net.citizensnpcs.api.event.NPCRightClickEvent
-import net.citizensnpcs.api.util.DataKey
 import org.bukkit.event.EventHandler
 import org.bukkit.inventory.meta.Damageable
 
 class RepairTrait: TraitAPI("repair") {
-
-    override fun load(key: DataKey) {
-
-    }
-
-    override fun save(key: DataKey) {
-
-    }
 
     @EventHandler
     fun click(event: NPCRightClickEvent) {
@@ -25,7 +16,8 @@ class RepairTrait: TraitAPI("repair") {
                 return globalManager.inventory.displayRepair(player);
             }
 
-            player.sendMessage("Item no need repair")
+            globalManager.inventory.displayTo(player, "admin")
+            player.sendMessage(globalManager.message.npc(npc, "您的物品暂时不需要修理"))
         }
     }
 

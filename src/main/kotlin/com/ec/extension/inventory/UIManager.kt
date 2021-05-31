@@ -19,6 +19,10 @@ class UIManager {
         }
     }
 
+    fun displayTo(player: Player, name: String) {
+        uis[name]?.displayTo(player)
+    }
+
     fun displayRepair(player: Player) {
         uis["repair"]?.displayTo(player)
     }

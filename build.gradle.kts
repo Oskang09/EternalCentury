@@ -32,20 +32,21 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8", kotlinVersion))
-    implementation(kotlin("reflect", kotlinVersion))
+    compileOnly(kotlin("stdlib-jdk8", kotlinVersion))
 
-    implementation("dev.reactant:reactant:0.2.0")
-    implementation("org.spigotmc:spigot-api:1.16.4-R0.1-SNAPSHOT")
-    implementation("com.github.MilkBowl:VaultAPI:1.7")
-    implementation("com.github.tr7zw:Item-NBT-API:2.7.1")
-    implementation("com.github.Oskang09:UniversalGUI:v3.0.0")
-    implementation("com.github.PlaceholderAPI:PlaceholderAPI:2.10.9")
-    implementation("fr.minuskube.inv:smart-invs:1.2.7")
-    implementation(fileTree("src/main/libs"))
+    compileOnly("dev.reactant:reactant:0.2.3")
+    compileOnly("org.spigotmc:spigot-api:1.16.4-R0.1-SNAPSHOT")
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7")
+    compileOnly("com.github.tr7zw:Item-NBT-API:2.7.1")
+    compileOnly("com.github.Oskang09:UniversalGUI:v3.0.0")
+    compileOnly("com.github.PlaceholderAPI:PlaceholderAPI:2.10.9")
+    compileOnly("fr.minuskube.inv:smart-invs:1.2.7")
+    compileOnly(fileTree("src/main/libs"))
 
-    shadow("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
     shadow("net.oneandone.reflections8:reflections8:0.11.5")
+    shadow("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0") {
+        exclude(group = "org.jetbrains.kotlin", module = "*")
+    }
 }
 
 
@@ -59,8 +60,10 @@ val sourcesJar by tasks.registering(Jar::class) {
         configurations = listOf(project.configurations.shadow.get())
     }
 
+    val deployPath: String by project
     val deployPlugin by tasks.registering(Copy::class) {
         dependsOn(shadowJar)
+
         System.getenv("PLUGIN_DEPLOY_PATH")?.let {
             from(shadowJar)
             into(it)

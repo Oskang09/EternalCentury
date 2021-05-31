@@ -5,13 +5,13 @@ import com.ec.extension.GlobalManager
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.dependency.injection.Inject
 import dev.reactant.reactant.extra.config.type.MultiConfigs
-import dev.reactant.reactant.service.spec.server.EventService
+import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
+import java.time.Instant
 import java.util.*
-import kotlin.collections.HashMap
 
 @Component
 class PlayerManager(
@@ -25,26 +25,38 @@ class PlayerManager(
 
     fun onInitialize(globalManager: GlobalManager) {
         this.globalManager = globalManager
-//
-//         globalManager.events {
-//            PlayerJoinEvent::class.observable(EventPriority.HIGHEST).subscribe { event ->
-//                val uuid = event.player.uniqueId
-//                val file = "$uuid.json"
-//                playerConfigs.getOrDefault(file){ PlayerData(uuid) }
-//                    .subscribe { it ->
-//                        players[uuid] = ECPlayer(event.player, it)
-//                    }
-//            }
-//
-//            PlayerQuitEvent::class.observable(EventPriority.HIGHEST).subscribe { event ->
-//                val uuid = event.player.uniqueId
-//                players.remove(uuid)?.save()
-//            }
-//        }
+
+         globalManager.events {
+            PlayerJoinEvent::class.observable(EventPriority.HIGHEST).subscribe { event ->
+                val uuid = event.player.uniqueId
+                val file = "$uuid.json"
+                playerConfigs.getOrDefault(file){ PlayerData(uuid) }
+                    .subscribe { it ->
+                        players[uuid] = ECPlayer(event.player, it)
+                    }
+            }
+
+            PlayerQuitEvent::class.observable(EventPriority.HIGHEST).subscribe { event ->
+                val uuid = event.player.uniqueId
+                players.remove(uuid)?.ensureUpdate({
+                    it.content.lastOnlineAt = Instant.now().epochSecond
+                    return@ensureUpdate it
+                })
+            }
+        }
+    }
+
+    private fun getByOfflinePlayer(player: OfflinePlayer): ECPlayer? {
+        var file = "${player.uniqueId}.json"
+        val maybe = playerConfigs.get(file)
+        if (maybe.isEmpty.blockingGet()) {
+            return null
+        }
+        return ECPlayer(null, maybe.blockingGet())
     }
 
     fun getByPlayer(player: Player): ECPlayer? {
-        return players[player.uniqueId]
+        return players[player.uniqueId] ?: getByOfflinePlayer(player)
     }
 
 }

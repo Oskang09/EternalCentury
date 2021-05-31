@@ -1,11 +1,13 @@
 package com.ec.extension.inventory
 
-import com.ec.minecraft.enchantment.Glow
+import com.ec.minecraft.enchantment.Sharpness
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.extensions.itemMeta
 import org.bukkit.Bukkit
 import org.bukkit.Material
+import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.inventory.meta.SkullMeta
@@ -63,7 +65,16 @@ class UIComponent {
                 meta(this)
             }
 
-            addEnchant(Glow(), 1 , true)
+            addEnchant(Enchantment.DURABILITY, 1 , true)
+            addItemFlags(
+                ItemFlag.HIDE_ATTRIBUTES,
+                ItemFlag.HIDE_ENCHANTS,
+                ItemFlag.HIDE_UNBREAKABLE,
+                ItemFlag.HIDE_DESTROYS,
+                ItemFlag.HIDE_DYE,
+                ItemFlag.HIDE_PLACED_ON,
+                ItemFlag.HIDE_POTION_EFFECTS,
+            )
         }
         return stack
     }

@@ -6,6 +6,7 @@ import com.ec.extension.inventory.UIProvider
 import com.ec.util.roundTo
 import fr.minuskube.inv.ClickableItem
 import fr.minuskube.inv.content.InventoryContents
+import org.bukkit.Sound
 import org.bukkit.inventory.meta.Damageable
 import org.bukkit.entity.Player
 import org.bukkit.inventory.meta.ItemMeta
@@ -26,7 +27,7 @@ class RepairUI: UIProvider("repair") {
         }
 
         return UIBase(
-            title = "§b[§5系统§b] §f修理花费 §e- §6" + (repairRequired.roundTo(2)),
+            title = "§b[§5系统§b] §f修理花费 §e- §6§l" + (repairRequired.roundTo(2)),
             rows = 1
         )
     }
@@ -47,6 +48,7 @@ class RepairUI: UIProvider("repair") {
             player.closeInventory()
 
 //            globalManager.economy.withdrawPlayer(player, repairRequired)
+            player.world.playSound(player.location, Sound.BLOCK_ANVIL_LAND, 1F, 0F)
             meta.damage = 0
             mainHand.itemMeta = (meta as ItemMeta)
         })
