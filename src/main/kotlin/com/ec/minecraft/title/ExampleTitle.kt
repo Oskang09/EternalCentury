@@ -1,30 +1,31 @@
 package com.ec.minecraft.title
 
 import com.ec.extension.GlobalManager
-import com.ec.extension.player.ECPlayer
+import com.ec.config.model.ECPlayer
 import com.ec.extension.title.TitleAPI
+import com.ec.util.StringUtil.colorize
 import dev.reactant.reactant.extensions.itemMeta
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 
-class ExampleTitle: TitleAPI("", 0) {
+class ExampleTitle: TitleAPI("some_id", 0) {
     override fun initialize(globalManager: GlobalManager) {
 
     }
 
-    override fun uiDisplay(stack: ItemStack): ItemStack {
+    override fun getItemStack(stack: ItemStack): ItemStack {
         stack.itemMeta<ItemMeta> {
-            setDisplayName("§a称号 - §r" + display())
+            setDisplayName(("&a称号 - &r" + getDisplay()).colorize())
             lore = listOf(
-                "§7 --- 称号介绍 --- ",
-                "§7 --- 特殊效果 --- ",
-                "§7 --- 解锁条件 --- ",
-            )
+                "&7 --- 称号介绍 --- ",
+                "&7 --- 特殊效果 --- ",
+                "&7 --- 解锁条件 --- ",
+            ).colorize()
         }
         return stack
     }
 
-    override fun display(): String {
+    override fun getDisplay(): String {
         return ""
     }
 

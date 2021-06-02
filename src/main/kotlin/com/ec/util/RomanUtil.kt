@@ -4,7 +4,7 @@ import java.util.*
 
 object RomanUtil {
 
-    val romanMaps: TreeMap<Int, String> = TreeMap()
+    private val romanMaps: TreeMap<Int, String> = TreeMap()
 
     init {
         romanMaps[1000] = "M"

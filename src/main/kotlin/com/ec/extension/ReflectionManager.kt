@@ -9,6 +9,7 @@ import com.ec.extension.trait.TraitAPI
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.component.lifecycle.LifeCycleHook
 import org.reflections8.Reflections
+import java.lang.reflect.Modifier
 
 @Component
 class ReflectionManager: LifeCycleHook {
@@ -42,9 +43,11 @@ class ReflectionManager: LifeCycleHook {
         }
     }
 
-    fun loopUI(action:(UIProvider) -> Unit) {
+    fun loopUI(action:(UIProvider<*>) -> Unit) {
         reflections.getSubTypesOf(UIProvider::class.java).forEach {
-            action(it.newInstance())
+            if (!Modifier.isAbstract(it.modifiers)) {
+                action(it.newInstance())
+            }
         }
     }
 

@@ -10,14 +10,16 @@ import com.ec.extension.title.TitleManager
 import com.ec.extension.trait.TraitManager
 import com.ec.extension.player.PlayerManager
 import com.ec.extension.point.PointManager
+import com.ec.logger.Issue
+import com.ec.logger.Logger
 import com.ec.service.*
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.component.lifecycle.LifeCycleHook
 import dev.reactant.reactant.core.dependency.injection.Inject
+import dev.reactant.reactant.extra.config.type.MultiConfigs
 import dev.reactant.reactant.service.spec.config.Config
 import dev.reactant.reactant.service.spec.server.EventService
 import dev.reactant.reactant.service.spec.server.SchedulerService
-import org.bukkit.event.player.PlayerJoinEvent
 
 @Component
 class GlobalManager(
@@ -37,17 +39,18 @@ class GlobalManager(
     // Services
     val economy: EconomyService,
     val permission: PermissionService,
-    val logger: LoggerService,
     val chat: ChatService,
     val message: MessageService,
 
-    // Built-in
+    // Libraries
     val events: EventService,
     val schedulers: SchedulerService,
 
     // Configurations
     @Inject("plugins/server-data/server.json")
-    private val serverConfigFile: Config<ServerData>
+    private val serverConfigFile: Config<ServerData>,
+    @Inject("plugins/server-data/issues")
+    private val issueConfigFile: MultiConfigs<Issue>
 ): LifeCycleHook {
 
     val serverConfig: ServerData = serverConfigFile.content
@@ -61,6 +64,8 @@ class GlobalManager(
         traits.onInitialize(this)
         inventory.onInitialize(this)
         items.onInitialize(this)
+
+        Logger.onInitialize(issueConfigFile)
     }
 
 }

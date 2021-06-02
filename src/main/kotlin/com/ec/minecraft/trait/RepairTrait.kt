@@ -17,6 +17,7 @@ class RepairTrait: TraitAPI("repair") {
             }
 
             globalManager.inventory.displayTo(player, "admin")
+//            globalManager.inventory.displayTitle(player)
             player.sendMessage(globalManager.message.npc(npc, "您的物品暂时不需要修理"))
         }
     }

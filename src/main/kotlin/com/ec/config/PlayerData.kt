@@ -1,7 +1,9 @@
 package com.ec.config
 
-import com.ec.extension.point.PointHistory
-import com.ec.extension.point.PointInfo
+import com.ec.config.model.EconomyHistory
+import com.ec.config.model.EconomyInfo
+import com.ec.config.model.PointHistory
+import com.ec.config.model.PointInfo
 import java.time.Instant
 import java.util.*
 
@@ -14,4 +16,7 @@ data class PlayerData(
     var availableTitles: MutableMap<String, Long> = mutableMapOf(),
     var points: MutableMap<String, PointInfo> = mutableMapOf(),
     var pointHistory: MutableList<PointHistory> = mutableListOf(),
+    var balance: EconomyInfo = EconomyInfo(0, 0),
+    var balanceHistory: MutableList<EconomyHistory> = mutableListOf(),
+    var permissions: MutableList<String> = mutableListOf(),
 );

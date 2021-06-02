@@ -1,4 +1,4 @@
-package com.ec.extension.point
+package com.ec.config.model
 
 data class PointInfo(
     var grade: Int = 0,

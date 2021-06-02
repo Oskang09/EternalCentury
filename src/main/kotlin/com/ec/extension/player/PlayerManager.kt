@@ -1,6 +1,7 @@
 package com.ec.extension.player
 
 import com.ec.config.PlayerData
+import com.ec.config.model.ECPlayer
 import com.ec.extension.GlobalManager
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.dependency.injection.Inject
@@ -30,7 +31,7 @@ class PlayerManager(
             PlayerJoinEvent::class.observable(EventPriority.HIGHEST).subscribe { event ->
                 val uuid = event.player.uniqueId
                 val file = "$uuid.json"
-                playerConfigs.getOrDefault(file){ PlayerData(uuid) }
+                playerConfigs.getOrPut(file) { PlayerData(uuid, event.player.name) }
                     .subscribe { it ->
                         players[uuid] = ECPlayer(event.player, it)
                     }
@@ -38,10 +39,9 @@ class PlayerManager(
 
             PlayerQuitEvent::class.observable(EventPriority.HIGHEST).subscribe { event ->
                 val uuid = event.player.uniqueId
-                players.remove(uuid)?.ensureUpdate({
+                players.remove(uuid)?.ensureUpdate("saving player") {
                     it.content.lastOnlineAt = Instant.now().epochSecond
-                    return@ensureUpdate it
-                })
+                }
             }
         }
     }

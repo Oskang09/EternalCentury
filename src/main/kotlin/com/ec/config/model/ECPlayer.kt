@@ -1,15 +1,16 @@
-package com.ec.extension.player
+package com.ec.config.model
 
 import com.ec.config.PlayerData
-import com.ec.extension.point.PointInfo
-import dev.reactant.reactant.core.component.Component
+import com.ec.logger.Logger
+import com.ec.util.StringUtil.colorize
 import dev.reactant.reactant.service.spec.config.Config
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.bukkit.entity.Player
-import java.lang.Exception
+import java.lang.IllegalStateException
 import java.util.*
 
 data class ECPlayer(
@@ -21,25 +22,17 @@ data class ECPlayer(
     var data: PlayerData = config.content
     private val mutex = Mutex()
 
-    fun ensureUpdate(
-        update: (Config<PlayerData>) -> Config<PlayerData>,
-        complete: ((Config<PlayerData>) -> Unit)? = null,
-        fail: ((Exception) -> Unit)? = null,
-    ) {
-        runBlocking {
-            try {
-                mutex.withLock {
-                    refresh()
+    fun ensureUpdate(action: String, update: (Config<PlayerData>) -> Unit) {
+        runBlocking(Dispatchers.IO) {
+            mutex.withLock {
+                refresh()
+                val response = Logger.withTracker("update player - ${uuid.toString()}", action) {
                     update(config)
-                    save()
-                    if (complete != null) {
-                        complete(config)
-                    }
                 }
-            } catch (e: Exception) {
-                if (fail != null) {
-                    fail(e)
+                if (response != null) {
+                    player?.sendMessage("&b[&5系统&b] &f在更新资料时出现错误，请向管理员汇报 &f&l${response}&f".colorize())
                 }
+                save()
             }
         }
     }

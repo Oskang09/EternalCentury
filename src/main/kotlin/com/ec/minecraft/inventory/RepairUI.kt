@@ -1,19 +1,47 @@
 package com.ec.minecraft.inventory
 
-import com.ec.extension.GlobalManager
 import com.ec.extension.inventory.UIBase
 import com.ec.extension.inventory.UIProvider
-import com.ec.util.roundTo
-import fr.minuskube.inv.ClickableItem
-import fr.minuskube.inv.content.InventoryContents
+import com.ec.util.DoubleUtil.roundTo
+import com.ec.util.StringUtil.colorize
+import dev.reactant.resquare.dom.childrenOf
+import dev.reactant.resquare.dom.declareComponent
+import dev.reactant.resquare.elements.DivProps
+import dev.reactant.resquare.elements.div
+import dev.reactant.resquare.elements.styleOf
+import dev.reactant.resquare.render.useCancelRawEvent
 import org.bukkit.Sound
+import org.bukkit.entity.HumanEntity
+import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
-import org.bukkit.entity.Player
 import org.bukkit.inventory.meta.ItemMeta
 
-class RepairUI: UIProvider("repair") {
+class RepairUI: UIProvider<RepairUI.RepairUIProps>("repair") {
 
-    override fun info(player: Player): UIBase {
+    data class RepairUIProps(
+        val item: ItemStack,
+        val price: Double,
+    )
+
+    private val styles = object {
+
+        val marginItem = styleOf {
+            marginLeft = 1.px
+            width = 1.px
+            height = 1.px
+        }
+
+    }
+
+    override fun info(props: RepairUIProps): UIBase {
+        return UIBase(
+            title = ("&b[&5系统&b] &f修理花费 &e- &6&l" + (props.price.roundTo(2))).colorize(),
+            rows = 1,
+            cols = 9
+        )
+    }
+
+    override fun props(player: HumanEntity): RepairUIProps {
         var repairRequired = 0.0
         val mainHand = player.inventory.itemInMainHand
         if (mainHand.hasItemMeta() && mainHand.itemMeta is Damageable) {
@@ -25,37 +53,45 @@ class RepairUI: UIProvider("repair") {
 
             repairRequired = (globalManager.serverConfig.repairPrice * repairDamage).toDouble()
         }
-
-        return UIBase(
-            title = "§b[§5系统§b] §f修理花费 §e- §6§l" + (repairRequired.roundTo(2)),
-            rows = 1
-        )
+        return RepairUIProps(mainHand, repairRequired)
     }
 
-    override fun init(player: Player, contents: InventoryContents) {
-        val mainHand = player.inventory.itemInMainHand
-        val meta = mainHand.itemMeta as Damageable
-        val currentDurability = meta.damage
-        val maxDurability = mainHand.type.maxDurability
-        val repairDamage = maxDurability - currentDurability
-        val repairRequired = (globalManager.serverConfig.repairPrice * repairDamage).toDouble()
+    override val render = declareComponent<RepairUIProps> { props ->
+        useCancelRawEvent()
 
-        contents.set(0, 4, ClickableItem.empty(mainHand))
-        contents.set(0, 6, ClickableItem.of(globalManager.component.woolDecline()) {
-            player.closeInventory()
-        })
-        contents.set(0, 2, ClickableItem.of(globalManager.component.woolAccept()) {
-            player.closeInventory()
+        div(DivProps(
+            style = styleOf {
+                width = 9.px
+                height = 1.px
+                marginLeft = 1.px
+                marginRight = 1.px
+            },
+            children = childrenOf(
+                div(DivProps(
+                    style= styles.marginItem,
+                    item = globalManager.component.woolAccept(),
+                    onClick = { event ->
+                        val entity = event.whoClicked
 
-//            globalManager.economy.withdrawPlayer(player, repairRequired)
-            player.world.playSound(player.location, Sound.BLOCK_ANVIL_LAND, 1F, 0F)
-            meta.damage = 0
-            mainHand.itemMeta = (meta as ItemMeta)
-        })
+                        entity.world.playSound(entity.location,  Sound.BLOCK_ANVIL_USE, 1F, 0F)
+                        val meta = props.item.itemMeta as Damageable
+                        meta.damage = 0
+                        props.item.itemMeta = (meta as ItemMeta)
+                        entity.closeInventory()
+                    },
+                )),
+                div(DivProps(
+                    style = styles.marginItem,
+                    item = props.item,
+                )),
+                div(DivProps(
+                    style= styles.marginItem,
+                    item = globalManager.component.woolDecline(),
+                    onClick = { event ->
+                        event.whoClicked.closeInventory()
+                    },
+                ))
+            )
+        ))
     }
-
-    override fun update(player: Player, contents: InventoryContents) {
-
-    }
-
 }

@@ -27,17 +27,14 @@ class TitleManager {
 
     fun checkPlayerTitleAvailability(player: Player) {
         val ecPlayer = globalManager.players.getByPlayer(player)!!
-        ecPlayer.ensureUpdate(
-            { it ->
-                titles.keys.intersect(ecPlayer.data.availableTitles.keys).forEach {
-                    val title = titles[it]!!
-                    if (title.unlockCondition(ecPlayer)) {
-                        ecPlayer.data.availableTitles[title.id] = Instant.now().epochSecond
-                    }
+        ecPlayer.ensureUpdate("check player availability") { _ ->
+            titles.keys.intersect(ecPlayer.data.availableTitles.keys).forEach {
+                val title = titles[it]!!
+                if (title.unlockCondition(ecPlayer)) {
+                    ecPlayer.data.availableTitles[title.id] = Instant.now().epochSecond
                 }
-                return@ensureUpdate it
             }
-        )
+        }
     }
 
     fun getPlayerActiveTitle(player: Player): TitleAPI? {

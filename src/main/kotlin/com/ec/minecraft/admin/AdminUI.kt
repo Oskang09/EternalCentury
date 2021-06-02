@@ -2,41 +2,100 @@ package com.ec.minecraft.admin
 
 import com.ec.extension.inventory.UIBase
 import com.ec.extension.inventory.UIProvider
+import com.ec.util.StringUtil.colorize
 import dev.reactant.reactant.extensions.itemMeta
-import fr.minuskube.inv.ClickableItem
-import fr.minuskube.inv.content.InventoryContents
+import dev.reactant.resquare.dom.childrenOf
+import dev.reactant.resquare.dom.declareComponent
+import dev.reactant.resquare.dom.unaryPlus
+import dev.reactant.resquare.elements.DivProps
+import dev.reactant.resquare.elements.div
+import dev.reactant.resquare.elements.styleOf
+import dev.reactant.resquare.render.useCancelRawEvent
 import org.bukkit.Material
-import org.bukkit.entity.Player
+import org.bukkit.entity.HumanEntity
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 
-class AdminUI: UIProvider("admin") {
+class AdminUI : UIProvider<AdminUI.AdminUIProps>("admin") {
 
-    override fun info(player: Player): UIBase {
+    data class AdminUIPropsData(
+        val material: Material,
+        val display: String,
+        val routeTo: String
+    )
+
+    data class AdminUIProps(
+        val data: List<AdminUIPropsData>,
+    )
+
+    private val styles = object {
+
+        val container = styleOf {
+            width = 100.percent
+            height = 100.percent
+            padding(1.px)
+            flexWrap.wrap()
+            alignContent.flexStart()
+        }
+
+        val item = styleOf {
+            width = 1.px
+            height = 1.px
+            flexShrink = 0f
+        }
+
+    }
+
+    override fun info(props: AdminUIProps): UIBase {
         return UIBase(
             rows = 3,
             cols = 9,
-            title = "§b[§5系统§b] §6管理控制台"
+            title = "&b[&5系统&b] &6管理控制台".colorize()
         )
     }
 
-    override fun init(player: Player, contents: InventoryContents) {
-        contents.fillRow(0, ClickableItem.empty(ItemStack(Material.WHITE_STAINED_GLASS_PANE)))
-        contents.fillRow(2, ClickableItem.empty(ItemStack(Material.WHITE_STAINED_GLASS_PANE)))
-        contents.set(1, 0, ClickableItem.empty(ItemStack(Material.BLACK_STAINED_GLASS_PANE)))
-        contents.set(1, 8, ClickableItem.empty(ItemStack(Material.BLACK_STAINED_GLASS_PANE)))
-
-        val enchant = ItemStack(Material.ENCHANTED_BOOK)
-        enchant.itemMeta<ItemMeta> {
-            setDisplayName("§f§l前往 §b[§5系统§b] §6技能附魔书")
-        }
-        contents.set(1, 1, ClickableItem.of(enchant) {
-            globalManager.inventory.displayTo(player, "admin-enchantment")
-        })
-
+    override fun props(player: HumanEntity): AdminUIProps {
+        return AdminUIProps(
+            data = listOf(
+                AdminUIPropsData(
+                    material = Material.ENCHANTED_BOOK,
+                    display = "&f&l前往 &b[&5系统&b] &6技能附魔书",
+                    routeTo = "admin-enchantment"
+                ),
+                AdminUIPropsData(
+                    material = Material.ITEM_FRAME,
+                    display = "&b[&5系统&b] &6物品列表",
+                    routeTo = "admin-item"
+                )
+            )
+        )
     }
 
-    override fun update(player: Player, contents: InventoryContents) {
-    }
+    override val isStaticProps: Boolean = true
+    override val render = declareComponent<AdminUIProps> { props ->
 
+        useCancelRawEvent()
+
+        div(DivProps(
+            style = styles.container,
+            item = ItemStack(Material.WHITE_STAINED_GLASS_PANE),
+            children = childrenOf(
+
+                +(props.data.map {
+                    val item = ItemStack(it.material)
+                    item.itemMeta<ItemMeta> {
+                        setDisplayName(it.display.colorize())
+                    }
+
+                    return@map div(DivProps(
+                        style = styles.item,
+                        item = item,
+                        onClick = { event ->
+                            globalManager.inventory.displayTo(event.whoClicked, it.routeTo)
+                        }
+                    ))
+                })
+            )
+        ))
+    }
 }

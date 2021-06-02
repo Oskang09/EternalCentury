@@ -35,12 +35,11 @@ dependencies {
     compileOnly(kotlin("stdlib-jdk8", kotlinVersion))
 
     compileOnly("dev.reactant:reactant:0.2.3")
+    compileOnly("dev.reactant:resquare:0.0.1-SNAPSHOT")
     compileOnly("org.spigotmc:spigot-api:1.16.4-R0.1-SNAPSHOT")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
-    compileOnly("com.github.tr7zw:Item-NBT-API:2.7.1")
     compileOnly("com.github.Oskang09:UniversalGUI:v3.0.0")
     compileOnly("com.github.PlaceholderAPI:PlaceholderAPI:2.10.9")
-    compileOnly("fr.minuskube.inv:smart-invs:1.2.7")
     compileOnly(fileTree("src/main/libs"))
 
     shadow("net.oneandone.reflections8:reflections8:0.11.5")

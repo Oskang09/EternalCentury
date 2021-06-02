@@ -1,31 +1,45 @@
 package com.ec.extension.inventory
 
 import com.ec.extension.GlobalManager
-import fr.minuskube.inv.SmartInventory
-import fr.minuskube.inv.content.InventoryProvider
+import dev.reactant.resquare.bukkit.container.createUI
+import dev.reactant.resquare.dom.Component
+import org.bukkit.entity.HumanEntity
 import org.bukkit.entity.Player
 
-abstract class UIProvider(val id: String): InventoryProvider {
-
-    protected abstract fun info(player: Player): UIBase
-
+abstract class UIProvider<T : Any>(val id: String) {
+    private lateinit var player: Player
     protected lateinit var globalManager: GlobalManager
     open fun initialize(globalManager: GlobalManager) {
         this.globalManager = globalManager
     }
 
-    fun displayTo(player: Player, page: Int = 1) {
-        val base = info(player);
+    protected abstract fun info(props: T): UIBase
+    protected abstract fun props(player: HumanEntity): T
 
-        SmartInventory.builder()
-            .id(id)
-            .provider(this)
-            .type(base.type)
-            .size(base.rows, base.cols)
-            .closeable(base.closable)
-            .title(base.title)
-            .build()
-            .open(player, page)
+    private var staticProps: T? = null
+    open val isStaticProps: Boolean = false
+    protected abstract val render: Component.WithProps<T>
+
+    fun displayTo(player: HumanEntity) {
+        var props: T?
+        if (isStaticProps) {
+            if (staticProps == null) {
+                this.staticProps = props(player)
+            }
+            props = this.staticProps
+        } else {
+            props = props(player)
+        }
+
+        val base = info(props!!)
+        val container = createUI(
+            render, props, base.cols, base.rows, base.title,
+            multiThreadComponentRender = true,
+            multiThreadStyleRender = true,
+            autoDestroy = true
+        )
+
+        container.openInventory(player)
     }
 
 }

@@ -1,8 +1,9 @@
 package com.ec.extension.inventory
 
-import com.ec.minecraft.enchantment.Sharpness
+import com.ec.util.StringUtil.colorize
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.extensions.itemMeta
+import dev.reactant.resquare.render.useState
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
@@ -14,6 +15,16 @@ import org.bukkit.inventory.meta.SkullMeta
 
 @Component
 class UIComponent {
+
+    fun item(material: Material, meta: ((ItemMeta) -> Unit)? = null): ItemStack {
+        val item = ItemStack(material)
+        item.itemMeta<ItemMeta> {
+            if (meta != null) {
+                meta(this)
+            }
+        }
+        return item
+    }
 
     fun playerHead(player: Player, meta: ((SkullMeta) -> Unit)? = null): ItemStack {
         val head = ItemStack(Material.PLAYER_HEAD)
@@ -27,18 +38,18 @@ class UIComponent {
         return head
     }
 
-    fun arrowPrevious(page: Int): ItemStack {
-        val arrow = ItemStack(Material.ARROW, page)
+    fun arrowPrevious(): ItemStack {
+        val arrow = ItemStack(Material.SOUL_CAMPFIRE)
         arrow.itemMeta<ItemMeta> {
-            setDisplayName("§b[§5系统§b] §6上一页")
+            setDisplayName("&b[&5系统&b] &6上一页".colorize())
         }
         return arrow
     }
 
-    fun arrowNext(page: Int): ItemStack {
-        val arrow = ItemStack(Material.ARROW, page)
+    fun arrowNext(): ItemStack {
+        val arrow = ItemStack(Material.HOPPER)
         arrow.itemMeta<ItemMeta> {
-            setDisplayName("§b[§5系统§b] §6下一页")
+            setDisplayName("&b[&5系统&b] &6下一页".colorize())
         }
         return arrow
     }
@@ -46,7 +57,7 @@ class UIComponent {
     fun woolAccept(): ItemStack {
         val wool = ItemStack(Material.GREEN_WOOL)
         wool.itemMeta<ItemMeta> {
-            setDisplayName("§b[§5系统§b] §a确认")
+            setDisplayName("&b[&5系统&b] &a确认".colorize())
         }
         return wool
     }
@@ -54,7 +65,7 @@ class UIComponent {
     fun woolDecline(): ItemStack {
         val wool = ItemStack(Material.RED_WOOL)
         wool.itemMeta<ItemMeta> {
-            setDisplayName("§b[§5系统§b] §c取消")
+            setDisplayName("&b[&5系统&b] &c取消".colorize())
         }
         return wool
     }
@@ -78,5 +89,4 @@ class UIComponent {
         }
         return stack
     }
-
 }

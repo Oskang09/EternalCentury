@@ -1,8 +1,10 @@
-package com.ec.service
+package com.ec.logger
 
 import com.google.gson.JsonObject
-import dev.reactant.reactant.core.component.Component
-import kotlinx.coroutines.*
+import de.tr7zw.nbtapi.data.PlayerData
+import dev.reactant.reactant.extra.config.type.MultiConfigs
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.apache.commons.lang.exception.ExceptionUtils
@@ -10,21 +12,26 @@ import org.bukkit.Bukkit
 import java.io.IOException
 import java.net.URL
 import java.text.SimpleDateFormat
+import java.time.Instant
 import java.util.*
 import javax.net.ssl.HttpsURLConnection
 
-@Component
-class LoggerService {
+object Logger {
+    private val MUTEX = Mutex()
+    private const val DISCORD_WEBHOOK: String = "https://discordapp.com/api/webhooks/753560505255460894/x1Px1wNlKslV1TVnEf5fV-AD60Aj8xxfMq7He2A6mSsBEsFJVejmdGF_jV3kPiKfICeL"
+    private val DATE_FORMAT: SimpleDateFormat = SimpleDateFormat("yyyy/MM/dd HH:mm:ss")
+    private val MALAYSIA_TIMEZONE: TimeZone = TimeZone.getTimeZone("Asia/Kuala_Lumpur")
+    private val TRACK_ID_FORMAT: SimpleDateFormat = SimpleDateFormat("yyyyMMddHHmmssSS")
+    private lateinit var issues: MultiConfigs<Issue>;
 
-    companion object {
-        private val MUTEX = Mutex()
-        private const val DISCORD_WEBHOOK: String = "https://discordapp.com/api/webhooks/753560505255460894/x1Px1wNlKslV1TVnEf5fV-AD60Aj8xxfMq7He2A6mSsBEsFJVejmdGF_jV3kPiKfICeL"
-        private val DATE_FORMAT: SimpleDateFormat = SimpleDateFormat("yyyy/MM/dd HH:mm:ss")
-        private val MALAYSIA_TIMEZONE: TimeZone = TimeZone.getTimeZone("Asia/Kuala_Lumpur")
+    fun onInitialize(issueConfig: MultiConfigs<Issue>) {
+        issues = issueConfig
     }
 
     private fun generateTrackId(): String {
-        return UUID.randomUUID().toString()
+        val id = TRACK_ID_FORMAT.format(Date())
+        Thread.sleep(1)
+        return id
     }
 
     private fun build(trackId: String, title: String, message: String, exception: Exception?): List<String> {
@@ -47,6 +54,25 @@ class LoggerService {
         }
         messages.add("------------- ------------- -------------")
         return messages
+    }
+
+    fun withTracker(title: String, message: String, action: LogTracker): String? {
+        try {
+            action.track()
+        } catch (e: Exception) {
+            val id = generateTrackId()
+            issues.getOrPut("${id}.json") {
+                return@getOrPut Issue(
+                    id = id,
+                    title = title,
+                    message = message,
+                    stack = e.stackTraceToString().replace("\t", "  ").split("\r\n"),
+                    timestamp = DATE_FORMAT.format(Calendar.getInstance(MALAYSIA_TIMEZONE).time),
+                )
+            }.subscribe().dispose()
+            return id
+        }
+        return null
     }
 
     fun toDiscord(id: String?, title: String, message: String, exception: Exception): String {
@@ -77,10 +103,6 @@ class LoggerService {
         return trackId
     }
 
-    fun toConsole(message: String) {
-        Bukkit.getLogger().info(message)
-    }
-
     fun toConsole(id: String?, title: String, message: String, exception: Exception): String {
         var trackId = id
         if (trackId == null) {
@@ -99,7 +121,4 @@ class LoggerService {
 
         return trackId
     }
-
-
-
 }

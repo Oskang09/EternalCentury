@@ -1,7 +1,7 @@
 package com.ec.extension.title
 
 import com.ec.extension.GlobalManager
-import com.ec.extension.player.ECPlayer
+import com.ec.config.model.ECPlayer
 import org.bukkit.inventory.ItemStack
 
 abstract class TitleAPI(val id: String, val position: Int) {
@@ -11,7 +11,7 @@ abstract class TitleAPI(val id: String, val position: Int) {
         this.globalManager = globalManager
     }
 
-    abstract fun uiDisplay(stack: ItemStack): ItemStack;
-    abstract fun display(): String;
+    abstract fun getItemStack(stack: ItemStack): ItemStack;
+    abstract fun getDisplay(): String;
     abstract fun unlockCondition(ecPlayer: ECPlayer): Boolean;
 }
