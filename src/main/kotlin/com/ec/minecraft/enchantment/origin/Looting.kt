@@ -1,11 +1,11 @@
 package com.ec.minecraft.enchantment.origin
 
-import com.ec.config.model.Emoji
+import com.ec.model.Emoji
 import com.ec.extension.enchantment.EnchantmentAPI
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
 
-class Looting: EnchantmentAPI("bane_of_arthropods") {
+class Looting: EnchantmentAPI("looting") {
 
     override fun getEmoji(): Emoji {
         return Emoji.SWORD
@@ -32,10 +32,6 @@ class Looting: EnchantmentAPI("bane_of_arthropods") {
 
     override fun getStartLevel(): Int {
         return 1
-    }
-
-    override fun isConflict(enchantment: EnchantmentAPI): Boolean {
-        return false
     }
 
     override fun getOrigin(): Enchantment {

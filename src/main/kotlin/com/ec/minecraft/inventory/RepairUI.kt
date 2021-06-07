@@ -51,9 +51,14 @@ class RepairUI: UIProvider<RepairUI.RepairUIProps>("repair") {
             val maxDurability = mainHand.type.maxDurability
             val repairDamage = maxDurability - currentDamage
 
-            repairRequired = (globalManager.serverConfig.repairPrice * repairDamage).toDouble()
+            val nbt = globalManager.items.deserializeFromItem(mainHand)
+            nbt?.enchantments?.forEach { (_, level) ->
+                repairRequired += (level * globalManager.serverConfig.repairPrice)
+            }
+
+            repairRequired = ((globalManager.serverConfig.repairPrice * repairDamage) * globalManager.serverConfig.repairRate).toDouble()
         }
-        return RepairUIProps(mainHand, repairRequired)
+        return RepairUIProps(mainHand, repairRequired )
     }
 
     override val render = declareComponent<RepairUIProps> { props ->

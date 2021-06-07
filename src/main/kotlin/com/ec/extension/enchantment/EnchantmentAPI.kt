@@ -1,12 +1,11 @@
 package com.ec.extension.enchantment
 
+import com.ec.model.Emoji
 import com.ec.extension.GlobalManager
-import com.ec.config.model.Emoji
 import com.ec.util.RomanUtil.toRoman
 import com.ec.util.StringUtil.colorize
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
-import org.bukkit.enchantments.EnchantmentTarget
 
 abstract class EnchantmentAPI(val id: String) {
 
@@ -20,7 +19,6 @@ abstract class EnchantmentAPI(val id: String) {
     abstract fun getLore(): String
     abstract fun getMaxLevel(): Int
     abstract fun getStartLevel(): Int
-    abstract fun isConflict(enchantment: EnchantmentAPI): Boolean
 
     open fun getOrigin(): Enchantment? {
         return null
@@ -30,15 +28,12 @@ abstract class EnchantmentAPI(val id: String) {
         return listOf(Material.BOOK, Material.ENCHANTED_BOOK)
     }
 
-    fun getDisplayLore(material: Material?, level: Int): String {
-        var emojiString = ""
-        if (material != null) {
-            if (baseSupportedMaterial().contains(material) || isSupportedMaterial().contains(material)) {
-                emojiString = "&e" +getEmoji().text + " "
-            }
-        }
+    fun isSupported(material: Material): Boolean {
+        return baseSupportedMaterial().contains(material) || isSupportedMaterial().contains(material)
+    }
 
-        return (emojiString + "&7" + getLore() + " " + level.toRoman()).colorize()
+    fun getDisplayLore(level: Int): String {
+        return ("&e" +getEmoji().text + " &7" + getLore() + " " + level.toRoman()).colorize()
     }
 
 }

@@ -1,7 +1,7 @@
 package com.ec.extension.title
 
 import com.ec.extension.GlobalManager
-import com.ec.config.model.ECPlayer
+import com.ec.model.player.ECPlayer
 import org.bukkit.inventory.ItemStack
 
 abstract class TitleAPI(val id: String, val position: Int) {

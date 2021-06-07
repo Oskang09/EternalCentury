@@ -1,4 +1,4 @@
-package com.ec.config.model
+package com.ec.model
 
 // ref: https://forum.maestrea.com/threads/minecraft-symbols-emoticons-and-characters.11264/
 enum class Emoji(val text: String) {

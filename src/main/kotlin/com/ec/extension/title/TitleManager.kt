@@ -1,8 +1,12 @@
 package com.ec.extension.title
 
+import com.ec.database.Players
+import com.ec.database.Titles
 import com.ec.extension.GlobalManager
+import com.ec.util.StringUtil.generateUniqueID
 import dev.reactant.reactant.core.component.Component
 import org.bukkit.entity.Player
+import org.jetbrains.exposed.sql.insert
 import java.time.Instant
 import java.util.*
 
@@ -26,19 +30,25 @@ class TitleManager {
     }
 
     fun checkPlayerTitleAvailability(player: Player) {
-        val ecPlayer = globalManager.players.getByPlayer(player)!!
-        ecPlayer.ensureUpdate("check player availability") { _ ->
-            titles.keys.intersect(ecPlayer.data.availableTitles.keys).forEach {
-                val title = titles[it]!!
+        val ecPlayer = globalManager.players.getByPlayer(player)
+        ecPlayer.ensureUpdate("check player title availability", isAsync = true) {
+            val playerTitles = ecPlayer.getTitles()
+            titles.keys.intersect(playerTitles).forEach { titleKey ->
+                val title = titles[titleKey]!!
                 if (title.unlockCondition(ecPlayer)) {
-                    ecPlayer.data.availableTitles[title.id] = Instant.now().epochSecond
+                    Titles.insert {
+                        it[id] = "".generateUniqueID()
+                        it[playerId] = ecPlayer.database[Players.id]
+                        it[titleId] = title.id
+                        it[unlockedAt] = Instant.now().epochSecond
+                    }
                 }
             }
         }
     }
 
     fun getPlayerActiveTitle(player: Player): TitleAPI? {
-        val ecPlayer = globalManager.players.getByPlayer(player)!!
-        return titles[ecPlayer.data.currentTitle]
+        val ecPlayer = globalManager.players.getByPlayer(player)
+        return titles[ecPlayer.database[Players.currentTitle]]
     }
 }

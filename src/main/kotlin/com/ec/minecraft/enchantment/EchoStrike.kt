@@ -1,6 +1,6 @@
 package com.ec.minecraft.enchantment
 
-import com.ec.config.model.Emoji
+import com.ec.model.Emoji
 import com.ec.extension.enchantment.EnchantmentAPI
 import org.bukkit.Material
 
@@ -31,10 +31,6 @@ class EchoStrike: EnchantmentAPI("echo_strike") {
 
     override fun getStartLevel(): Int {
         return 1
-    }
-
-    override fun isConflict(enchantment: EnchantmentAPI): Boolean {
-        return false
     }
 
 }

@@ -1,6 +1,8 @@
 package com.ec.extension
 
-import com.ec.config.ServerData
+import com.ec.ECCore
+import com.ec.config.ServerConfig
+import com.ec.extension.discord.DiscordManager
 import com.ec.extension.enchantment.EnchantmentManager
 import com.ec.extension.inventory.UIComponent
 import com.ec.extension.inventory.UIManager
@@ -10,16 +12,14 @@ import com.ec.extension.title.TitleManager
 import com.ec.extension.trait.TraitManager
 import com.ec.extension.player.PlayerManager
 import com.ec.extension.point.PointManager
-import com.ec.logger.Issue
-import com.ec.logger.Logger
 import com.ec.service.*
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.component.lifecycle.LifeCycleHook
 import dev.reactant.reactant.core.dependency.injection.Inject
-import dev.reactant.reactant.extra.config.type.MultiConfigs
 import dev.reactant.reactant.service.spec.config.Config
 import dev.reactant.reactant.service.spec.server.EventService
 import dev.reactant.reactant.service.spec.server.SchedulerService
+import org.bukkit.Bukkit
 
 @Component
 class GlobalManager(
@@ -33,14 +33,15 @@ class GlobalManager(
     val traits: TraitManager,
     val points: PointManager,
     val items: ItemManager,
+    val discord: DiscordManager,
     val inventory: UIManager,
     val component: UIComponent,
 
     // Services
     val economy: EconomyService,
     val permission: PermissionService,
-    val chat: ChatService,
     val message: MessageService,
+    private val commands: CommandService,
 
     // Libraries
     val events: EventService,
@@ -48,14 +49,25 @@ class GlobalManager(
 
     // Configurations
     @Inject("plugins/server-data/server.json")
-    private val serverConfigFile: Config<ServerData>,
-    @Inject("plugins/server-data/issues")
-    private val issueConfigFile: MultiConfigs<Issue>
+    private val serverConfigFile: Config<ServerConfig>
 ): LifeCycleHook {
 
-    val serverConfig: ServerData = serverConfigFile.content
+    val serverConfig: ServerConfig = serverConfigFile.content
+
+    fun runInMainThread(action: () -> Unit) {
+        Bukkit.getScheduler().runTask(ECCore.instance, action)
+    }
+
+    override fun onDisable() {
+        serverConfigFile.save().subscribe()
+    }
 
     override fun onEnable() {
+        economy.onInitialize(this)
+        permission.onInitialize(this)
+        commands.onInitialize(this)
+        discord.onInitialize(this)
+
         enchantments.onInitialize(this)
         placeholders.onInitialize(this)
         players.onInitialize(this)
@@ -64,8 +76,6 @@ class GlobalManager(
         traits.onInitialize(this)
         inventory.onInitialize(this)
         items.onInitialize(this)
-
-        Logger.onInitialize(issueConfigFile)
     }
 
 }

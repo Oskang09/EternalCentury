@@ -1,5 +1,7 @@
 package com.ec.extension.point
 
+import com.ec.database.model.point.PointDetail
+import com.ec.database.model.point.PointInfo
 import com.ec.extension.GlobalManager
 
 abstract class PointAPI(val id: String) {
@@ -9,5 +11,5 @@ abstract class PointAPI(val id: String) {
         this.globalManager = globalManager
     }
 
-    abstract fun getGrade(point: Int): Int;
+    abstract fun getGrade(point: PointDetail): Int;
 }

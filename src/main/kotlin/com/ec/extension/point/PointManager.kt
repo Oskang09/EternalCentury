@@ -1,11 +1,20 @@
 package com.ec.extension.point
 
-import com.ec.config.model.PointHistory
-import com.ec.config.model.PointInfo
-import com.ec.config.model.PointType
+import com.ec.database.Players
+import com.ec.database.Points
+import com.ec.database.model.point.PointDetail
+import com.ec.database.model.point.PointInfo
+import com.ec.database.model.point.PointType
 import com.ec.extension.GlobalManager
+import com.ec.util.StringUtil.generateUniqueID
 import dev.reactant.reactant.core.component.Component
 import org.bukkit.entity.Player
+import org.jetbrains.exposed.sql.andWhere
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.transactions.transaction
+import java.time.Instant
+import kotlin.reflect.jvm.internal.impl.descriptors.PossiblyInnerType
 
 @Component
 class PointManager {
@@ -21,32 +30,38 @@ class PointManager {
         }
     }
 
-    fun updatePlayerPoint(player: Player, name: String, point: Int, type: PointType) {
-        val ecPlayer = globalManager.players.getByPlayer(player)!!
-        ecPlayer.ensureUpdate("update points") { it ->
-            it.content.pointHistory.add(
-                PointHistory(
-                    point = name,
-                    balance = point,
-                    type = type
-                )
-            )
+    fun depositPlayerPoint(player: Player, name: String, point: Double) {
+        val ecPlayer = globalManager.players.getByPlayer(player)
+        ecPlayer.ensureUpdate("update points") {
+            Points.insert {
+                it[id] = "".generateUniqueID()
+                it[playerId] = ecPlayer.database[Players.id]
+                it[Points.type] = PointType.DEPOSIT
+                it[Points.point] = name
+                it[actionAt] = Instant.now().epochSecond
+                it[balance] = point
+            }
 
             val info = getPointByNameFromPlayer(name, player)
-            info.total = it.content.pointHistory.filter { it.type == PointType.DEPOSIT }.sumOf { it.balance }
-            info.balance += info.total - it.content.pointHistory.filter { it.type == PointType.WITHDRAW }
-                .sumOf { it.balance }
-            info.grade = getGradeByPoint(name, info.total)
-            it.content.points[name] = info
+            var nextBalance = PointDetail(
+                total = Points
+                    .select { Points.playerId eq ecPlayer.database[Players.id] }
+                    .andWhere { Points.type eq PointType.DEPOSIT }
+                    .sumOf { it[Points.balance] },
+                balance = info.balance + point,
+                lastUpdatedAt = Instant.now().epochSecond
+            )
+            nextBalance.grade = getGradeByPoint(name, nextBalance)
+            ecPlayer.database[Players.points].points[name] = nextBalance
         }
     }
 
-    fun getPointByNameFromPlayer(name: String, player: Player): PointInfo {
-        val ecPlayer = globalManager.players.getByPlayer(player)!!
-        return ecPlayer.data.points[name] ?: PointInfo(0, 0, 0)
+    fun getPointByNameFromPlayer(name: String, player: Player): PointDetail {
+        val ecPlayer = globalManager.players.getByPlayer(player)
+        return ecPlayer.database[Players.points].points[name] ?: PointDetail()
     }
 
-    fun getGradeByPoint(name: String, value: Int): Int {
+    fun getGradeByPoint(name: String, value: PointDetail): Int {
         val point = points[name]!!
         return point.getGrade(value)
     }

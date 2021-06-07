@@ -29,10 +29,12 @@ repositories {
     maven { url = URI.create("https://oss.sonatype.org/content/repositories/snapshots/") }
     maven { url = URI.create("https://repo.codemc.org/repository/maven-public/") }
     maven { url = URI.create("https://jitpack.io") }
+    maven { url = URI.create("https://m2.dv8tion.net/releases") }
 }
 
 dependencies {
     compileOnly(kotlin("stdlib-jdk8", kotlinVersion))
+    testImplementation(kotlin("test"))
 
     compileOnly("dev.reactant:reactant:0.2.3")
     compileOnly("dev.reactant:resquare:0.0.1-SNAPSHOT")
@@ -40,34 +42,46 @@ dependencies {
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
     compileOnly("com.github.Oskang09:UniversalGUI:v3.0.0")
     compileOnly("com.github.PlaceholderAPI:PlaceholderAPI:2.10.9")
+    compileOnly("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.3")
     compileOnly(fileTree("src/main/libs"))
 
-    shadow("net.oneandone.reflections8:reflections8:0.11.5")
-    shadow("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0") {
-        exclude(group = "org.jetbrains.kotlin", module = "*")
+    implementation("org.jetbrains.exposed:exposed-core:0.32.1")
+    implementation("org.jetbrains.exposed:exposed-dao:0.32.1")
+    implementation("org.jetbrains.exposed:exposed-jdbc:0.32.1")
+    implementation("org.xerial:sqlite-jdbc:3.30.1")
+
+    implementation("xyz.xenondevs:particle:1.5.1")
+    implementation("net.oneandone.reflections8:reflections8:0.11.5")
+    implementation("com.github.Oskang09:RM-API-SDK-KOTLIN:0.0.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
+    implementation("com.github.MinnDevelopment:jda-reactor:1.3.0")
+    implementation("net.dv8tion:JDA:4.2.1_253") {
+        exclude(module = "opus-java")
     }
 }
-
 
 val sourcesJar by tasks.registering(Jar::class) {
     dependsOn(JavaPlugin.CLASSES_TASK_NAME)
     archiveClassifier.set("sources")
     from(sourceSets.main.get().allSource)
+    manifest {
+        attributes(mapOf("Main-Class" to "$group/ECCore"))
+    }
 }
 
-    val shadowJar = (tasks["shadowJar"] as ShadowJar).apply {
-        configurations = listOf(project.configurations.shadow.get())
-    }
+val shadowJar = (tasks["shadowJar"] as ShadowJar).apply {
+    exclude("kotlin/**")
+}
 
-    val deployPath: String by project
-    val deployPlugin by tasks.registering(Copy::class) {
-        dependsOn(shadowJar)
+val deployPath: String by project
+val deployPlugin by tasks.registering(Copy::class) {
+    dependsOn(shadowJar)
 
-        System.getenv("PLUGIN_DEPLOY_PATH")?.let {
-            from(shadowJar)
-            into(it)
-        }
+    System.getenv("PLUGIN_DEPLOY_PATH")?.let {
+        from(shadowJar)
+        into(it)
     }
+}
 
 val build = (tasks["build"] as Task).apply {
     arrayOf(

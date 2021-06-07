@@ -1,4 +1,4 @@
-package com.ec.config.model
+package com.ec.database.model.point
 
 enum class PointType {
     DEPOSIT,

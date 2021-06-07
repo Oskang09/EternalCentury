@@ -1,11 +1,11 @@
 package com.ec.minecraft.enchantment.origin
 
-import com.ec.config.model.Emoji
+import com.ec.model.Emoji
 import com.ec.extension.enchantment.EnchantmentAPI
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
 
-class Unbreaking: EnchantmentAPI("thorns") {
+class Unbreaking: EnchantmentAPI("unbreaking") {
 
     override fun getEmoji(): Emoji {
         return Emoji.TOOLS
@@ -13,6 +13,12 @@ class Unbreaking: EnchantmentAPI("thorns") {
 
     override fun isSupportedMaterial(): List<Material> {
         return listOf(
+            Material.NETHERITE_SWORD,
+            Material.DIAMOND_SWORD,
+            Material.GOLDEN_SWORD,
+            Material.IRON_SWORD,
+            Material.STONE_SWORD,
+            Material.WOODEN_SWORD,
             Material.LEATHER_BOOTS,
             Material.CHAINMAIL_BOOTS,
             Material.IRON_BOOTS,
@@ -82,10 +88,6 @@ class Unbreaking: EnchantmentAPI("thorns") {
 
     override fun getStartLevel(): Int {
         return 1
-    }
-
-    override fun isConflict(enchantment: EnchantmentAPI): Boolean {
-        return false
     }
 
     override fun getOrigin(): Enchantment {

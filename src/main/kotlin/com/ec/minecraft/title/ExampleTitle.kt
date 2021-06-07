@@ -1,7 +1,7 @@
 package com.ec.minecraft.title
 
 import com.ec.extension.GlobalManager
-import com.ec.config.model.ECPlayer
+import com.ec.model.player.ECPlayer
 import com.ec.extension.title.TitleAPI
 import com.ec.util.StringUtil.colorize
 import dev.reactant.reactant.extensions.itemMeta

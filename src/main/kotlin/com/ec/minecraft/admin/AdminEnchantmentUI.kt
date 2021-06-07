@@ -1,11 +1,11 @@
 package com.ec.minecraft.admin
 
+import com.ec.model.ItemNBT
 import com.ec.extension.inventory.UIBase
 import com.ec.extension.inventory.component.PaginationItem
 import com.ec.extension.inventory.component.PaginationUI
 import com.ec.extension.inventory.component.PaginationUIProps
 import com.ec.util.StringUtil.colorize
-import de.tr7zw.nbtapi.NBTItem
 import dev.reactant.reactant.extensions.itemMeta
 import org.bukkit.Material
 import org.bukkit.entity.HumanEntity
@@ -33,7 +33,7 @@ class AdminEnchantmentUI: PaginationUI("admin-enchantment") {
                 val item = ItemStack(Material.ENCHANTED_BOOK)
                 item.itemMeta<EnchantmentStorageMeta> {
                     val newLores = lore ?: mutableListOf()
-                    newLores.add(it.getDisplayLore(item.type, level))
+                    newLores.add(it.getDisplayLore(level))
                     lore = newLores.colorize()
 
                     it.getOrigin()?.let { ench ->
@@ -43,15 +43,15 @@ class AdminEnchantmentUI: PaginationUI("admin-enchantment") {
                     addItemFlags(*ItemFlag.values())
                 }
 
-                val nbt = NBTItem(item)
-                nbt.setObject("ec_ench", mutableMapOf(
+                val itemNbt = ItemNBT(mutableMapOf(
                     it.id to level
                 ))
+                globalManager.items.serializeToItem(item, itemNbt)
 
                 items.add(PaginationItem(
-                    item = nbt.item,
+                    item = item,
                     click = { event ->
-                        event.whoClicked.inventory.addItem(nbt.item)
+                        event.whoClicked.inventory.addItem(item)
                     }
                 ))
             }
