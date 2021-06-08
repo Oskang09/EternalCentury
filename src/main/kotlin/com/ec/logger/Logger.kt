@@ -47,7 +47,7 @@ object Logger {
                     it[title] = valTitle
                     it[message] = valMessage
                     it[timestamp] = DATE_FORMAT.format(Calendar.getInstance(MALAYSIA_TIMEZONE).time)
-                    it[stack] = e.stackTraceToString().replace("\t", "  ").split("\r\n").toTypedArray()
+                    it[stack] = e.stackTraceToString().replace("\t", "  ").split("\r\n").toMutableList()
                 }
             }
             return generatedId

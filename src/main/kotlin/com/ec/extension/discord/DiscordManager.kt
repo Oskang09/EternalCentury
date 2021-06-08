@@ -4,11 +4,11 @@ import club.minnced.jda.reactor.ReactiveEventManager
 import club.minnced.jda.reactor.on
 import club.minnced.jda.reactor.onMessage
 import com.ec.database.Players
+import com.ec.database.model.ChatType
 import com.ec.database.model.economy.EconomyInfo
-import com.ec.database.model.point.PointDetail
 import com.ec.database.model.point.PointInfo
 import com.ec.extension.GlobalManager
-import com.ec.model.HotObservable
+import com.ec.model.ObservableObject
 import com.ec.util.RandomUtil
 import com.ec.util.StringUtil.generateUniqueID
 import dev.reactant.reactant.core.component.Component
@@ -20,10 +20,12 @@ import net.dv8tion.jda.api.OnlineStatus
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Role
+import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent
 import net.dv8tion.jda.api.requests.GatewayIntent
 import org.bukkit.entity.Player
-import org.bukkit.util.StringUtil
+import org.bukkit.event.EventPriority
+import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.awt.Color
@@ -38,7 +40,8 @@ class DiscordManager: LifeCycleHook {
     private lateinit var guild: Guild
     private lateinit var newbieRole: Role
     private lateinit var playerRole: Role
-    private lateinit var verifyObservable: HotObservable<MessageReactionAddEvent>
+    private lateinit var verifyObservableObject: ObservableObject<MessageReactionAddEvent>
+    private var channels: MutableMap<ChatType, TextChannel> = mutableMapOf()
 
     fun onInitialize(globalManager: GlobalManager) {
         this.globalManager = globalManager
@@ -57,6 +60,28 @@ class DiscordManager: LifeCycleHook {
         guild = jda.getGuildById(851153973432156191)!!
         newbieRole = guild.getRoleById(851390242740895754)!!
         playerRole = guild.getRoleById(851158488075862077)!!
+
+        mutableMapOf(
+            ChatType.GLOBAL to "851155982558167050",
+            ChatType.MCMMO to "851156370334285864",
+            ChatType.SURVIVAL to "851154328286658590",
+            ChatType.PVPVE to "851155341534429204"
+        ).forEach { (chatType, channelId) ->
+            channels[chatType] = guild.getTextChannelById(channelId) !!
+        }
+
+        globalManager.events {
+
+            AsyncPlayerChatEvent::class
+                .observable(false, EventPriority.LOWEST)
+                .subscribe {
+                    it.isCancelled = true
+
+                    val sentMessage = it.message
+                    channels[ChatType.GLOBAL]?.sendMessage(sentMessage)
+                }
+
+        }
 
         val embed = EmbedBuilder();
         embed.setColor(Color.GREEN)
@@ -79,8 +104,8 @@ class DiscordManager: LifeCycleHook {
             globalManager.serverConfig.discordInfoMessage = serverStatusMessage.editMessage(embed.build()).complete().id
         }
 
-        verifyObservable = HotObservable(jda.on())
-        verifyObservable.subscribe({ it.member?.roles?.contains(newbieRole) == true && it.messageId == "851396531298238477" }) {
+        verifyObservableObject = ObservableObject(jda.on())
+        verifyObservableObject.subscribe({ it.member?.roles?.contains(newbieRole) == true && it.messageId == "851396531298238477" }) {
             guild.addRoleToMember(it.member!!.idLong, newbieRole).complete()
         }
 
@@ -113,6 +138,8 @@ class DiscordManager: LifeCycleHook {
                         data[points] = PointInfo()
                         data[lastOnlineAt] = Instant.now().epochSecond
                         data[enchantmentRandomSeed] = RandomUtil.randomInteger(99999)
+                        data[channels] = ChatType.values().toMutableList()
+                        data[blockedTeleport] = mutableListOf()
                     }
                 }
 
@@ -137,6 +164,8 @@ class DiscordManager: LifeCycleHook {
         embed.addField("伺服IP", "survival.oskadev.com", true)
         embed.setFooter("伺服器咨询")
         embed.setTimestamp(Instant.now())
+
+        verifyObservableObject.dispose()
 
         val serverStatusMessage = guild.getTextChannelById(851153973960114178)!!.retrieveMessageById(globalManager.serverConfig.discordInfoMessage).complete()
         globalManager.serverConfig.discordInfoMessage = serverStatusMessage.editMessage(embed.build()).complete().id
@@ -163,7 +192,7 @@ class DiscordManager: LifeCycleHook {
         val channel = user.openPrivateChannel().complete()
         val message = channel.sendMessage(embed.build()).complete()
 
-        verifyObservable.subscribeOnceWithTimeout(
+        verifyObservableObject.subscribeOnceWithTimeout(
             { event -> !event.user!!.isBot && event.messageId == message.id },
             timeout = 30000L, onTimeout = { callback(false) }
         ) {

@@ -1,6 +1,5 @@
 package com.ec.extension.player
 
-import com.ec.database.Issues
 import com.ec.database.Players
 import com.ec.extension.GlobalManager
 import com.ec.logger.Logger
@@ -10,14 +9,13 @@ import dev.reactant.reactant.core.component.Component
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent
-import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.inventory.InventoryOpenEvent
+import org.bukkit.event.player.*
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
-import java.lang.IllegalStateException
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.*
@@ -45,34 +43,87 @@ class PlayerManager {
                     it.allow()
                 }
 
+             PlayerInteractEvent::class
+                 .observable(true, EventPriority.HIGHEST)
+                 .filter { globalManager.players.getByPlayer(it.player).state != ECPlayerState.AUTHENTICATED }
+                 .subscribe {
+                     it.isCancelled = true
+                 }
+
+             InventoryClickEvent::class
+                 .observable(true, EventPriority.HIGHEST)
+                 .filter { globalManager.players.getByPlayer(it.whoClicked as Player).state != ECPlayerState.AUTHENTICATED }
+                 .subscribe {
+                     it.isCancelled = true
+                 }
+
+             PlayerDropItemEvent::class
+                 .observable(true, EventPriority.HIGHEST)
+                 .filter { globalManager.players.getByPlayer(it.player).state != ECPlayerState.AUTHENTICATED }
+                 .subscribe {
+                     it.isCancelled = true
+                 }
+
+             PlayerMoveEvent::class
+                 .observable(true, EventPriority.HIGHEST)
+                 .filter { globalManager.players.getByPlayer(it.player).state != ECPlayerState.AUTHENTICATED }
+                 .subscribe {
+                     val previous = it.from
+                     val to = it.to
+                     val player = it.player
+                     if (previous.z != to?.z && previous.x != to?.x) {
+                         player.teleport(it.from)
+                     }
+                 }
+
+             PlayerCommandPreprocessEvent::class
+                 .observable(true, EventPriority.HIGHEST)
+                 .subscribe {
+                     if (globalManager.players.getByPlayer(it.player).state != ECPlayerState.AUTHENTICATED) {
+                         it.isCancelled = true
+                         return@subscribe
+                     }
+
+                     if (globalManager.serverConfig.adminPlayers.contains(it.player.name)) {
+                         return@subscribe
+                     }
+
+                     val command = it.message.split(" ")[0].trimStart('/')
+                     if (!globalManager.serverConfig.allowedCommands.contains(command)) {
+                         it.isCancelled = true
+                     }
+                 }
+
             PlayerJoinEvent::class
                 .observable(EventPriority.HIGHEST)
                 .subscribe { event ->
                     val player = event.player
-                    Logger.withTrackerPlayerEvent(player, event, "PlayerManager.PlayerJoinEvent" , "player ${player.uniqueId} error occurs when join") {
-                        val ecPlayer = ECPlayer(event.player)
-                        val discordTag = ecPlayer.database[Players.discordTag]
+                    val ecPlayer = ECPlayer(event.player)
+                    ecPlayer.playerJoinedAt = Instant.now()
+                    ecPlayer.state = ECPlayerState.LOGIN
+                    players[player.uniqueId] = ecPlayer
 
-                        ecPlayer.playerJoinedAt = Instant.now()
-                        ecPlayer.state = ECPlayerState.LOGIN
-                        val isSent = globalManager.discord.sendVerifyMessage(event.player, discordTag, "登入账号") {
-                            if (it) {
-                                ecPlayer.state = ECPlayerState.AUTHENTICATED
-                                globalManager.runInMainThread {
-                                    event.player.sendMessage(globalManager.message.system("Discord 登入验证成功！"))
+                    globalManager.runOffMainThread {
+                        Logger.withTrackerPlayerEvent(player, event, "PlayerManager.PlayerJoinEvent" , "player ${player.uniqueId} error occurs when join") {
+                            val discordTag = ecPlayer.database[Players.discordTag]
+                            val isSent = globalManager.discord.sendVerifyMessage(event.player, discordTag, "登入账号") {
+                                if (it) {
+                                    ecPlayer.state = ECPlayerState.AUTHENTICATED
+                                    globalManager.runInMainThread {
+                                        event.player.sendMessage(globalManager.message.system("Discord 登入验证成功！"))
+                                    }
+                                } else {
+                                    globalManager.runInMainThread {
+                                        event.player.kickPlayer(globalManager.message.system("Discord 登入验证失败！"))
+                                    }
                                 }
-                            } else {
+                            }
+                            if (!isSent) {
                                 globalManager.runInMainThread {
-                                    event.player.kickPlayer(globalManager.message.system("Discord 登入验证失败！"))
+                                    event.player.kickPlayer(globalManager.message.system("Discord $discordTag 用户不存在！"))
                                 }
                             }
                         }
-                        if (!isSent) {
-                            globalManager.runInMainThread {
-                                event.player.kickPlayer(globalManager.message.system("Discord $discordTag 用户不存在！"))
-                            }
-                        }
-                        players[player.uniqueId] = ecPlayer
                     }
                 }
 

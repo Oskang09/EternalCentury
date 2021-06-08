@@ -1,5 +1,6 @@
 package com.ec.database
 
+import com.ec.database.model.ChatType
 import com.ec.database.model.economy.EconomyInfo
 import com.ec.database.model.point.PointInfo
 import com.ec.database.types.array
@@ -19,5 +20,7 @@ object Players: Table() {
     val enchantmentRandomSeed = integer("enchantment_seed")
     val points = json("points", PointInfo::class.java)
     val permissions = array("permissions", String::class.java)
+    val channels = array("channels", ChatType::class.java)
+    val blockedTeleport = array("blocked_teleport", String::class.java)
     override val primaryKey = PrimaryKey(id)
 }

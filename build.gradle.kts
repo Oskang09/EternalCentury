@@ -30,6 +30,7 @@ repositories {
     maven { url = URI.create("https://repo.codemc.org/repository/maven-public/") }
     maven { url = URI.create("https://jitpack.io") }
     maven { url = URI.create("https://m2.dv8tion.net/releases") }
+    maven { url = URI.create("https://repo.minebench.de") }
 }
 
 dependencies {
@@ -50,6 +51,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-jdbc:0.32.1")
     implementation("org.xerial:sqlite-jdbc:3.30.1")
 
+    implementation("de.themoep:minedown:1.7.1-SNAPSHOT")
     implementation("xyz.xenondevs:particle:1.5.1")
     implementation("net.oneandone.reflections8:reflections8:0.11.5")
     implementation("com.github.Oskang09:RM-API-SDK-KOTLIN:0.0.2")

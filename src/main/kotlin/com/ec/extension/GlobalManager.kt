@@ -19,7 +19,12 @@ import dev.reactant.reactant.core.dependency.injection.Inject
 import dev.reactant.reactant.service.spec.config.Config
 import dev.reactant.reactant.service.spec.server.EventService
 import dev.reactant.reactant.service.spec.server.SchedulerService
+import javafx.application.Application.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import org.bukkit.Bukkit
+import kotlin.concurrent.thread
+import kotlin.coroutines.suspendCoroutine
 
 @Component
 class GlobalManager(
@@ -36,6 +41,7 @@ class GlobalManager(
     val discord: DiscordManager,
     val inventory: UIManager,
     val component: UIComponent,
+    val states: StateManager,
 
     // Services
     val economy: EconomyService,
@@ -56,6 +62,12 @@ class GlobalManager(
 
     fun runInMainThread(action: () -> Unit) {
         Bukkit.getScheduler().runTask(ECCore.instance, action)
+    }
+
+    fun runOffMainThread(action: () -> Unit) {
+        thread {
+            action()
+        }
     }
 
     override fun onDisable() {

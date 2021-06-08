@@ -1,18 +1,19 @@
 package com.ec.model
 
-import reactor.core.publisher.Flux
 import java.util.*
 import java.util.function.Consumer
 import java.util.function.Predicate
 import kotlin.concurrent.schedule
 
-class HotObservable<T>(observable: Flux<T>) where T: Any {
+abstract class Observable<T> where T: Any {
 
     private val subscriber: MutableList<Consumer<T>> = mutableListOf()
     private val subscriberOnce: MutableList<Consumer<T>> = mutableListOf()
     private val predicateSubscriber: MutableMap<Predicate<T>, Consumer<T>> = mutableMapOf()
     private val predicateSubscriberOnce: MutableMap<Predicate<T>, Consumer<T>> = mutableMapOf()
-    private val disposable = observable.subscribe {
+    abstract fun dispose()
+
+    fun onNext(it: T) {
         predicateSubscriber.keys
             .filter { predicate -> predicate.test(it) }
             .map { mapper -> predicateSubscriber[mapper] }
@@ -39,7 +40,6 @@ class HotObservable<T>(observable: Flux<T>) where T: Any {
             .forEach { consumer ->
                 consumer.accept(it)
             }
-
     }
 
     fun subscribe(predicate: Predicate<T>?, consumer: Consumer<T>): () -> Unit {
@@ -64,12 +64,7 @@ class HotObservable<T>(observable: Flux<T>) where T: Any {
     }
 
     fun subscribeOnceWithTimeout(predicate: Predicate<T>?, timeout: Long = 30000L, onTimeout: () -> Unit, consumer: Consumer<T>) {
-        if (predicate == null) {
-            subscriberOnce.add(consumer)
-        } else {
-            predicateSubscriberOnce[predicate] = consumer
-        }
-        Timer("", false).schedule(timeout) {
+        val timerTask = Timer("", false).schedule(timeout) {
             if (predicate == null) {
                 subscriberOnce.remove(consumer)
             } else {
@@ -77,14 +72,26 @@ class HotObservable<T>(observable: Flux<T>) where T: Any {
             }
             onTimeout()
         }
+
+        if (predicate == null) {
+            subscriberOnce.add {
+                timerTask.cancel()
+                consumer.accept(it)
+            }
+        } else {
+            predicateSubscriberOnce[predicate] = Consumer {
+                timerTask.cancel()
+                consumer.accept(it)
+            }
+        }
     }
 
-    fun dispose() {
+    fun onDestroy() {
         predicateSubscriber.clear()
         predicateSubscriberOnce.clear()
         subscriber.clear()
         subscriberOnce.clear()
-        disposable.dispose()
+        dispose()
     }
 
 }
