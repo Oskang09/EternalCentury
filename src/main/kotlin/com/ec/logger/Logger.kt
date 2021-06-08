@@ -2,6 +2,7 @@ package com.ec.logger
 
 import com.ec.database.Issues
 import com.ec.database.Players
+import com.ec.database.types.array
 import com.ec.util.StringUtil.colorize
 import com.ec.util.StringUtil.generateUniqueID
 import org.bukkit.entity.Player
@@ -39,19 +40,17 @@ object Logger {
         try {
             action.track()
         } catch (e: Exception) {
-            return transaction {
-                return@transaction Issues.insert {
-                    it[id] = "".generateUniqueID()
+            val generatedId = "".generateUniqueID()
+            transaction {
+                Issues.insert {
+                    it[id] = generatedId
                     it[title] = valTitle
                     it[message] = valMessage
                     it[timestamp] = DATE_FORMAT.format(Calendar.getInstance(MALAYSIA_TIMEZONE).time)
-
-                    e.stackTraceToString().replace("\t", "  ").split("\r\n").forEach { str ->
-                        println(str)
-                        it[stack].add(str)
-                    }
-                } get(Players.id)
+                    it[stack] = e.stackTraceToString().replace("\t", "  ").split("\r\n").toTypedArray()
+                }
             }
+            return generatedId
         }
         return null
     }

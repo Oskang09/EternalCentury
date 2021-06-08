@@ -36,7 +36,7 @@ class PointManager {
             Points.insert {
                 it[id] = "".generateUniqueID()
                 it[playerId] = ecPlayer.database[Players.id]
-                it[Points.type] = PointType.DEPOSIT
+                it[type] = PointType.DEPOSIT
                 it[Points.point] = name
                 it[actionAt] = Instant.now().epochSecond
                 it[balance] = point

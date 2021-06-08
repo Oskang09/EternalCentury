@@ -1,6 +1,6 @@
 package com.ec.database
 
-import com.ec.database.types.stringArray
+import com.ec.database.types.array
 import org.jetbrains.exposed.sql.Table
 
 object Issues: Table() {
@@ -8,6 +8,6 @@ object Issues: Table() {
     val title = text("title")
     val message = text("message")
     val timestamp = varchar("timestamp", 20)
-    val stack = stringArray("stack")
+    val stack = array("stack", String::class.java)
     override val primaryKey = PrimaryKey(id)
 }

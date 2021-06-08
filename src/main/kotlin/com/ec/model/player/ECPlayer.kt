@@ -42,21 +42,13 @@ data class ECPlayer(var player: Player) {
     }
 
     @Throws(Exception::class)
-    fun ensureUpdate(action: String, isTransaction: Boolean = false, isAsync: Boolean = false, update: () -> Unit): Boolean {
+    fun ensureUpdate(action: String, isAsync: Boolean = false, update: () -> Unit): Boolean {
         var id: String? = null
         val dispatchers = if (isAsync) Dispatchers.IO else Dispatchers.Default
         runBlocking(dispatchers) {
             mutex.withLock {
-                if (isTransaction) {
+                Logger.withTrackerPlayer(player, "update player - ${uuid.toString()}", action) {
                     transaction {
-                        Logger.withTrackerPlayer(player, "update player - ${uuid.toString()}", action) {
-                            refreshPlayer()
-                            update()
-                            refreshPlayer()
-                        }
-                    }
-                } else {
-                    Logger.withTrackerPlayer(player, "update player - ${uuid.toString()}", action) {
                         refreshPlayer()
                         update()
                         refreshPlayer()

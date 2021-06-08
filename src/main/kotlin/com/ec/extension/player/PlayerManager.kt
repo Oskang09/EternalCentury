@@ -1,5 +1,6 @@
 package com.ec.extension.player
 
+import com.ec.database.Issues
 import com.ec.database.Players
 import com.ec.extension.GlobalManager
 import com.ec.logger.Logger
@@ -81,8 +82,7 @@ class PlayerManager {
                     val player = event.player
                     Logger.withTrackerPlayerEvent(player, event, "PlayerManager.PlayerQuitEvent" , "player ${player.uniqueId} error occurs when quit") {
                         val ecPlayer = players.remove(player.uniqueId)
-                        ecPlayer!!.ensureUpdate("saving player", isTransaction = true, isAsync = true) {
-                            throw IllegalStateException("testing error")
+                        ecPlayer!!.ensureUpdate("saving player", isAsync = true) {
                             Players.update({ Players.playerName eq player.name }) {
                                 it[playerName] = player.name
                                 it[uuid] = player.uniqueId.toString()

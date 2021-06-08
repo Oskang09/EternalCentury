@@ -1,10 +1,9 @@
 package com.ec.database
 
 import com.ec.database.model.economy.EconomyInfo
-import com.ec.database.model.point.PointDetail
 import com.ec.database.model.point.PointInfo
+import com.ec.database.types.array
 import com.ec.database.types.json
-import com.ec.database.types.stringArray
 import org.jetbrains.exposed.sql.Table
 
 object Players: Table() {
@@ -19,6 +18,6 @@ object Players: Table() {
     val balance = json("balance", EconomyInfo::class.java)
     val enchantmentRandomSeed = integer("enchantment_seed")
     val points = json("points", PointInfo::class.java)
-    val permissions = stringArray("permissions")
+    val permissions = array("permissions", String::class.java)
     override val primaryKey = PrimaryKey(id)
 }
