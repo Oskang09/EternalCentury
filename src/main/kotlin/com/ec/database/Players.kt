@@ -8,7 +8,7 @@ import org.jetbrains.exposed.sql.Table
 
 object Players: Table() {
     val id = varchar("id", 20)
-    val uuid = varchar("uuid", 30).uniqueIndex().nullable()
+    val uuid = varchar("uuid", 36).uniqueIndex().nullable()
     val playerName = varchar("player_name", 20).uniqueIndex()
     var discordTag = varchar("discord_tag", 50).uniqueIndex()
     val playTimes = long("play_times")
