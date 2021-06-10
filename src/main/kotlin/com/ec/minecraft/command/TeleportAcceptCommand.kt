@@ -14,7 +14,7 @@ import picocli.CommandLine
 internal class TeleportAcceptCommand(private val globalManager: GlobalManager): ReactantCommand() {
 
     @CommandLine.Parameters(
-        arity = "1",
+        index = "0",
         paramLabel = "玩家名称",
         description = ["你接受要传送的玩家名称"]
     )

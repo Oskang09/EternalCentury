@@ -4,5 +4,6 @@ enum class ChatType {
     GLOBAL,
     MCMMO,
     SURVIVAL,
-    PVPVE
+    PVPVE,
+    REDSTONE
 }

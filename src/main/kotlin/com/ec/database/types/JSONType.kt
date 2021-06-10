@@ -14,7 +14,7 @@ fun <T : Any> Table.json(
 
 class JSONType<out T: Any>(private val clazz: Class<T>, private val mapper: ObjectMapper): ColumnType() {
 
-    override var nullable: Boolean = true
+    override var nullable: Boolean = false
     override fun sqlType() = "TEXT"
 
     override fun valueFromDB(value: Any): Any {

@@ -9,6 +9,7 @@ import com.ec.database.model.economy.EconomyInfo
 import com.ec.database.model.point.PointInfo
 import com.ec.extension.GlobalManager
 import com.ec.model.ObservableObject
+import com.ec.model.player.ECPlayerState
 import com.ec.util.RandomUtil
 import com.ec.util.StringUtil.generateUniqueID
 import dev.reactant.reactant.core.component.Component
@@ -23,6 +24,7 @@ import net.dv8tion.jda.api.entities.Role
 import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent
 import net.dv8tion.jda.api.requests.GatewayIntent
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.AsyncPlayerChatEvent
@@ -65,7 +67,8 @@ class DiscordManager: LifeCycleHook {
             ChatType.GLOBAL to "851155982558167050",
             ChatType.MCMMO to "851156370334285864",
             ChatType.SURVIVAL to "851154328286658590",
-            ChatType.PVPVE to "851155341534429204"
+            ChatType.PVPVE to "851155341534429204",
+            ChatType.REDSTONE to "852191901225320478"
         ).forEach { (chatType, channelId) ->
             channels[chatType] = guild.getTextChannelById(channelId) !!
         }
@@ -73,14 +76,44 @@ class DiscordManager: LifeCycleHook {
         globalManager.events {
 
             AsyncPlayerChatEvent::class
-                .observable(false, EventPriority.LOWEST)
+                .observable(true, EventPriority.HIGHEST)
                 .subscribe {
                     it.isCancelled = true
+                    if (globalManager.players.getByPlayer(it.player).state != ECPlayerState.AUTHENTICATED) {
+                        return@subscribe
+                    }
 
-                    val sentMessage = it.message
-                    channels[ChatType.GLOBAL]?.sendMessage(sentMessage)
+                    val sender = it.player
+                    var message = it.message
+                    val chatType = when {
+                        message.startsWith("@mcmmo ") -> {
+                            message = message.replace("@mcmmo ", "")
+                            ChatType.MCMMO
+                        }
+                        message.startsWith("@survival ") -> {
+                            message = message.replace("@survival ", "")
+                            ChatType.SURVIVAL
+                        }
+                        message.startsWith("@pvpve") -> {
+                            message = message.replace("@survival ", "")
+                            ChatType.PVPVE
+                        }
+                        message.startsWith("@redstone") -> {
+                            message = message.replace("@redstone ", "")
+                            ChatType.REDSTONE
+                        }
+                        else -> ChatType.GLOBAL
+                    }
+                    channels[chatType]!!.sendMessage(sender.displayName + " : " + message).queue()
+
+                    Bukkit.getOnlinePlayers()
+                        .parallelStream()
+                        .filter { p -> !globalManager.players.getByPlayer(p).database[Players.ignoredPlayers].contains(sender.name) }
+                        .filter { p -> globalManager.players.getByPlayer(p).database[Players.channels].contains(chatType) }
+                        .forEach { p ->
+                            p.sendMessage(globalManager.message.playerChat(sender, chatType, message))
+                        }
                 }
-
         }
 
         val embed = EmbedBuilder();
@@ -88,7 +121,7 @@ class DiscordManager: LifeCycleHook {
         embed.setThumbnail("https://ngrok.oskadev.com/file/mc-logo")
         embed.setAuthor("永恒新世纪 Eternal Century ", "https://minecraft.oskadev.com", "https://ngrok.oskadev.com/file/mc-logo")
         embed.setTitle("伺服器状态 - 在线 ( Online )")
-        embed.setDescription("新来的玩家可以到 \'伺服规则\' 频道，同意接受规则后才能进行注册。")
+        embed.setDescription("新来的玩家可以到 \'伺服规则\' 频道，通过随便一个Reaction同意并接受规则后才能进行注册。")
         embed.addField("地区配置", "", true)
         embed.addField("人数限制", "50", true)
         embed.addField("目前版本", "0.0.1", true)
@@ -140,6 +173,7 @@ class DiscordManager: LifeCycleHook {
                         data[enchantmentRandomSeed] = RandomUtil.randomInteger(99999)
                         data[channels] = ChatType.values().toMutableList()
                         data[blockedTeleport] = mutableListOf()
+                        data[ignoredPlayers] = mutableListOf()
                     }
                 }
 
@@ -199,8 +233,8 @@ class DiscordManager: LifeCycleHook {
             callback(it.reactionEmote.asCodepoints == "U+2705")
         }
 
-        message.addReaction("✅").complete()
-        message.addReaction("❌").complete()
+        message.addReaction("✅").queue()
+        message.addReaction("❌").queue()
         return true
     }
 }

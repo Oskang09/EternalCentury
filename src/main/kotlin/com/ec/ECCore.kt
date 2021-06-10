@@ -6,6 +6,7 @@ import com.ec.service.PermissionService
 import dev.reactant.reactant.core.ReactantPlugin
 import net.milkbowl.vault.economy.Economy
 import net.milkbowl.vault.permission.Permission
+import org.bukkit.Bukkit
 import org.bukkit.plugin.ServicePriority
 import org.bukkit.plugin.java.JavaPlugin
 import org.jetbrains.exposed.sql.Database
@@ -29,12 +30,19 @@ class ECCore: JavaPlugin() {
         TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
 
         transaction {
-            SchemaUtils.createMissingTablesAndColumns(Economies, Issues, Players, Points, Titles)
+            SchemaUtils.createMissingTablesAndColumns(
+                Economies, Issues, Players, Points, Titles,
+                Votes, VoteRewards
+            )
+        }
+
+        val plugin = Bukkit.getPluginManager().getPlugin("UniversalGUI")
+        if (plugin != null) {
+//            val ugui = (plugin as UniversalGUI)
         }
 
         val service = server.servicesManager
-        val perms = PermissionService()
-        service.register(Permission::class.java, perms, this, ServicePriority.Highest)
+        service.register(Permission::class.java, PermissionService(), this, ServicePriority.Highest)
         service.register(Economy::class.java, EconomyService(), this, ServicePriority.Highest)
     }
 

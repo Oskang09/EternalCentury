@@ -4,6 +4,7 @@ import com.ec.database.Players
 import com.ec.model.ItemNBT
 import com.ec.extension.GlobalManager
 import com.ec.logger.Logger
+import com.ec.util.RandomUtil
 import com.ec.util.StringUtil.colorize
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import dev.reactant.reactant.core.component.Component
@@ -179,6 +180,64 @@ class EnchantmentManager {
 
     fun getEnchantments(): MutableCollection<EnchantmentAPI> {
         return enchantments.values
+    }
+
+    fun getRandomEnchantedBook(numOfEnchantments: Int, levelCapped: Int): ItemStack {
+        val item = ItemStack(Material.ENCHANTED_BOOK)
+        val itemNbt = ItemNBT()
+        val itemEnchantments = mutableMapOf<String, Int>()
+        item.itemMeta<EnchantmentStorageMeta> {
+            val newLores = lore ?: mutableListOf()
+
+            repeat(numOfEnchantments) {
+                val randomKey = enchantments.keys.random()
+                val ench = enchantments[randomKey]!!
+                var level = RandomUtil.randomInteger(ench.getMaxLevel() - 1) + 1
+                if (level > levelCapped) {
+                   level = levelCapped
+                }
+                itemEnchantments[randomKey] = level
+            }
+
+            itemEnchantments.forEach { (enchantment, level) ->
+                val ench = getEnchantmentById(enchantment)
+                newLores.add(ench.getDisplayLore(level))
+                ench.getOrigin()?.let { origin ->
+                    addStoredEnchant(origin, level, true)
+                }
+
+                itemNbt.enchantments[enchantment] = level
+            }
+
+            lore = newLores.colorize()
+            addItemFlags(*ItemFlag.values())
+        }
+
+        globalManager.items.serializeToItem(item, itemNbt)
+        return item
+    }
+
+    fun getEnchantedBookByMap(enchantments: MutableMap<String, Int>): ItemStack {
+        val item = ItemStack(Material.ENCHANTED_BOOK)
+        val itemNbt = ItemNBT()
+        item.itemMeta<EnchantmentStorageMeta> {
+            val newLores = lore ?: mutableListOf()
+            enchantments.forEach { (enchantment, level) ->
+                val ench = getEnchantmentById(enchantment)
+                newLores.add(ench.getDisplayLore(level))
+                ench.getOrigin()?.let { origin ->
+                    addStoredEnchant(origin, level, true)
+                }
+
+                itemNbt.enchantments[enchantment] = level
+            }
+
+            lore = newLores.colorize()
+            addItemFlags(*ItemFlag.values())
+        }
+
+        globalManager.items.serializeToItem(item, itemNbt)
+        return item
     }
 
     @JvmName("mergeSerializedEnchantments")

@@ -1,4 +1,4 @@
-package com.ec.minecraft.admin
+package com.ec.minecraft.inventory
 
 import com.ec.extension.inventory.UIBase
 import com.ec.extension.inventory.UIProvider
@@ -16,16 +16,17 @@ import org.bukkit.entity.HumanEntity
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 
-class AdminUI : UIProvider<AdminUI.AdminUIProps>("admin") {
+class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
 
-    data class AdminUIPropsData(
+
+    data class PlayerUIProps(
+        val data: List<PlayerUIPropsData>,
+    )
+
+    data class PlayerUIPropsData(
         val material: Material,
         val display: String,
         val routeTo: String
-    )
-
-    data class AdminUIProps(
-        val data: List<AdminUIPropsData>,
     )
 
     private val styles = object {
@@ -46,37 +47,38 @@ class AdminUI : UIProvider<AdminUI.AdminUIProps>("admin") {
 
     }
 
-    override fun info(props: AdminUIProps): UIBase {
+    override fun info(props: PlayerUIProps): UIBase {
         return UIBase(
             rows = 3,
             cols = 9,
-            title = "&b[&5系统&b] &6管理控制台".colorize()
+            title = "&b[&5系统&b] &6玩家主页".colorize()
         )
     }
 
-    override fun props(player: HumanEntity): AdminUIProps {
-        return AdminUIProps(
+    override fun props(player: HumanEntity): PlayerUIProps {
+        return PlayerUIProps(
             data = listOf(
-                AdminUIPropsData(
-                    material = Material.ENCHANTED_BOOK,
-                    display = "&f&l前往 &b[&5系统&b] &6技能附魔书",
-                    routeTo = "admin-enchantment"
+                PlayerUIPropsData(
+                    material = Material.NAME_TAG,
+                    display = "&f&l前往 &b[&5系统&b] &6称号列表",
+                    routeTo = "title"
                 ),
-                AdminUIPropsData(
+                PlayerUIPropsData(
                     material = Material.ITEM_FRAME,
-                    display = "&f&l前往 &b[&5系统&b] &6物品列表",
-                    routeTo = "admin-item"
+                    display = "&f&l前往 &b[&5系统&b] &6每日签到",
+                    routeTo = "vote"
                 )
             )
         )
     }
 
     override val isStaticProps: Boolean = true
-    override val render = declareComponent<AdminUIProps> { props ->
+    override val render = declareComponent<PlayerUIProps> { props ->
 
         useCancelRawEvent()
 
-        div(DivProps(
+        div(
+            DivProps(
             style = styles.container,
             item = ItemStack(Material.WHITE_STAINED_GLASS_PANE),
             children = childrenOf(
@@ -96,6 +98,8 @@ class AdminUI : UIProvider<AdminUI.AdminUIProps>("admin") {
                     ))
                 })
             )
-        ))
+        )
+        )
     }
+
 }

@@ -24,11 +24,15 @@ class UIManager {
         uis[name]?.displayTo(player)
     }
 
-    fun displayRepair(player: Player) {
-        uis["repair"]?.displayTo(player)
+    fun displayAdmin(player: Player) {
+        uis["admin"]!!.displayTo(player)
     }
 
-    fun displayTitle(player: Player) {
-        uis["title"]?.displayTo(player)
+    fun displayPlayer(player: Player) {
+        uis["player"]!!.displayTo(player)
+    }
+
+    fun displayRepair(player: Player) {
+        uis["repair"]!!.displayTo(player)
     }
 }

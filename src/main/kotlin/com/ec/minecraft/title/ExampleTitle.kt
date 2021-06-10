@@ -17,9 +17,9 @@ class ExampleTitle: TitleAPI("some_id", 0) {
         stack.itemMeta<ItemMeta> {
             setDisplayName(("&a称号 - &r" + getDisplay()).colorize())
             lore = listOf(
-                "&7 --- 称号介绍 --- ",
-                "&7 --- 特殊效果 --- ",
-                "&7 --- 解锁条件 --- ",
+                "&7&l --- &f&l称号介绍 &7&l--- ",
+                "&7&l --- &f&l特殊效果 &7&l--- ",
+                "&7&l --- &f&l解锁条件 &7&l--- ",
             ).colorize()
         }
         return stack
@@ -31,6 +31,10 @@ class ExampleTitle: TitleAPI("some_id", 0) {
 
     override fun unlockCondition(ecPlayer: ECPlayer): Boolean {
         return true
+    }
+
+    override fun afterUnlock(ecPlayer: ECPlayer) {
+
     }
 
 }

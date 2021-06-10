@@ -1,5 +1,6 @@
 package com.ec.service
 
+import com.ec.database.model.ChatType
 import com.ec.util.StringUtil.colorize
 import dev.reactant.reactant.core.component.Component
 import net.citizensnpcs.api.npc.NPC
@@ -9,24 +10,29 @@ import org.bukkit.entity.Player
 @Component
 class MessageService {
 
-    private val worldMapper = mutableMapOf<String, String>(
-        "world" to "资源世界"
-    )
-
-    private fun transformWorld(world: World): String {
-        return worldMapper[world.name]!!
-    }
-
     fun system(message: String): String {
         return "&b[&5系统&b] &r$message".colorize()
     }
 
-    fun npc(npc: NPC, message: String): String {
-        return "&f[&a${transformWorld(npc.entity.world)}&f] &r${npc.fullName} : &f$message".colorize()
+    fun private(from: Player,  message: String): String {
+        return "&b[&9私讯&b] &r${from.displayName}: &f".colorize() + message
     }
 
-    fun player(player: Player, message: String): String {
-        return "&f[&a${transformWorld(player.world)}&f] &r${player.displayName} : &f$message".colorize()
+    fun npc(npc: NPC, message: String): String {
+        return "&b[&5系统&b] &r${npc.fullName} : &f$message".colorize()
+    }
+
+    fun playerChat(player: Player, chatType: ChatType, message: String): String {
+
+        val channelName = when (chatType) {
+            ChatType.GLOBAL -> "全球综合"
+            ChatType.PVPVE -> "附魔战斗"
+            ChatType.SURVIVAL -> "资源生存"
+            ChatType.MCMMO -> "角色达人"
+            ChatType.REDSTONE -> "红石机关"
+        }
+
+        return "&f[&a$channelName&f] &r${player.displayName} : &f".colorize() + message
     }
 
 }

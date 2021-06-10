@@ -42,6 +42,7 @@ class TitleManager {
                         it[titleId] = title.id
                         it[unlockedAt] = Instant.now().epochSecond
                     }
+                    title.afterUnlock(ecPlayer)
                 }
             }
         }

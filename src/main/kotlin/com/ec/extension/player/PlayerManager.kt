@@ -6,6 +6,7 @@ import com.ec.logger.Logger
 import com.ec.model.player.ECPlayer
 import com.ec.model.player.ECPlayerState
 import dev.reactant.reactant.core.component.Component
+import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
@@ -29,6 +30,15 @@ class PlayerManager {
         this.globalManager = globalManager
 
          globalManager.events {
+
+             PlayerSwapHandItemsEvent::class
+                 .observable(true, EventPriority.HIGHEST)
+                 .filter { globalManager.players.getByPlayer(it.player).state == ECPlayerState.AUTHENTICATED }
+                 .filter { it.player.isSneaking }
+                 .subscribe {
+                     it.isCancelled = true
+                     globalManager.inventory.displayPlayer(it.player)
+                 }
 
              AsyncPlayerPreLoginEvent::class
                 .observable(true, EventPriority.HIGHEST)
@@ -143,6 +153,13 @@ class PlayerManager {
                         }
                     }
                 }
+        }
+    }
+
+    fun refreshPlayerIfOnline(id: UUID) {
+        val onlinePlayer = Bukkit.getPlayer(id)
+        if (onlinePlayer != null && onlinePlayer.isOnline) {
+            players[id]?.refreshPlayer()
         }
     }
 

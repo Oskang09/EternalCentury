@@ -2,10 +2,14 @@ name: EternalCentury
 main: com.ec.ECCore
 version: 0.0.1
 api-version: 1.16
+load: STARTUP
+loadbefore:
+  - mcMMO
+  - Residence
+  - MangoQuest
 depend:
   - Reactant
   - NBTAPI
-  - SmartInvs
   - UniversalGUI
   - PlaceholderAPI
   - Citizens

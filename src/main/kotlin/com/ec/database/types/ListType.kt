@@ -6,12 +6,12 @@ import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ColumnType
 import org.jetbrains.exposed.sql.Table
 
-fun <T : Any>  Table.array(name: String, clazz: Class<T>, jsonMapper: ObjectMapper = ObjectMapper()): Column<MutableList<T>>
+fun <T : Any> Table.array(name: String, clazz: Class<T>, jsonMapper: ObjectMapper = ObjectMapper()): Column<MutableList<T>>
         = registerColumn(name, ArrayType(clazz, jsonMapper))
 
 class ArrayType<out T: Any>(private val clazz: Class<T>, private val mapper: ObjectMapper): ColumnType() {
 
-    override var nullable: Boolean = true
+    override var nullable: Boolean = false
     override fun sqlType() = "TEXT"
 
     override fun valueFromDB(value: Any): Any {

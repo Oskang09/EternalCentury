@@ -4,11 +4,17 @@ import com.ec.database.Players
 import com.ec.extension.GlobalManager
 import dev.reactant.reactant.core.component.Component
 import net.milkbowl.vault.permission.Permission
+import java.util.*
 
 @Component
 class PermissionService: Permission() {
 
+    private val playersDefaultPermissions = listOf(
+        "mcmmo.commands.defaults",
+    )
+
     private lateinit var globalManager: GlobalManager
+
     fun onInitialize(globalManager: GlobalManager) {
         this.globalManager = globalManager
     }
@@ -27,17 +33,20 @@ class PermissionService: Permission() {
 
     override fun playerHas(world: String?, player: String, permission: String): Boolean {
         val ecPlayer = globalManager.players.getByPlayerName(player) ?: return false
-        return ecPlayer[Players.permissions].contains(permission)
+        globalManager.players.refreshPlayerIfOnline(UUID.fromString(ecPlayer[Players.uuid]!!))
+        return ecPlayer[Players.permissions].contains(permission) || playersDefaultPermissions.contains(permission)
     }
 
     override fun playerAdd(world: String?, player: String, permission: String): Boolean {
         val ecPlayer = globalManager.players.getByPlayerName(player) ?: return false
-        return ecPlayer[Players.permissions].contains(permission)
+        globalManager.players.refreshPlayerIfOnline(UUID.fromString(ecPlayer[Players.uuid]!!))
+        return ecPlayer[Players.permissions].contains(permission) || playersDefaultPermissions.contains(permission)
     }
 
     override fun playerRemove(world: String?, player: String, permission: String): Boolean {
         val ecPlayer = globalManager.players.getByPlayerName(player) ?: return false
-        return ecPlayer[Players.permissions].contains(permission)
+        globalManager.players.refreshPlayerIfOnline(UUID.fromString(ecPlayer[Players.uuid]!!))
+        return ecPlayer[Players.permissions].contains(permission) || playersDefaultPermissions.contains(permission)
     }
 
     override fun groupHas(world: String?, group: String?, permission: String?): Boolean {

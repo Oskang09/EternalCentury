@@ -1,7 +1,9 @@
 package com.ec.extension
 
 import com.ec.ECCore
+import com.ec.config.RewardConfig
 import com.ec.config.ServerConfig
+import com.ec.database.*
 import com.ec.extension.discord.DiscordManager
 import com.ec.extension.enchantment.EnchantmentManager
 import com.ec.extension.inventory.UIComponent
@@ -19,12 +21,23 @@ import dev.reactant.reactant.core.dependency.injection.Inject
 import dev.reactant.reactant.service.spec.config.Config
 import dev.reactant.reactant.service.spec.server.EventService
 import dev.reactant.reactant.service.spec.server.SchedulerService
-import javafx.application.Application.launch
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import net.milkbowl.vault.economy.Economy
+import net.milkbowl.vault.permission.Permission
 import org.bukkit.Bukkit
+import org.bukkit.entity.Player
+import org.bukkit.plugin.ServicePriority
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.transactions.TransactionManager
+import org.jetbrains.exposed.sql.transactions.transaction
+import java.io.File
+import java.sql.Connection
+import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.util.*
 import kotlin.concurrent.thread
-import kotlin.coroutines.suspendCoroutine
 
 @Component
 class GlobalManager(
@@ -44,10 +57,9 @@ class GlobalManager(
     val states: StateManager,
 
     // Services
-    val economy: EconomyService,
-    val permission: PermissionService,
+    var economy: EconomyService,
+    var permission: PermissionService,
     val message: MessageService,
-    private val commands: CommandService,
 
     // Libraries
     val events: EventService,
@@ -70,14 +82,34 @@ class GlobalManager(
         }
     }
 
+    fun sendRewardToPlayer(rewards: List<RewardConfig>, player: Player) {
+        rewards.forEach { cfg ->
+            when (cfg.type.lowercase()) {
+                "item" -> player.inventory.addItem(
+                    if (cfg.itemId != null) items.getItemByKey(cfg.itemId)
+                    else items.getItemByConfig(cfg.item!!)
+                )
+                "enchantment" ->
+                    player.inventory.addItem(enchantments.getEnchantedBookByMap(cfg.enchantments!!))
+                "command" -> cfg.commands?.map {
+                    val cmd = it.replace("<player>", player.name)
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd)
+                }
+            }
+        }
+    }
+
     override fun onDisable() {
         serverConfigFile.save().subscribe()
     }
 
     override fun onEnable() {
-        economy.onInitialize(this)
+        val service = Bukkit.getServer().servicesManager
+        permission = service.getRegistration(Permission::class.java)!!.provider as PermissionService
+        economy = service.getRegistration(Economy::class.java)!!.provider as EconomyService
+
         permission.onInitialize(this)
-        commands.onInitialize(this)
+        economy.onInitialize(this)
         discord.onInitialize(this)
 
         enchantments.onInitialize(this)

@@ -21,6 +21,9 @@ object Players: Table() {
     val points = json("points", PointInfo::class.java)
     val permissions = array("permissions", String::class.java)
     val channels = array("channels", ChatType::class.java)
+    // list of players name
     val blockedTeleport = array("blocked_teleport", String::class.java)
+    // list of players name
+    val ignoredPlayers = array("ignored_players", String::class.java)
     override val primaryKey = PrimaryKey(id)
 }

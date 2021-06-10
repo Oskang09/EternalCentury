@@ -11,14 +11,14 @@ import picocli.CommandLine
 @CommandLine.Command(
     name = "tpb",
     aliases = ["teleport-block"],
-    description = ["禁止玩家向你发送传送请求"]
+    description = ["允许/禁止玩家向你发送传送请求"]
 )
 internal class TeleportBlockCommand(private val globalManager: GlobalManager): ReactantCommand() {
 
     @CommandLine.Parameters(
-        arity = "1",
+        index = "0",
         paramLabel = "玩家名称",
-        description = ["你禁止发送传送请求的玩家名称"]
+        description = ["你允许/禁止发送传送请求的玩家名称"]
     )
     var playerName: String = ""
 
@@ -42,15 +42,16 @@ internal class TeleportBlockCommand(private val globalManager: GlobalManager): R
         val ecPlayer = globalManager.players.getByPlayer(player)
         ecPlayer.ensureUpdate("teleport block command update", isAsync = true) {
             if (ecPlayer.database[Players.blockedTeleport].contains(target.name)) {
-                player.sendMessage(globalManager.message.system("您已经禁止了该玩家。"))
-                return@ensureUpdate
+                ecPlayer.database[Players.blockedTeleport].remove(target.name)
+                player.sendMessage(globalManager.message.system("玩家 ${target.name} 可以向您发送传送请求了。"))
+            } else {
+                ecPlayer.database[Players.blockedTeleport].add(target.name)
+                player.sendMessage(globalManager.message.system("玩家 ${target.name} 将无法向您发送传送请求了。"))
             }
 
-            ecPlayer.database[Players.blockedTeleport].add(target.name)
             Players.update({ Players.id eq ecPlayer.database[Players.id] }) {
                 it[blockedTeleport] = ecPlayer.database[blockedTeleport]
             }
-            player.sendMessage(globalManager.message.system("玩家 ${target.name} 将无法向您发送传送请求了。"))
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.ec.minecraft.command
 
+import com.ec.database.Players
 import com.ec.extension.GlobalManager
 import dev.reactant.reactant.extra.command.ReactantCommand
 import org.bukkit.Bukkit
@@ -14,18 +15,18 @@ import picocli.CommandLine
 internal class PrivateMessageCommand(private val globalManager: GlobalManager): ReactantCommand() {
 
     @CommandLine.Parameters(
-        arity = "1",
+        index = "0",
         paramLabel = "玩家名称",
         description = ["你要发送私聊的玩家"]
     )
     var playerName: String = ""
 
     @CommandLine.Parameters(
-        arity = "1...*",
+        index = "1..*",
         paramLabel = "讯息",
         description = ["你要发送的讯息"]
     )
-    var message: String = ""
+    var message: Array<String> = arrayOf()
 
     override fun execute() {
         requireSenderIsPlayer()
@@ -39,6 +40,11 @@ internal class PrivateMessageCommand(private val globalManager: GlobalManager): 
             return
         }
 
-
+        val ecPlayer = globalManager.players.getByPlayer(target)
+        if (ecPlayer.database[Players.blockedTeleport].contains(player.name)) {
+            player.sendMessage(globalManager.message.system("该玩家已经把你加入了聊天室黑名单。"))
+            return
+        }
+        target.sendMessage(globalManager.message.private(player, message.joinToString(" ")))
     }
 }

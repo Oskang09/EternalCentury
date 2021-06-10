@@ -11,19 +11,21 @@ import com.ec.util.StringUtil.generateUniqueID
 import dev.reactant.reactant.core.component.Component
 import net.milkbowl.vault.economy.Economy
 import net.milkbowl.vault.economy.EconomyResponse
+import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.Instant
+import java.util.*
 
 @Component
 class EconomyService: Economy {
 
     private lateinit var globalManager: GlobalManager
+
     fun onInitialize(globalManager: GlobalManager) {
         this.globalManager = globalManager
     }
-
 
     override fun isEnabled(): Boolean {
         return true
@@ -134,6 +136,7 @@ class EconomyService: Economy {
                 )
             }
 
+            globalManager.players.refreshPlayerIfOnline(UUID.fromString(ecPlayer[Players.uuid]!!))
             return@transaction EconomyResponse(
                 amount,
                 nextBalance,
@@ -169,6 +172,7 @@ class EconomyService: Economy {
                 )
             }
 
+            globalManager.players.refreshPlayerIfOnline(UUID.fromString(ecPlayer[Players.uuid]!!))
             return@transaction EconomyResponse(
                 amount,
                 nextBalance,
@@ -212,6 +216,7 @@ class EconomyService: Economy {
                 )
             }
 
+            globalManager.players.refreshPlayerIfOnline(UUID.fromString(ecPlayer[Players.uuid]!!))
             return@transaction EconomyResponse(
                 amount,
                 nextBalance,
@@ -228,7 +233,7 @@ class EconomyService: Economy {
             Economies.insert {
                 it[id] = "".generateUniqueID()
                 it[playerId] = ecPlayer[Players.id]
-                it[type] = EconomyType.WITHDRAW
+                it[type] = EconomyType.DEPOSIT
                 it[balance] = amount
                 it[actionAt] = Instant.now().epochSecond
             }
@@ -247,6 +252,7 @@ class EconomyService: Economy {
                 )
             }
 
+            globalManager.players.refreshPlayerIfOnline(UUID.fromString(ecPlayer[Players.uuid]!!))
             return@transaction EconomyResponse(
                 amount,
                 nextBalance,
