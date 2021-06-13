@@ -4,6 +4,7 @@ import com.ec.database.*
 import com.ec.service.EconomyService
 import com.ec.service.PermissionService
 import dev.reactant.reactant.core.ReactantPlugin
+import kotlinx.coroutines.selects.select
 import me.oska.UniversalGUI
 import net.milkbowl.vault.economy.Economy
 import net.milkbowl.vault.permission.Permission
@@ -36,6 +37,8 @@ class ECCore: JavaPlugin() {
                 Announcements, Mails, Malls, MallHistories, Economies, Issues,
                 Players, Points, Titles, Votes, VoteRewards
             )
+
+            exec("SELECT 1")
         }
 
         val service = server.servicesManager

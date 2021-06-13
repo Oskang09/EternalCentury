@@ -8,7 +8,7 @@ object Announcements: Table() {
     val id = varchar("id", 20)
     val title = varchar("title", 256)
     val content = varchar("content", 1024)
-    val rewards = array("rewards", RewardConfig::class.java).nullable()
+    val rewards = array("rewards", RewardConfig::class.java)
     val createdAt = long("createdAt")
     val isExpired = bool("is_expired")
 

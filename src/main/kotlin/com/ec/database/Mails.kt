@@ -10,7 +10,7 @@ object Mails: Table() {
     val announcementId = varchar("announcement_id", 20).nullable()
     val title = varchar("title", 256)
     val content = varchar("content", 1024)
-    val rewards = array("rewards", RewardConfig::class.java).nullable()
+    val rewards = array("rewards", RewardConfig::class.java)
     val isRead = bool("isRead")
     val createdAt = long("createdAt")
 

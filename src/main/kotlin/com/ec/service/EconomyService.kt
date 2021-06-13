@@ -202,7 +202,7 @@ class EconomyService: Economy {
                 it[actionAt] = Instant.now().epochSecond
             }
 
-            val nextBalance = ecPlayer[Players.balance].balance - amount
+            val nextBalance = ecPlayer[Players.balance].balance + amount
             val total = Economies
                 .select { Economies.playerId eq ecPlayer[Players.id] }
                 .andWhere { Economies.type eq EconomyType.DEPOSIT }
@@ -238,7 +238,7 @@ class EconomyService: Economy {
                 it[actionAt] = Instant.now().epochSecond
             }
 
-            val nextBalance = ecPlayer[Players.balance].balance - amount
+            val nextBalance = ecPlayer[Players.balance].balance + amount
             val total = Economies
                 .select { Economies.playerId eq ecPlayer[Players.id] }
                 .andWhere { Economies.type eq EconomyType.DEPOSIT }

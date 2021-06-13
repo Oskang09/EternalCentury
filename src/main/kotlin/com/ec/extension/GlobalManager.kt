@@ -13,7 +13,6 @@ import com.ec.extension.item.UguiProvider
 import com.ec.extension.papi.PlaceholderManager
 import com.ec.extension.player.PlayerManager
 import com.ec.extension.point.PointManager
-import com.ec.extension.store.StoreManager
 import com.ec.extension.title.TitleManager
 import com.ec.model.Emoji
 import com.ec.service.EconomyService
@@ -50,7 +49,6 @@ class GlobalManager(
     val points: PointManager,
     val items: ItemManager,
     val discord: DiscordManager,
-    val store: StoreManager,
     val inventory: UIManager,
     val component: UIComponent,
     val states: StateManager,
@@ -129,11 +127,11 @@ class GlobalManager(
         val nearbyMembers = party.getNearMembers(mcmmoPlayer)
         if (nearbyMembers.size != party.onlineMembers.size) {
             val messages = arrayListOf(message.system("&f&l玩家 ${starter.displayName} &f&l发起了挑战 - $challenge"))
-            messages.addAll(party.onlineMembers.map { member ->
-                return@map if (!nearbyMembers.contains(member)) {
-                    "&c&l${Emoji.CROSS.text} &e&l玩家 ${member.displayName} 还没集合！"
+            messages.addAll(party.onlineMembers.mapIndexed { count, member ->
+                return@mapIndexed if (!nearbyMembers.contains(member)) {
+                    "&f${count+1}. &c&l${Emoji.CROSS.text} &e&l玩家 ${member.displayName} 还没集合！"
                 } else {
-                    "&e&l玩家 ${member.displayName} 准备就绪！"
+                    "&f${count+1}. &e&l玩家 ${member.displayName} 准备就绪！"
                 }
             })
 
