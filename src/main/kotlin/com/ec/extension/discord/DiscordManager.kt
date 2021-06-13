@@ -3,6 +3,8 @@ package com.ec.extension.discord
 import club.minnced.jda.reactor.ReactiveEventManager
 import club.minnced.jda.reactor.on
 import club.minnced.jda.reactor.onMessage
+import com.ec.ECCore
+import com.ec.database.Mails
 import com.ec.database.Players
 import com.ec.database.model.ChatType
 import com.ec.database.model.economy.EconomyInfo
@@ -29,6 +31,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.awt.Color
 import java.time.Instant
@@ -51,7 +54,7 @@ class DiscordManager: LifeCycleHook {
         val nameRegex = Regex("^\\w{3,16}\$", options = setOf(RegexOption.IGNORE_CASE))
         val manager = ReactiveEventManager()
 
-        jda = JDABuilder.createDefault("ODUwODA2NzM0MTAzNTExMDUx.YLvFhA.LYqkwvn3AhzotVnBWP5S5ZqTrto")
+        jda = JDABuilder.createDefault(globalManager.serverConfig.discord.token)
             .setEnabledIntents(EnumSet.allOf(GatewayIntent::class.java))
             .setEventManager(manager)
             .build()
@@ -59,16 +62,16 @@ class DiscordManager: LifeCycleHook {
 
         jda.presence.setPresence(OnlineStatus.ONLINE, Activity.playing("Minecraft"), false)
 
-        guild = jda.getGuildById(851153973432156191)!!
-        newbieRole = guild.getRoleById(851390242740895754)!!
-        playerRole = guild.getRoleById(851158488075862077)!!
+        guild = jda.getGuildById(globalManager.serverConfig.discord.guild)!!
+        newbieRole = guild.getRoleById(globalManager.serverConfig.discord.newbieRole)!!
+        playerRole = guild.getRoleById(globalManager.serverConfig.discord.playerRole)!!
 
         mutableMapOf(
-            ChatType.GLOBAL to "851155982558167050",
-            ChatType.MCMMO to "851156370334285864",
-            ChatType.SURVIVAL to "851154328286658590",
-            ChatType.PVPVE to "851155341534429204",
-            ChatType.REDSTONE to "852191901225320478"
+            ChatType.GLOBAL to globalManager.serverConfig.discord.chatGlobal,
+            ChatType.MCMMO to globalManager.serverConfig.discord.chatMcmmo,
+            ChatType.SURVIVAL to globalManager.serverConfig.discord.chatSurvival,
+            ChatType.PVPVE to globalManager.serverConfig.discord.chatPvpve,
+            ChatType.REDSTONE to globalManager.serverConfig.discord.chatRedstone
         ).forEach { (chatType, channelId) ->
             channels[chatType] = guild.getTextChannelById(channelId) !!
         }
@@ -86,6 +89,10 @@ class DiscordManager: LifeCycleHook {
                     val sender = it.player
                     var message = it.message
                     val chatType = when {
+                        message.startsWith("@party ") -> {
+                            message = message.replace("@party ", "")
+                            ChatType.PARTY
+                        }
                         message.startsWith("@mcmmo ") -> {
                             message = message.replace("@mcmmo ", "")
                             ChatType.MCMMO
@@ -104,15 +111,20 @@ class DiscordManager: LifeCycleHook {
                         }
                         else -> ChatType.GLOBAL
                     }
-                    channels[chatType]!!.sendMessage(sender.displayName + " : " + message).queue()
 
-                    Bukkit.getOnlinePlayers()
-                        .parallelStream()
-                        .filter { p -> !globalManager.players.getByPlayer(p).database[Players.ignoredPlayers].contains(sender.name) }
-                        .filter { p -> globalManager.players.getByPlayer(p).database[Players.channels].contains(chatType) }
-                        .forEach { p ->
-                            p.sendMessage(globalManager.message.playerChat(sender, chatType, message))
-                        }
+                    if (chatType != ChatType.PARTY) {
+                        channels[chatType]!!.sendMessage(sender.displayName + " : " + message).queue()
+
+                        Bukkit.getOnlinePlayers()
+                            .parallelStream()
+                            .filter { p -> !globalManager.players.getByPlayer(p).database[Players.ignoredPlayers].contains(sender.name) }
+                            .filter { p -> globalManager.players.getByPlayer(p).database[Players.channels].contains(chatType) }
+                            .forEach { p ->
+                                p.sendMessage(globalManager.message.playerChat(sender, chatType, message))
+                            }
+                    } else {
+                        globalManager.mcmmoPartySendMessage(sender, message)
+                    }
                 }
         }
 
@@ -124,25 +136,32 @@ class DiscordManager: LifeCycleHook {
         embed.setDescription("新来的玩家可以到 \'伺服规则\' 频道，通过随便一个Reaction同意并接受规则后才能进行注册。")
         embed.addField("地区配置", "", true)
         embed.addField("人数限制", "50", true)
-        embed.addField("目前版本", "0.0.1", true)
+        embed.addField("目前版本", ECCore.VERSION, true)
         embed.addField("伺服DC", "https://discord.gg/7rfSfwQBct", true)
         embed.addField("伺服IP", "survival.oskadev.com", true)
         embed.setFooter("伺服器咨询")
         embed.setTimestamp(Instant.now())
 
-        if (globalManager.serverConfig.discordInfoMessage == "") {
-            globalManager.serverConfig.discordInfoMessage = guild.getTextChannelById(851153973960114178)!!.sendMessage(embed.build()).complete().id
+        if (globalManager.serverConfig.discord.infoMessage == "") {
+            globalManager.serverConfig.discord.infoMessage = guild.getTextChannelById(851153973960114178)!!.sendMessage(embed.build()).complete().id
         } else {
-            val serverStatusMessage = guild.getTextChannelById(851153973960114178)!!.retrieveMessageById(globalManager.serverConfig.discordInfoMessage).complete()
-            globalManager.serverConfig.discordInfoMessage = serverStatusMessage.editMessage(embed.build()).complete().id
+            val serverStatusMessage = guild.getTextChannelById(globalManager.serverConfig.discord.infoChannel)!!
+                .retrieveMessageById(globalManager.serverConfig.discord.infoMessage).complete()
+            globalManager.serverConfig.discord.infoMessage = serverStatusMessage.editMessage(embed.build()).complete().id
         }
 
         verifyObservableObject = ObservableObject(jda.on())
-        verifyObservableObject.subscribe({ it.member?.roles?.contains(newbieRole) == true && it.messageId == "851396531298238477" }) {
+        verifyObservableObject.subscribe({ it.member?.roles?.contains(newbieRole) == true && it.messageId == globalManager.serverConfig.discord.ruleMessage }) {
             guild.addRoleToMember(it.member!!.idLong, newbieRole).complete()
         }
 
-        jda.getTextChannelById("851158046020599868")!!
+        jda.getTextChannelById(globalManager.serverConfig.discord.commandChannel)!!
+            .onMessage()
+            .subscribe {
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), it.message.contentRaw)
+            }
+
+        jda.getTextChannelById(globalManager.serverConfig.discord.registerChannel)!!
             .onMessage()
             .doOnNext { it.message.delete().complete() }
             .filter { globalManager.players.getByDiscordTag(it.message.author.asTag) == null }
@@ -164,7 +183,6 @@ class DiscordManager: LifeCycleHook {
                         data[uuid] = null
                         data[playerName] = name
                         data[discordTag] = it.message.author.asTag
-                        data[playTimes] = 0
                         data[createdAt] = Instant.now().epochSecond
                         data[currentTitle] = ""
                         data[balance] = EconomyInfo()
@@ -193,7 +211,7 @@ class DiscordManager: LifeCycleHook {
         embed.setDescription("伺服器离线中，请等待伺服器上线后再申请账号。")
         embed.addField("地区配置", "", true)
         embed.addField("人数限制", "50", true)
-        embed.addField("目前版本", "0.0.1", true)
+        embed.addField("目前版本", ECCore.VERSION, true)
         embed.addField("伺服DC", "https://discord.gg/7rfSfwQBct", true)
         embed.addField("伺服IP", "survival.oskadev.com", true)
         embed.setFooter("伺服器咨询")
@@ -201,8 +219,8 @@ class DiscordManager: LifeCycleHook {
 
         verifyObservableObject.dispose()
 
-        val serverStatusMessage = guild.getTextChannelById(851153973960114178)!!.retrieveMessageById(globalManager.serverConfig.discordInfoMessage).complete()
-        globalManager.serverConfig.discordInfoMessage = serverStatusMessage.editMessage(embed.build()).complete().id
+        val serverStatusMessage = guild.getTextChannelById(851153973960114178)!!.retrieveMessageById(globalManager.serverConfig.discord.infoMessage).complete()
+        globalManager.serverConfig.discord.infoMessage = serverStatusMessage.editMessage(embed.build()).complete().id
 
         jda.shutdown()
     }

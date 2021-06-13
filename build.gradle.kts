@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
 group = "com.ec"
-version = "0.0.1"
+version = ""
 
 val kotlinVersion = "1.5.10"
 
@@ -14,8 +14,8 @@ plugins {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_16
+    targetCompatibility = JavaVersion.VERSION_16
 }
 
 tasks.withType<KotlinCompile> {
@@ -30,6 +30,7 @@ repositories {
     maven { url = URI.create("https://repo.codemc.org/repository/maven-public/") }
     maven { url = URI.create("https://jitpack.io") }
     maven { url = URI.create("https://m2.dv8tion.net/releases") }
+    maven { url = URI.create("https://repo.citizensnpcs.co") }
     maven { url = URI.create("https://repo.minebench.de") }
 }
 
@@ -39,22 +40,24 @@ dependencies {
 
     compileOnly("dev.reactant:reactant:0.2.3")
     compileOnly("dev.reactant:resquare:0.0.1-SNAPSHOT")
-    compileOnly("org.spigotmc:spigot-api:1.16.4-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
-    compileOnly("com.github.Oskang09:UniversalGUI:v3.0.0")
     compileOnly("com.github.PlaceholderAPI:PlaceholderAPI:2.10.9")
+    compileOnly("com.github.Oskang09:UniversalGUI:3.0.4")
     compileOnly("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.3")
+    compileOnly("net.citizensnpcs:citizensapi:2.0.27-SNAPSHOT")
     compileOnly(fileTree("src/main/libs"))
 
     implementation("org.jetbrains.exposed:exposed-core:0.32.1")
     implementation("org.jetbrains.exposed:exposed-dao:0.32.1")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.32.1")
     implementation("org.xerial:sqlite-jdbc:3.30.1")
+    implementation("io.javalin:javalin:3.13.7")
 
     implementation("de.themoep:minedown:1.7.1-SNAPSHOT")
     implementation("xyz.xenondevs:particle:1.5.1")
     implementation("net.oneandone.reflections8:reflections8:0.11.5")
-    implementation("com.github.Oskang09:RM-API-SDK-KOTLIN:0.0.2")
+    implementation("com.github.Oskang09:RM-API-SDK-KOTLIN:0.0.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
     implementation("com.github.MinnDevelopment:jda-reactor:1.3.0")
     implementation("net.dv8tion:JDA:4.2.1_253") {

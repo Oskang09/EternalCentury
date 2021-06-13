@@ -1,8 +1,11 @@
 package com.ec.extension.inventory
 
 import com.ec.extension.GlobalManager
+import com.ec.model.Observable
 import dev.reactant.resquare.bukkit.container.createUI
 import dev.reactant.resquare.dom.Component
+import dev.reactant.resquare.dom.declareComponent
+import dev.reactant.resquare.render.useState
 import org.bukkit.entity.HumanEntity
 import org.bukkit.entity.Player
 
@@ -18,6 +21,7 @@ abstract class UIProvider<T : Any>(val id: String) {
 
     private var staticProps: T? = null
     open val isStaticProps: Boolean = false
+
     protected abstract val render: Component.WithProps<T>
 
     fun displayTo(player: HumanEntity) {

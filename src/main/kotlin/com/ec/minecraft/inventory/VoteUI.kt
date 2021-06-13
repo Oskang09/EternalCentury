@@ -123,9 +123,9 @@ class VoteUI: UIProvider<VoteUI.VoteUIProps>("vote") {
     override val render = declareComponent<VoteUIProps> { props ->
         useCancelRawEvent()
 
-        val (signedDays, setSignedDays) = useState<MutableList<Int>?>(null)
-        val (eligibleRewards, setEligibleRewards) = useState<List<Int>?>(null)
-        val (claimedRewards, setClaimedRewards) = useState<MutableList<Int>?>(null)
+        val (signedDays, setSignedDays) = useState<Array<Int>?>(null)
+        val (eligibleRewards, setEligibleRewards) = useState<Array<Int>?>(null)
+        val (claimedRewards, setClaimedRewards) = useState<Array<Int>?>(null)
 
         useEffect({
             transaction {
@@ -166,9 +166,9 @@ class VoteUI: UIProvider<VoteUI.VoteUIProps>("vote") {
                     }
                 }
 
-                setClaimedRewards(doneRewards)
-                setEligibleRewards(rewards)
-                setSignedDays(days)
+                setClaimedRewards(doneRewards.toTypedArray())
+                setEligibleRewards(rewards.toTypedArray())
+                setSignedDays(days.toTypedArray())
             }
 
             return@useEffect {}
@@ -231,7 +231,6 @@ class VoteUI: UIProvider<VoteUI.VoteUIProps>("vote") {
             if (isEligible && !isClaimed) {
                 eventHandler = {
                     val player = props.player.player
-                    player.closeInventory()
 
                     if (props.player.ensureUpdate("daily vote streak item", isAsync = true) {
                             VoteRewards.insert {
@@ -255,6 +254,8 @@ class VoteUI: UIProvider<VoteUI.VoteUIProps>("vote") {
                         globalManager.economy.depositPlayer(player, 500.0)
                         player.sendMessage(globalManager.message.system("连续签到奖励领取成功！"))
                     }
+
+                    setClaimedRewards(arrayOf(*claimedRewards, rewardIndex))
                 }
             }
 
@@ -285,7 +286,6 @@ class VoteUI: UIProvider<VoteUI.VoteUIProps>("vote") {
         if (!isTodaySigned) {
              todayEventHandler = {
                  val player = props.player.player
-                 player.closeInventory()
 
                  if (props.player.ensureUpdate("daily vote", isAsync = true) {
                          Votes.insert {
@@ -297,7 +297,6 @@ class VoteUI: UIProvider<VoteUI.VoteUIProps>("vote") {
                              it[signedAt] = Instant.now().epochSecond
                          }
                      }) {
-
                      val key = "${props.currentYear}-${props.currentMonth}-${props.currentDay}"
                      val extraRewards = globalManager.serverConfig.signRewards[key]
                      if (extraRewards != null) {
@@ -308,6 +307,8 @@ class VoteUI: UIProvider<VoteUI.VoteUIProps>("vote") {
                      globalManager.economy.depositPlayer(player, 100.0)
                      props.player.player.sendMessage(globalManager.message.system("签到成功！"))
                  }
+
+                 setSignedDays(arrayOf(*signedDays, props.currentDay))
              }
         }
 

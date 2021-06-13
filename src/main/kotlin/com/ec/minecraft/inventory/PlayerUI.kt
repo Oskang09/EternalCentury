@@ -18,7 +18,6 @@ import org.bukkit.inventory.meta.ItemMeta
 
 class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
 
-
     data class PlayerUIProps(
         val data: List<PlayerUIPropsData>,
     )
@@ -60,14 +59,29 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
             data = listOf(
                 PlayerUIPropsData(
                     material = Material.NAME_TAG,
-                    display = "&f&l前往 &b[&5系统&b] &6称号列表",
+                    display = "&f&l前往 &b[&5系统&b] &6称号列表".colorize(),
                     routeTo = "title"
                 ),
                 PlayerUIPropsData(
                     material = Material.ITEM_FRAME,
-                    display = "&f&l前往 &b[&5系统&b] &6每日签到",
+                    display = "&f&l前往 &b[&5系统&b] &6每日签到".colorize(),
                     routeTo = "vote"
-                )
+                ),
+                PlayerUIPropsData(
+                    material = Material.DIAMOND,
+                    display = "&f&l前往 &b[&5系统&b] &6点数咨询".colorize(),
+                    routeTo = "point"
+                ),
+                PlayerUIPropsData(
+                    material = Material.END_PORTAL_FRAME,
+                    display = "&f&l前往 &b[&5系统&b] &6伺服传送".colorize(),
+                    routeTo = "teleport"
+                ),
+                PlayerUIPropsData(
+                    material = Material.MINECART,
+                    display = "&f&l前往 &b[&5系统&b] &6邮件快递".colorize(),
+                    routeTo = "mail"
+                ),
             )
         )
     }
@@ -82,7 +96,6 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
             style = styles.container,
             item = ItemStack(Material.WHITE_STAINED_GLASS_PANE),
             children = childrenOf(
-
                 +(props.data.map {
                     val item = ItemStack(it.material)
                     item.itemMeta<ItemMeta> {

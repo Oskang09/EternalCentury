@@ -5,5 +5,6 @@ enum class ChatType {
     MCMMO,
     SURVIVAL,
     PVPVE,
-    REDSTONE
+    REDSTONE,
+    PARTY
 }

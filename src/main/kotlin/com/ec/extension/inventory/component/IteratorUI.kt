@@ -1,6 +1,7 @@
 package com.ec.extension.inventory.component
 
 import com.ec.extension.inventory.UIProvider
+import com.ec.model.Observable
 import dev.reactant.resquare.dom.childrenOf
 import dev.reactant.resquare.dom.declareComponent
 import dev.reactant.resquare.dom.unaryPlus
@@ -17,7 +18,7 @@ import org.bukkit.inventory.ItemStack
 class IteratorUIProps(
     val info: ItemStack = ItemStack(Material.AIR),
     val itemsGetter: (Int) -> List<IteratorItem> = { mutableListOf() },
-    val itemsCount: Int,
+    val itemsCount: Long,
     val itemsPerPage: Int = 42
 )
 
@@ -65,6 +66,12 @@ abstract class IteratorUI(val name: String): UIProvider<IteratorUIProps>(name) {
         }
     }
 
+    private val refresher = Observable<Boolean>()
+
+    protected fun refresh() {
+        refresher.onNext(true)
+    }
+
     override val render = declareComponent<IteratorUIProps> { props ->
         useCancelRawEvent()
 
@@ -73,6 +80,7 @@ abstract class IteratorUI(val name: String): UIProvider<IteratorUIProps>(name) {
         var isFirst = page == 0
         val numberOfPages = props.itemsCount / props.itemsPerPage
         val isLast = numberOfPages < page + 1
+        refresher.subscribeOnce { setPage(page) }
 
         div(DivProps(
             style = styles.container,

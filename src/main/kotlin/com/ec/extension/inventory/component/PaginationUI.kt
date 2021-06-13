@@ -1,6 +1,7 @@
 package com.ec.extension.inventory.component
 
 import com.ec.extension.inventory.UIProvider
+import com.ec.model.Observable
 import dev.reactant.resquare.dom.childrenOf
 import dev.reactant.resquare.dom.declareComponent
 import dev.reactant.resquare.dom.unaryPlus
@@ -62,6 +63,13 @@ abstract class PaginationUI(val name: String): UIProvider<PaginationUIProps>(nam
             height = 1.px
             flexShrink = 0f
         }
+
+    }
+
+    private val refresher = Observable<Boolean>()
+
+    protected fun refresh() {
+        refresher.onNext(true)
     }
 
     override val render = declareComponent<PaginationUIProps> { props ->
@@ -71,6 +79,7 @@ abstract class PaginationUI(val name: String): UIProvider<PaginationUIProps>(nam
         val renderItems = props.items.drop(page * props.itemsPerPage).take(props.itemsPerPage)
         var isFirst = page == 0
         val isLast = props.items.size / props.itemsPerPage < page + 1
+        refresher.subscribeOnce { setPage(page) }
 
         div(DivProps(
             style = styles.container,

@@ -18,7 +18,7 @@ import org.bukkit.inventory.meta.ItemMeta
 
 @Component
 class ItemManager(
-    @Inject("plugins/server-data/items")
+    @Inject("plugins/EternalCentury/items")
     private val itemConfigs: MultiConfigs<ItemConfig>
 ) {
     private val mapper = jacksonObjectMapper()

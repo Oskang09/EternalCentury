@@ -102,7 +102,7 @@ class EconomyService: Economy {
         return balance >= amount
     }
 
-    override fun has(playerName: String, worldName: String, amount: Double): Boolean {
+    override fun has(playerName: String, worldName: String?, amount: Double): Boolean {
         return has(playerName, amount)
     }
 

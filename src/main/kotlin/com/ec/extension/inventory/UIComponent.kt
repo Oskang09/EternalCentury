@@ -16,14 +16,30 @@ import org.bukkit.inventory.meta.SkullMeta
 @Component
 class UIComponent {
 
-    fun item(material: Material, meta: ((ItemMeta) -> Unit)? = null): ItemStack {
+    fun item(material: Material, glowing: Boolean = false, meta: ((ItemMeta) -> Unit)? = null): ItemStack {
         val item = ItemStack(material)
         item.itemMeta<ItemMeta> {
             if (meta != null) {
                 meta(this)
             }
         }
+
+        if (glowing) {
+            return withGlow(item)
+        }
         return item
+    }
+
+    fun playerHead(player: String, meta: ((SkullMeta) -> Unit)? = null): ItemStack {
+        val head = ItemStack(Material.PLAYER_HEAD)
+        head.itemMeta<SkullMeta> {
+            if (meta != null) {
+                meta(this)
+            }
+
+            owningPlayer = Bukkit.getPlayer(player)
+        }
+        return head
     }
 
     fun playerHead(player: Player, meta: ((SkullMeta) -> Unit)? = null): ItemStack {

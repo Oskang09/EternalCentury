@@ -22,7 +22,6 @@ class TitleManager {
             it.initialize(globalManager)
             titles[it.id] = it
         }
-
     }
 
     fun getTitles(): Collection<TitleAPI> {

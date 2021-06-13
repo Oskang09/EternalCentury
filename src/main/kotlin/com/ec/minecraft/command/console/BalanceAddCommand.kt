@@ -29,7 +29,6 @@ internal class BalanceAddCommand(private val globalManager: GlobalManager): Reac
     override fun execute() {
         requireSenderIsConsole()
 
-
         globalManager.economy.depositPlayer(Bukkit.getPlayer(playerName!!)!!, money!!)
     }
 

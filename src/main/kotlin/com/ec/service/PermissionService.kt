@@ -11,6 +11,14 @@ class PermissionService: Permission() {
 
     private val playersDefaultPermissions = listOf(
         "mcmmo.commands.defaults",
+        "mcmmo.ability.*",
+        "residence.max.res.1",
+        "residence.create",
+        "residence.permisiononerror",
+        "residence.command.message.enter",
+        "residence.command.message.leave",
+        "residence.command.message.enter.remove",
+        "residence.command.message.leave.remove"
     )
 
     private lateinit var globalManager: GlobalManager

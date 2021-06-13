@@ -4,6 +4,7 @@ import com.ec.database.*
 import com.ec.service.EconomyService
 import com.ec.service.PermissionService
 import dev.reactant.reactant.core.ReactantPlugin
+import me.oska.UniversalGUI
 import net.milkbowl.vault.economy.Economy
 import net.milkbowl.vault.permission.Permission
 import org.bukkit.Bukkit
@@ -20,25 +21,21 @@ import java.sql.Connection
 class ECCore: JavaPlugin() {
 
     companion object {
+        const val VERSION = "0.0.1"
         lateinit var instance: JavaPlugin private set
     }
 
     override fun onEnable() {
         instance = this
 
-        Database.connect("jdbc:sqlite:${File(dataFolder.absolutePath, "../server-data/sqlite.db")}", "org.sqlite.JDBC")
+        Database.connect("jdbc:sqlite:${File(dataFolder.absolutePath, "../EternalCentury/sqlite.db")}", "org.sqlite.JDBC")
         TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
 
         transaction {
             SchemaUtils.createMissingTablesAndColumns(
-                Economies, Issues, Players, Points, Titles,
-                Votes, VoteRewards
+                Announcements, Mails, Malls, MallHistories, Economies, Issues,
+                Players, Points, Titles, Votes, VoteRewards
             )
-        }
-
-        val plugin = Bukkit.getPluginManager().getPlugin("UniversalGUI")
-        if (plugin != null) {
-//            val ugui = (plugin as UniversalGUI)
         }
 
         val service = server.servicesManager

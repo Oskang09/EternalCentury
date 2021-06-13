@@ -3,40 +3,39 @@ package com.ec.extension
 import com.ec.ECCore
 import com.ec.config.RewardConfig
 import com.ec.config.ServerConfig
-import com.ec.database.*
+import com.ec.database.model.ChatType
 import com.ec.extension.discord.DiscordManager
 import com.ec.extension.enchantment.EnchantmentManager
 import com.ec.extension.inventory.UIComponent
 import com.ec.extension.inventory.UIManager
 import com.ec.extension.item.ItemManager
+import com.ec.extension.item.UguiProvider
 import com.ec.extension.papi.PlaceholderManager
-import com.ec.extension.title.TitleManager
-import com.ec.extension.trait.TraitManager
 import com.ec.extension.player.PlayerManager
 import com.ec.extension.point.PointManager
-import com.ec.service.*
+import com.ec.extension.store.StoreManager
+import com.ec.extension.title.TitleManager
+import com.ec.model.Emoji
+import com.ec.service.EconomyService
+import com.ec.service.MessageService
+import com.ec.service.PermissionService
+import com.ec.util.StringUtil.colorize
+import com.gmail.nossr50.util.player.UserManager
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.component.lifecycle.LifeCycleHook
 import dev.reactant.reactant.core.dependency.injection.Inject
 import dev.reactant.reactant.service.spec.config.Config
 import dev.reactant.reactant.service.spec.server.EventService
 import dev.reactant.reactant.service.spec.server.SchedulerService
+import me.oska.UniversalGUI
+import net.citizensnpcs.api.event.NPCRightClickEvent
 import net.milkbowl.vault.economy.Economy
 import net.milkbowl.vault.permission.Permission
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
-import org.bukkit.plugin.ServicePriority
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.transactions.TransactionManager
-import org.jetbrains.exposed.sql.transactions.transaction
-import java.io.File
-import java.sql.Connection
-import java.text.SimpleDateFormat
-import java.time.Instant
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.util.*
+import org.bukkit.event.EventPriority
+import org.bukkit.event.server.ServerListPingEvent
+import org.bukkit.inventory.meta.Damageable
 import kotlin.concurrent.thread
 
 @Component
@@ -48,10 +47,10 @@ class GlobalManager(
     val enchantments: EnchantmentManager,
     val placeholders: PlaceholderManager,
     val titles: TitleManager,
-    val traits: TraitManager,
     val points: PointManager,
     val items: ItemManager,
     val discord: DiscordManager,
+    val store: StoreManager,
     val inventory: UIManager,
     val component: UIComponent,
     val states: StateManager,
@@ -66,11 +65,11 @@ class GlobalManager(
     val schedulers: SchedulerService,
 
     // Configurations
-    @Inject("plugins/server-data/server.json")
-    private val serverConfigFile: Config<ServerConfig>
+    @Inject("plugins/EternalCentury/server.json")
+    private val serverConfigFile: Config<ServerConfig>,
 ): LifeCycleHook {
 
-    val serverConfig: ServerConfig = serverConfigFile.content
+    var serverConfig: ServerConfig = serverConfigFile.content
 
     fun runInMainThread(action: () -> Unit) {
         Bukkit.getScheduler().runTask(ECCore.instance, action)
@@ -79,6 +78,12 @@ class GlobalManager(
     fun runOffMainThread(action: () -> Unit) {
         thread {
             action()
+        }
+    }
+
+    fun reloadServerConfig() {
+        serverConfigFile.refresh().subscribe {
+            serverConfig = serverConfigFile.content
         }
     }
 
@@ -96,6 +101,77 @@ class GlobalManager(
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd)
                 }
             }
+        }
+    }
+
+    fun mcmmoPartySendMessage(player: Player, msg: String) {
+        val mcmmoPlayer = UserManager.getPlayer(player)
+        if (!mcmmoPlayer.inParty()) {
+            player.sendMessage(message.system("您目前不在任何队伍。"))
+            return
+        }
+
+        val party = mcmmoPlayer.party
+        party.onlineMembers.forEach {
+            it.sendMessage(message.playerChat(player, ChatType.PARTY, msg))
+        }
+
+    }
+
+    fun mcmmoPartyIsNearby(starter: Player, challenge: String): Boolean {
+        val mcmmoPlayer = UserManager.getPlayer(starter)
+        if (!mcmmoPlayer.inParty()) {
+            starter.sendMessage(message.system("您目前不在任何队伍。"))
+            return false
+        }
+
+        val party = mcmmoPlayer.party
+        val nearbyMembers = party.getNearMembers(mcmmoPlayer)
+        if (nearbyMembers.size != party.onlineMembers.size) {
+            val messages = arrayListOf(message.system("&f&l玩家 ${starter.displayName} &f&l发起了挑战 - $challenge"))
+            messages.addAll(party.onlineMembers.map { member ->
+                return@map if (!nearbyMembers.contains(member)) {
+                    "&c&l${Emoji.CROSS.text} &e&l玩家 ${member.displayName} 还没集合！"
+                } else {
+                    "&e&l玩家 ${member.displayName} 准备就绪！"
+                }
+            })
+
+            party.onlineMembers.forEach {
+                it.sendMessage(messages.colorize().toTypedArray())
+            }
+            return false
+        }
+        return true
+    }
+
+    fun mcmmoPartyTeleport(starter: Player, challenge: String, to: String) {
+        val mcmmoPlayer = UserManager.getPlayer(starter)
+        if (!mcmmoPlayer.inParty()) {
+            starter.sendMessage(message.system("您目前不在任何队伍。"))
+            return
+        }
+
+        val party = mcmmoPlayer.party
+        val nearbyMembers = party.getNearMembers(mcmmoPlayer)
+        if (nearbyMembers.size != party.onlineMembers.size) {
+            val messages = arrayListOf(message.system("&f&l玩家 ${starter.displayName} &f&l发起了挑战 - &e&l${challenge}"))
+            messages.addAll(party.onlineMembers.map { member ->
+                return@map if (!nearbyMembers.contains(member)) {
+                    "&c&l${Emoji.CROSS.text} &e&l玩家 ${member.displayName} 还没集合！"
+                } else {
+                    "&e&l玩家 ${member.displayName} 准备就绪！"
+                }
+            })
+
+            party.onlineMembers.forEach {
+                it.sendMessage(messages.toTypedArray())
+            }
+            return
+        }
+
+        party.onlineMembers.forEach {
+            it.teleport(serverConfig.teleports[to]!!)
         }
     }
 
@@ -117,9 +193,45 @@ class GlobalManager(
         players.onInitialize(this)
         titles.onInitialize(this)
         points.onInitialize(this)
-        traits.onInitialize(this)
         inventory.onInitialize(this)
         items.onInitialize(this)
+
+        val plugin = Bukkit.getPluginManager().getPlugin("UniversalGUI")
+        if (plugin != null) {
+            val ugui = plugin as UniversalGUI
+            ugui.registerProvider(UguiProvider(this))
+            reflections.loopModules {
+                it.initialize(this)
+                ugui.registerModule(it)
+            }
+        }
+
+        events {
+
+            ServerListPingEvent::class
+                .observable(true, EventPriority.HIGHEST)
+                .subscribe {
+                    it.maxPlayers = 0
+                    it.motd = "           §f§l[§5§lEC§f§l] §b§l永恒新世纪  §f§l多种玩法,多种乐趣！\n    §f§l| §c§lMCMMO §f§l| §a§l原味生存 §f§l| §7§l自制插件 §f§l| §d§l赛季玩法 §f§l|".colorize()
+                }
+
+            NPCRightClickEvent::class
+                .observable(true, EventPriority.HIGHEST)
+                .subscribe {
+                    val player = it.clicker
+                    when (it.npc.id) {
+                        serverConfig.repairNpcId -> {
+                            val item = player.inventory.itemInMainHand
+                            if (item.hasItemMeta() && item.itemMeta is Damageable) {
+                                return@subscribe inventory.displayRepair(player);
+                            }
+                            player.sendMessage(message.npc(it.npc, "您的物品暂时不需要修理"))
+                        }
+
+                    }
+                }
+
+        }
     }
 
 }

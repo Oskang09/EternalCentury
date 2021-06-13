@@ -12,7 +12,6 @@ object Players: Table() {
     val uuid = varchar("uuid", 36).uniqueIndex().nullable()
     val playerName = varchar("player_name", 20).uniqueIndex()
     var discordTag = varchar("discord_tag", 50).uniqueIndex()
-    val playTimes = long("play_times")
     val createdAt = long("created_at")
     val lastOnlineAt = long("last_online")
     val currentTitle = varchar("current_title", 50)

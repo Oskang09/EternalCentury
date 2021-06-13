@@ -19,7 +19,7 @@ class MessageService {
     }
 
     fun npc(npc: NPC, message: String): String {
-        return "&b[&5系统&b] &r${npc.fullName} : &f$message".colorize()
+        return "${npc.fullName} : &f$message".colorize()
     }
 
     fun playerChat(player: Player, chatType: ChatType, message: String): String {
@@ -30,6 +30,7 @@ class MessageService {
             ChatType.SURVIVAL -> "资源生存"
             ChatType.MCMMO -> "角色达人"
             ChatType.REDSTONE -> "红石机关"
+            ChatType.PARTY -> "队伍讨论"
         }
 
         return "&f[&a$channelName&f] &r${player.displayName} : &f".colorize() + message

@@ -19,7 +19,7 @@ class JSONType<out T: Any>(private val clazz: Class<T>, private val mapper: Obje
 
     override fun valueFromDB(value: Any): Any {
         val text = value.toString()
-        if (text == "") return clazz.newInstance()
+        if (text == "") return clazz.getDeclaredConstructor().newInstance()
         return mapper.readValue(text, clazz)
     }
 
