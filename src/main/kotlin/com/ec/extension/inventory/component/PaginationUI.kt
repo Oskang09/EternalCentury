@@ -18,7 +18,6 @@ import org.bukkit.inventory.ItemStack
 class PaginationUIProps(
     val info: ItemStack = ItemStack(Material.AIR),
     val items: List<PaginationItem> = mutableListOf(),
-    val itemsPerPage: Int = 42
 )
 
 class PaginationItem(
@@ -66,6 +65,7 @@ abstract class PaginationUI(val name: String): UIProvider<PaginationUIProps>(nam
 
     }
 
+    private val itemsPerPage = 42
     private val refresher = Observable<Boolean>()
 
     protected fun refresh() {
@@ -76,9 +76,9 @@ abstract class PaginationUI(val name: String): UIProvider<PaginationUIProps>(nam
         useCancelRawEvent()
 
         val (page, setPage) = useState(0)
-        val renderItems = props.items.drop(page * props.itemsPerPage).take(props.itemsPerPage)
+        val renderItems = props.items.drop(page * itemsPerPage).take(itemsPerPage)
         var isFirst = page == 0
-        val isLast = props.items.size / props.itemsPerPage < page + 1
+        val isLast = props.items.size / itemsPerPage < page + 1
         refresher.subscribeOnce { setPage(page) }
 
         div(DivProps(

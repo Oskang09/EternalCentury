@@ -1,11 +1,10 @@
 package com.ec.minecraft.title
 
 import com.ec.extension.GlobalManager
-import com.ec.model.player.ECPlayer
 import com.ec.extension.title.TitleAPI
+import com.ec.model.player.ECPlayer
 import com.ec.util.StringUtil.colorize
 import dev.reactant.reactant.extensions.itemMeta
-import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta

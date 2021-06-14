@@ -11,6 +11,7 @@ import com.ec.extension.inventory.UIManager
 import com.ec.extension.item.ItemManager
 import com.ec.extension.item.UguiProvider
 import com.ec.extension.papi.PlaceholderManager
+import com.ec.extension.payment.PaymentManager
 import com.ec.extension.player.PlayerManager
 import com.ec.extension.point.PointManager
 import com.ec.extension.title.TitleManager
@@ -30,6 +31,7 @@ import me.oska.UniversalGUI
 import net.citizensnpcs.api.event.NPCRightClickEvent
 import net.milkbowl.vault.economy.Economy
 import net.milkbowl.vault.permission.Permission
+import net.skinsrestorer.api.SkinsRestorerAPI
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
@@ -52,6 +54,7 @@ class GlobalManager(
     val inventory: UIManager,
     val component: UIComponent,
     val states: StateManager,
+    val payments: PaymentManager,
 
     // Services
     var economy: EconomyService,
@@ -67,6 +70,7 @@ class GlobalManager(
     private val serverConfigFile: Config<ServerConfig>,
 ): LifeCycleHook {
 
+    lateinit var skins: SkinsRestorerAPI
     var serverConfig: ServerConfig = serverConfigFile.content
 
     fun runInMainThread(action: () -> Unit) {
@@ -102,17 +106,15 @@ class GlobalManager(
         }
     }
 
-    fun mcmmoPartySendMessage(player: Player, msg: String) {
+    fun mcmmoGetPlayerParty(player: Player): List<Player> {
         val mcmmoPlayer = UserManager.getPlayer(player)
         if (!mcmmoPlayer.inParty()) {
             player.sendMessage(message.system("您目前不在任何队伍。"))
-            return
+            return listOf()
         }
 
         val party = mcmmoPlayer.party
-        party.onlineMembers.forEach {
-            it.sendMessage(message.playerChat(player, ChatType.PARTY, msg))
-        }
+        return party.onlineMembers
 
     }
 
@@ -188,11 +190,14 @@ class GlobalManager(
 
         enchantments.onInitialize(this)
         placeholders.onInitialize(this)
+        payments.onInitialize(this)
         players.onInitialize(this)
         titles.onInitialize(this)
         points.onInitialize(this)
         inventory.onInitialize(this)
         items.onInitialize(this)
+        skins = SkinsRestorerAPI.getApi()
+
 
         val plugin = Bukkit.getPluginManager().getPlugin("UniversalGUI")
         if (plugin != null) {

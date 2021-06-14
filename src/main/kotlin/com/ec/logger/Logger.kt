@@ -11,6 +11,7 @@ import org.bukkit.event.Event
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.text.SimpleDateFormat
+import java.time.Instant
 import java.util.*
 
 object Logger {
@@ -46,12 +47,16 @@ object Logger {
                     it[id] = generatedId
                     it[title] = valTitle
                     it[message] = valMessage
-                    it[timestamp] = DATE_FORMAT.format(Calendar.getInstance(MALAYSIA_TIMEZONE).time)
+                    it[timestamp] = getReadableCurrentTime()
                     it[stack] = e.stackTraceToString().replace("\t", "  ").split("\r\n").toMutableList()
                 }
             }
             return generatedId
         }
         return null
+    }
+
+    fun getReadableCurrentTime(): String {
+        return DATE_FORMAT.format(Calendar.getInstance(MALAYSIA_TIMEZONE).time)
     }
 }

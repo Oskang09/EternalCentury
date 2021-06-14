@@ -77,7 +77,7 @@ class TeleportUI: PaginationUI("teleport") {
                     },
                     click = {
                         player.closeInventory()
-                        teleportTo(it.whoClicked as Player, "build")
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "res rt ${player.name} world")
                     }
                 ),
                 PaginationItem(
@@ -91,7 +91,7 @@ class TeleportUI: PaginationUI("teleport") {
                     },
                     click = {
                         player.closeInventory()
-                        teleportTo(it.whoClicked as Player, "survival")
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "res rt ${player.name} survival")
                     }
                 ),
             ),

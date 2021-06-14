@@ -14,9 +14,11 @@ object Players: Table() {
     var discordTag = varchar("discord_tag", 50).uniqueIndex()
     val createdAt = long("created_at")
     val lastOnlineAt = long("last_online")
-    val currentTitle = varchar("current_title", 50)
-    val balance = json("balance", EconomyInfo::class.java)
+    val currentTitle = varchar("current_title", 50).default("")
     val enchantmentRandomSeed = integer("enchantment_seed")
+    val skinLimit = integer("skin_limit").default(1)
+    val skins = array("skins", String::class.java)
+    val balance = json("balance", EconomyInfo::class.java)
     val points = json("points", PointInfo::class.java)
     val permissions = array("permissions", String::class.java)
     val channels = array("channels", ChatType::class.java)
@@ -24,5 +26,6 @@ object Players: Table() {
     val blockedTeleport = array("blocked_teleport", String::class.java)
     // list of players name
     val ignoredPlayers = array("ignored_players", String::class.java)
+
     override val primaryKey = PrimaryKey(id)
 }

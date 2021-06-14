@@ -8,6 +8,7 @@ import kotlinx.coroutines.selects.select
 import me.oska.UniversalGUI
 import net.milkbowl.vault.economy.Economy
 import net.milkbowl.vault.permission.Permission
+import net.skinsrestorer.api.SkinsRestorerAPI
 import org.bukkit.Bukkit
 import org.bukkit.plugin.ServicePriority
 import org.bukkit.plugin.java.JavaPlugin

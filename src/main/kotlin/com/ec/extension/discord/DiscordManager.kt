@@ -4,7 +4,6 @@ import club.minnced.jda.reactor.ReactiveEventManager
 import club.minnced.jda.reactor.on
 import club.minnced.jda.reactor.onMessage
 import com.ec.ECCore
-import com.ec.database.Mails
 import com.ec.database.Players
 import com.ec.database.model.ChatType
 import com.ec.database.model.economy.EconomyInfo
@@ -12,30 +11,35 @@ import com.ec.database.model.point.PointInfo
 import com.ec.extension.GlobalManager
 import com.ec.model.ObservableObject
 import com.ec.model.player.ECPlayerState
+import com.ec.util.ModelUtil.toDisplay
 import com.ec.util.RandomUtil
+import com.ec.util.StringUtil.colorize
 import com.ec.util.StringUtil.generateUniqueID
+import de.tr7zw.nbtapi.NBTItem
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.component.lifecycle.LifeCycleHook
+import io.javalin.core.util.RouteOverviewUtil.metaInfo
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.OnlineStatus
-import net.dv8tion.jda.api.entities.Activity
-import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.entities.Role
-import net.dv8tion.jda.api.entities.TextChannel
+import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent
 import net.dv8tion.jda.api.requests.GatewayIntent
+import net.md_5.bungee.api.ChatMessageType
+import net.md_5.bungee.api.chat.ComponentBuilder
+import net.md_5.bungee.api.chat.HoverEvent
+import net.md_5.bungee.api.chat.TextComponent
 import org.bukkit.Bukkit
+import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.awt.Color
 import java.time.Instant
-import java.util.EnumSet
+import java.util.*
 import kotlin.time.ExperimentalTime
 
 @Component
@@ -80,6 +84,7 @@ class DiscordManager: LifeCycleHook {
 
             AsyncPlayerChatEvent::class
                 .observable(true, EventPriority.HIGHEST)
+                .filter { it.isAsynchronous }
                 .subscribe {
                     it.isCancelled = true
                     if (globalManager.players.getByPlayer(it.player).state != ECPlayerState.AUTHENTICATED) {
@@ -112,6 +117,26 @@ class DiscordManager: LifeCycleHook {
                         else -> ChatType.GLOBAL
                     }
 
+                    val component = ComponentBuilder(globalManager.message.playerChat(sender, chatType, ""))
+                    if (message.contains("%item%")) {
+                        val messages = message.split("%item%")
+                        val item = sender.inventory.itemInMainHand
+                        if (item.type == Material.AIR) {
+                            sender.sendMessage(globalManager.message.system("你手上没有物品，无法发送到聊天窗！"))
+                            return@subscribe
+                        }
+
+                        val display = TextComponent(("&7[" + item.type.name + "]&r").colorize())
+                        display.hoverEvent = HoverEvent(HoverEvent.Action.SHOW_ITEM, ComponentBuilder(NBTItem.convertItemtoNBT(item).toString()).create())
+
+                        component.append(messages[0])
+                        component.append(display)
+                        component.append(messages[1])
+                        message = message.replace("%item%", " (游戏内查看) ")
+                    } else {
+                        component.append(message)
+                    }
+
                     if (chatType != ChatType.PARTY) {
                         channels[chatType]!!.sendMessage(sender.displayName + " : " + message).queue()
 
@@ -120,10 +145,12 @@ class DiscordManager: LifeCycleHook {
                             .filter { p -> !globalManager.players.getByPlayer(p).database[Players.ignoredPlayers].contains(sender.name) }
                             .filter { p -> globalManager.players.getByPlayer(p).database[Players.channels].contains(chatType) }
                             .forEach { p ->
-                                p.sendMessage(globalManager.message.playerChat(sender, chatType, message))
+                                p.spigot().sendMessage(ChatMessageType.CHAT, *component.create())
                             }
                     } else {
-                        globalManager.mcmmoPartySendMessage(sender, message)
+                        globalManager.mcmmoGetPlayerParty(sender).forEach { p ->
+                            p.spigot().sendMessage(ChatMessageType.CHAT, *component.create())
+                        }
                     }
                 }
         }
@@ -184,14 +211,16 @@ class DiscordManager: LifeCycleHook {
                         data[playerName] = name
                         data[discordTag] = it.message.author.asTag
                         data[createdAt] = Instant.now().epochSecond
-                        data[currentTitle] = ""
-                        data[balance] = EconomyInfo()
-                        data[points] = PointInfo()
                         data[lastOnlineAt] = Instant.now().epochSecond
                         data[enchantmentRandomSeed] = RandomUtil.randomInteger(99999)
-                        data[channels] = ChatType.values().toMutableList()
+                        data[skins] = mutableListOf()
+                        data[balance] = EconomyInfo()
+                        data[points] = PointInfo()
+                        data[permissions] = mutableListOf()
                         data[blockedTeleport] = mutableListOf()
                         data[ignoredPlayers] = mutableListOf()
+                        data[channels] = ChatType.values().toMutableList()
+
                     }
                 }
 

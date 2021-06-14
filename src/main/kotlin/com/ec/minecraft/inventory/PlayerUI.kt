@@ -13,6 +13,7 @@ import dev.reactant.resquare.elements.styleOf
 import dev.reactant.resquare.render.useCancelRawEvent
 import org.bukkit.Material
 import org.bukkit.entity.HumanEntity
+import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 
@@ -48,7 +49,7 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
 
     override fun info(props: PlayerUIProps): UIBase {
         return UIBase(
-            rows = 3,
+            rows = 4,
             cols = 9,
             title = "&b[&5系统&b] &6玩家主页".colorize()
         )
@@ -82,6 +83,21 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
                     display = "&f&l前往 &b[&5系统&b] &6邮件快递".colorize(),
                     routeTo = "mail"
                 ),
+                PlayerUIPropsData(
+                    material = Material.OAK_SIGN,
+                    display = "&f&l前往 &b[&5系统&b] &6聊天频道".colorize(),
+                    routeTo = "chat"
+                ),
+                PlayerUIPropsData(
+                    material = Material.GOLDEN_APPLE,
+                    display = "&f&l前往 &b[&5系统&b] &6伺服赞助".colorize(),
+                    routeTo = "payment"
+                ),
+                PlayerUIPropsData(
+                    material = Material.PLAYER_HEAD,
+                    display = "&f&l前往 &b[&5系统&b] &6玩家造型".colorize(),
+                    routeTo = "skin"
+                ),
             )
         )
     }
@@ -91,8 +107,7 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
 
         useCancelRawEvent()
 
-        div(
-            DivProps(
+        div(DivProps(
             style = styles.container,
             item = ItemStack(Material.WHITE_STAINED_GLASS_PANE),
             children = childrenOf(
@@ -111,8 +126,7 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
                     ))
                 })
             )
-        )
-        )
+        ))
     }
 
 }

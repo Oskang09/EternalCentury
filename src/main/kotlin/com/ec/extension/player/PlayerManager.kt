@@ -128,6 +128,7 @@ class PlayerManager {
                     ecPlayer.state = ECPlayerState.LOGIN
                     players[player.uniqueId] = ecPlayer
 
+                    globalManager.permission.injectPermission(player)
                     globalManager.runOffMainThread {
                         transaction {
                             val announcement = Announcements.select { Announcements.isExpired eq false }.toList()
@@ -210,10 +211,13 @@ class PlayerManager {
         }
     }
 
-    fun refreshPlayerIfOnline(id: UUID) {
+    fun refreshPlayerIfOnline(id: UUID, extraAction: ((Player) -> Unit)? = null) {
         val onlinePlayer = Bukkit.getPlayer(id)
         if (onlinePlayer != null && onlinePlayer.isOnline) {
             players[id]?.refreshPlayer()
+            if (extraAction != null) {
+                extraAction(onlinePlayer)
+            }
         }
     }
 

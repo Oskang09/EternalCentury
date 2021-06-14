@@ -28,6 +28,7 @@ repositories {
     maven { url = URI.create("https://hub.spigotmc.org/nexus/content/repositories/snapshots") }
     maven { url = URI.create("https://oss.sonatype.org/content/repositories/snapshots/") }
     maven { url = URI.create("https://repo.codemc.org/repository/maven-public/") }
+    maven { url = URI.create("https://repo.codemc.io/repository/maven-snapshots/") }
     maven { url = URI.create("https://jitpack.io") }
     maven { url = URI.create("https://m2.dv8tion.net/releases") }
     maven { url = URI.create("https://repo.citizensnpcs.co") }
@@ -46,6 +47,7 @@ dependencies {
     compileOnly("com.github.Oskang09:UniversalGUI:3.0.4")
     compileOnly("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.3")
     compileOnly("net.citizensnpcs:citizensapi:2.0.27-SNAPSHOT")
+    compileOnly("de.tr7zw:item-nbt-api-plugin:2.8.0")
     compileOnly(fileTree("src/main/libs"))
 
     implementation("org.jetbrains.exposed:exposed-core:0.32.1")
@@ -54,10 +56,14 @@ dependencies {
     implementation("org.xerial:sqlite-jdbc:3.30.1")
     implementation("io.javalin:javalin:3.13.7")
 
+    implementation("com.github.WesJD:AnvilGUI:-SNAPSHOT")
     implementation("de.themoep:minedown:1.7.1-SNAPSHOT")
     implementation("xyz.xenondevs:particle:1.5.1")
     implementation("net.oneandone.reflections8:reflections8:0.11.5")
+
+    compileOnly("com.squareup.okhttp3:logging-interceptor:4.2.1")
     implementation("com.github.Oskang09:RM-API-SDK-KOTLIN:0.0.3")
+
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
     implementation("com.github.MinnDevelopment:jda-reactor:1.3.0")
     implementation("net.dv8tion:JDA:4.2.1_253") {
