@@ -2,6 +2,7 @@ package com.ec.extension.inventory.component
 
 import com.ec.extension.inventory.UIProvider
 import com.ec.model.Observable
+import dev.reactant.resquare.dom.Node
 import dev.reactant.resquare.dom.childrenOf
 import dev.reactant.resquare.dom.declareComponent
 import dev.reactant.resquare.dom.unaryPlus
@@ -18,6 +19,7 @@ import org.bukkit.inventory.ItemStack
 class PaginationUIProps(
     val info: ItemStack = ItemStack(Material.AIR),
     val items: List<PaginationItem> = mutableListOf(),
+    val extras: Node? = null,
 )
 
 class PaginationItem(
@@ -102,6 +104,7 @@ abstract class PaginationUI(val name: String): UIProvider<PaginationUIProps>(nam
                                 setPage(page - 1)
                             }
                         ))),
+                        +props.extras,
                         +(if (isLast) null else div(DivProps(
                             style = styleOf(styles.leftBarItem){
                                marginTop = 3.px

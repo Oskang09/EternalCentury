@@ -24,6 +24,18 @@ abstract class UIProvider<T : Any>(val id: String) {
 
     protected abstract val render: Component.WithProps<T>
 
+    fun displayTo(player: HumanEntity, props: T) {
+        val base = info(props)
+        val container = createUI(
+            render, props, base.cols, base.rows, base.title,
+            multiThreadComponentRender = true,
+            multiThreadStyleRender = true,
+            autoDestroy = true
+        )
+
+        container.openInventory(player)
+    }
+
     fun displayTo(player: HumanEntity) {
         var props: T?
         if (isStaticProps) {

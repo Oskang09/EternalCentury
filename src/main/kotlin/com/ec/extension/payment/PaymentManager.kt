@@ -1,19 +1,21 @@
 package com.ec.extension.payment
 
 import com.ec.database.Issues
+import com.ec.database.Players
 import com.ec.extension.GlobalManager
 import com.ec.logger.Logger
+import com.ec.model.Observable
+import com.ec.model.ObservableMap
+import com.ec.model.ObservableMapActionType
 import com.ec.util.StringUtil.colorize
 import com.ec.util.StringUtil.generateUniqueID
 import com.github.revenuemonster.RevenueMonsterOpenAPI
 import com.github.revenuemonster.model.Environment
-import com.github.revenuemonster.model.request.GetQRCodeByCheckoutIDRequest
 import com.github.revenuemonster.model.request.OnlinePaymentRequest
 import com.github.revenuemonster.model.request.OnlinePaymentRequestCustomer
 import com.github.revenuemonster.model.request.OnlinePaymentRequestOrder
-import de.themoep.minedown.MineDown
+import com.github.revenuemonster.model.result.OnlinePaymentNotifyResponse
 import dev.reactant.reactant.core.component.Component
-import dev.reactant.reactant.extensions.itemMeta
 import net.md_5.bungee.api.ChatMessageType
 import net.md_5.bungee.api.chat.ClickEvent
 import net.md_5.bungee.api.chat.ComponentBuilder
@@ -21,24 +23,10 @@ import net.md_5.bungee.api.chat.HoverEvent
 import net.md_5.bungee.api.chat.TextComponent
 import net.md_5.bungee.api.chat.hover.content.Text
 import org.bukkit.Bukkit
-import org.bukkit.Material
 import org.bukkit.entity.Player
-import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.meta.MapMeta
-import org.bukkit.map.MapCanvas
-import org.bukkit.map.MapRenderer
-import org.bukkit.map.MapView
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.awt.AlphaComposite
-import java.awt.Image
-import java.awt.RenderingHints
-import java.awt.image.BufferedImage
-import java.io.ByteArrayInputStream
-import java.nio.Buffer
-import java.time.Instant
 import java.util.*
-import javax.imageio.ImageIO
 
 @Component
 class PaymentManager {
@@ -46,9 +34,15 @@ class PaymentManager {
     private val players: MutableList<UUID> = mutableListOf()
     private lateinit var globalManager: GlobalManager
     private lateinit var api: RevenueMonsterOpenAPI
+    private val paymentMapper  = ObservableMap<String, String>()
+    val paymentObserver: Observable<OnlinePaymentNotifyResponse> = Observable()
 
     fun onInitialize(globalManager: GlobalManager) {
         this.globalManager = globalManager
+
+        paymentMapper.subscribe({ it.type == ObservableMapActionType.REMOVE }) {
+            Bukkit.getPlayer(UUID.fromString(it.key))?.sendMessage(globalManager.message.system("您生成的付款网址已过期。"))
+        }
 
         api = RevenueMonsterOpenAPI(
             Environment.SANDBOX, "1616686697740585784", "uZsYdmzTsJzCQbAjcPMKGfFrYVclGxQX",
@@ -99,6 +93,22 @@ class PaymentManager {
     }
 
     fun generatePaymentURL(player: Player, amount: Int, title: String, detail: String) {
+        val mapperKey = globalManager.players.getByPlayer(player).database[Players.id]
+        if (paymentMapper[mapperKey] != null) {
+            val builder = ComponentBuilder()
+            builder.append(globalManager.message.system("您上次的付款请求还没国企。请到"))
+
+            val message = TextComponent("&7&l[网页]".colorize())
+            message.clickEvent = ClickEvent(ClickEvent.Action.OPEN_URL, paymentMapper[mapperKey])
+            message.hoverEvent = HoverEvent(HoverEvent.Action.SHOW_TEXT, Text("点击后将前往 Revenue Monster 付款网页"))
+            builder.append(message)
+
+            builder.append("&r付款，付款好点数会自动加入您的帐号。".colorize())
+
+            player.spigot().sendMessage(ChatMessageType.CHAT, *builder.create())
+            return
+        }
+
         val checkoutApi = api.payment.createOnlinePayment(OnlinePaymentRequest(
             order = OnlinePaymentRequestOrder(
                 title = title,
@@ -109,7 +119,7 @@ class PaymentManager {
                 id = "".generateUniqueID()
             ),
             customer = OnlinePaymentRequestCustomer(
-                userId = player.uniqueId.toString(),
+                userId = mapperKey,
                 email = "",
                 countryCode = "",
                 phoneNumber = ""
@@ -120,9 +130,20 @@ class PaymentManager {
             notifyUrl = "https://oskatb.ap.ngrok.io/notify"
         ))
 
-        Logger.withTrackerPlayer(player, "get payment url", "when generating payment url") {
+        Logger.withTrackerPlayer(player, "PaymentManager.generatePaymentURL", "when generating payment url") {
             val result = api.getResponseFromCall(checkoutApi)
             if (result.item != null) {
+                paymentMapper[mapperKey] = result.item!!.url
+                paymentObserver.subscribeOnceWithTimeout(
+                    { it.data.payee.userId == mapperKey },
+                    1000 * 60 * 10,
+                    { paymentMapper.remove(mapperKey) }
+                ) {
+                    transaction {
+
+                    }
+                }
+
                 val builder = ComponentBuilder()
                 builder.append(globalManager.message.system("请到"))
 

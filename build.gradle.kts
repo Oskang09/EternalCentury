@@ -56,7 +56,7 @@ dependencies {
     implementation("org.xerial:sqlite-jdbc:3.30.1")
     implementation("io.javalin:javalin:3.13.7")
 
-    implementation("com.github.WesJD:AnvilGUI:-SNAPSHOT")
+    implementation("com.github.WesJD:AnvilGUI:f45716e")
     implementation("de.themoep:minedown:1.7.1-SNAPSHOT")
     implementation("xyz.xenondevs:particle:1.5.1")
     implementation("net.oneandone.reflections8:reflections8:0.11.5")

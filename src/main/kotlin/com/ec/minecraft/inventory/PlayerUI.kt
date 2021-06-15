@@ -86,7 +86,7 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
                 PlayerUIPropsData(
                     material = Material.OAK_SIGN,
                     display = "&f&l前往 &b[&5系统&b] &6聊天频道".colorize(),
-                    routeTo = "chat"
+                    routeTo = "channel"
                 ),
                 PlayerUIPropsData(
                     material = Material.GOLDEN_APPLE,
@@ -98,6 +98,11 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
                     display = "&f&l前往 &b[&5系统&b] &6玩家造型".colorize(),
                     routeTo = "skin"
                 ),
+                PlayerUIPropsData(
+                    material = Material.BLAZE_POWDER,
+                    display = "&f&l前往 &b[&5系统&b] &6粒子特效".colorize(),
+                    routeTo = "command:pp gui"
+                )
             )
         )
     }
@@ -121,7 +126,12 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
                         style = styles.item,
                         item = item,
                         onClick = { event ->
-                            globalManager.inventory.displayTo(event.whoClicked, it.routeTo)
+                            val player = event.whoClicked as Player
+                            if (it.routeTo.startsWith("command:")) {
+                                player.performCommand(it.routeTo.replace("command:", ""))
+                            } else {
+                                globalManager.inventory.displayTo(player, it.routeTo)
+                            }
                         }
                     ))
                 })

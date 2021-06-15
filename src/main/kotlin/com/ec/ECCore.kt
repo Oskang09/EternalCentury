@@ -36,7 +36,7 @@ class ECCore: JavaPlugin() {
         transaction {
             SchemaUtils.createMissingTablesAndColumns(
                 Announcements, Mails, Malls, MallHistories, Economies, Issues,
-                Players, Points, Titles, Votes, VoteRewards
+                Players, Points, Titles, Votes, VoteRewards, Transactions
             )
 
             exec("SELECT 1")
