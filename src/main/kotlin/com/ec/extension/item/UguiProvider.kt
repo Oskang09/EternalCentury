@@ -23,7 +23,7 @@ class UguiProvider(private val globalManager: GlobalManager): ItemProvider() {
     }
 
     override fun get(config: Map<*, *>): ItemStack {
-        val id =config["id"] as String
+        val id = config["id"] as String
         return globalManager.items.getItemByKey(id)
     }
 

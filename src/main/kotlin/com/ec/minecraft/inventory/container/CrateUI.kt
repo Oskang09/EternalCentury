@@ -1,7 +1,10 @@
-package com.ec.extension.inventory.component
+package com.ec.minecraft.inventory.container
 
+import com.ec.config.CrateConfig
+import com.ec.extension.inventory.UIBase
 import com.ec.extension.inventory.UIProvider
-import com.ec.model.Observable
+import com.ec.extension.inventory.component.PaginationUIProps
+import com.ec.util.StringUtil.colorize
 import dev.reactant.resquare.dom.Node
 import dev.reactant.resquare.dom.childrenOf
 import dev.reactant.resquare.dom.declareComponent
@@ -9,25 +12,17 @@ import dev.reactant.resquare.dom.unaryPlus
 import dev.reactant.resquare.elements.DivProps
 import dev.reactant.resquare.elements.div
 import dev.reactant.resquare.elements.styleOf
-import dev.reactant.resquare.event.EventHandler
-import dev.reactant.resquare.event.ResquareClickEvent
 import dev.reactant.resquare.render.useCancelRawEvent
 import dev.reactant.resquare.render.useState
 import org.bukkit.Material
+import org.bukkit.entity.HumanEntity
 import org.bukkit.inventory.ItemStack
 
-class PaginationUIProps(
-    val info: ItemStack = ItemStack(Material.AIR),
-    val items: List<PaginationItem> = mutableListOf(),
-    val extras: Node? = null,
-)
+class CrateUI: UIProvider<CrateUI.CrateUIProps>("crate") {
 
-class PaginationItem(
-    val item: ItemStack = ItemStack(Material.AIR),
-    val click: EventHandler<ResquareClickEvent>? = null,
-)
-
-abstract class PaginationUI(val name: String): UIProvider<PaginationUIProps>(name) {
+    data class CrateUIProps(
+        val crates: List<CrateConfig> = listOf()
+    )
 
     private val styles = object {
 
@@ -67,21 +62,53 @@ abstract class PaginationUI(val name: String): UIProvider<PaginationUIProps>(nam
 
     }
 
-    private val itemsPerPage = 42
-    private val refresher = Observable<Boolean>()
-
-    protected fun refresh() {
-        refresher.onNext(true)
+    override fun info(props: CrateUIProps): UIBase {
+        return UIBase(
+            rows = 6,
+            cols = 9,
+            title = "&b[&5系统&b] &6抽奖水池".colorize()
+        )
     }
 
-    override val render = declareComponent<PaginationUIProps> { props ->
+    override fun props(player: HumanEntity): CrateUIProps {
+        return CrateUIProps(globalManager.crates.getCrates())
+    }
+
+    override val render = declareComponent<CrateUIProps> { props ->
         useCancelRawEvent()
 
         val (page, setPage) = useState(0)
-        val renderItems = props.items.drop(page * itemsPerPage).take(itemsPerPage)
+        val (crate, setCrate) = useState<CrateConfig?>(null)
+
+        var info: ItemStack
+        var items: List<Node>
+        if (crate != null) {
+            info = globalManager.items.getItemByConfig(crate.display)
+            items = crate.rewardDisplays.map {
+                div(DivProps(
+                    style = styles.item,
+                    item = globalManager.items.getItemByConfig(it),
+                ))
+            }
+        } else {
+            info = globalManager.component.item(Material.CHEST) {
+                it.setDisplayName("&f[&5系统&f] &f抽奖水池".colorize())
+                it.lore = arrayListOf("&7抽奖宝箱 &f- &a${props.crates.size}").colorize()
+            }
+            items = props.crates.map {
+                div(DivProps(
+                    style = styles.item,
+                    item = globalManager.items.getItemByConfig(it.display),
+                    onClick = { _ ->
+                        setCrate(it)
+                    }
+                ))
+            }
+        }
+
+        val renderItems = items.drop(page * 42).take(42)
         var isFirst = page == 0
-        val isLast = props.items.size / itemsPerPage < page + 1
-        refresher.subscribeOnce { setPage(page) }
+        val isLast = items.size / 42 < page + 1
 
         div(DivProps(
             style = styles.container,
@@ -90,7 +117,7 @@ abstract class PaginationUI(val name: String): UIProvider<PaginationUIProps>(nam
                     style = styles.leftBar,
                     children = childrenOf(
                         div(DivProps(
-                            item = props.info,
+                            item = info,
                             style = styles.leftBarItem
                         )),
                         div(DivProps(
@@ -104,7 +131,16 @@ abstract class PaginationUI(val name: String): UIProvider<PaginationUIProps>(nam
                                 setPage(page - 1)
                             }
                         ))),
-                        +props.extras,
+                        +(if (crate == null) null else div(DivProps(
+                            style = styles.leftBarItem,
+                            item = globalManager.component.item(Material.BARRIER) {
+                                it.setDisplayName("&b[&5系统&b] &6返回".colorize())
+                            },
+                            onClick = {
+                                setPage(0)
+                                setCrate(null)
+                            }
+                        ))),
                         +(if (isLast) null else div(DivProps(
                             style = styles.leftBarItem,
                             item = globalManager.component.arrowNext(),
@@ -120,15 +156,7 @@ abstract class PaginationUI(val name: String): UIProvider<PaginationUIProps>(nam
                 )),
                 div(DivProps(
                     style = styles.itemContainer,
-                    children = childrenOf(
-                        +(renderItems.map {
-                            return@map div(DivProps(
-                                style = styles.item,
-                                item = it.item,
-                                onClick = it.click
-                            ))
-                        })
-                    )
+                    children = childrenOf(+renderItems)
                 ))
             )
         ))

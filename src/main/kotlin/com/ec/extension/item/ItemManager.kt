@@ -12,6 +12,8 @@ import dev.reactant.reactant.core.dependency.injection.Inject
 import dev.reactant.reactant.extensions.itemMeta
 import dev.reactant.reactant.extra.config.type.MultiConfigs
 import org.bukkit.Material
+import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemFactory
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
@@ -104,6 +106,22 @@ class ItemManager(
 
     fun getItems(): MutableMap<String, ItemConfig> {
         return items
+    }
+
+    fun playerHas(player: Player, itemId: String, amount: Int = 1): Boolean {
+        val item = globalManager.items.getItemByKey(itemId)
+        item.amount = amount
+        return player.inventory.contains(item)
+    }
+
+    fun playerRemove(player: Player, itemId: String, amount: Int = 1): Boolean {
+        if (playerHas(player, itemId, amount)) {
+            val item = globalManager.items.getItemByKey(itemId)
+            item.amount = amount
+            player.inventory.remove(item)
+            return true
+        }
+        return false
     }
 
     fun serializeToItem(item: ItemStack, nbt: ItemNBT) {

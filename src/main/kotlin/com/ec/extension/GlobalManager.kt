@@ -4,6 +4,7 @@ import com.ec.ECCore
 import com.ec.config.RewardConfig
 import com.ec.config.ServerConfig
 import com.ec.database.model.ChatType
+import com.ec.extension.crate.CrateManager
 import com.ec.extension.discord.DiscordManager
 import com.ec.extension.enchantment.EnchantmentManager
 import com.ec.extension.inventory.UIComponent
@@ -55,6 +56,7 @@ class GlobalManager(
     val component: UIComponent,
     val states: StateManager,
     val payments: PaymentManager,
+    val crates: CrateManager,
 
     // Services
     var economy: EconomyService,
@@ -196,6 +198,7 @@ class GlobalManager(
         points.onInitialize(this)
         inventory.onInitialize(this)
         items.onInitialize(this)
+        crates.onInitialize(this)
         skins = SkinsRestorerAPI.getApi()
 
 

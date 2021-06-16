@@ -1,4 +1,4 @@
-package com.ec.minecraft.inventory
+package com.ec.minecraft.inventory.container
 
 import com.ec.extension.inventory.UIBase
 import com.ec.extension.inventory.component.PaginationItem

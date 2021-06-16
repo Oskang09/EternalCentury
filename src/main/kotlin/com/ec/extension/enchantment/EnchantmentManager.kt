@@ -15,6 +15,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.enchantment.EnchantItemEvent
 import org.bukkit.event.inventory.PrepareAnvilEvent
+import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.EnchantmentStorageMeta
@@ -46,14 +47,22 @@ class EnchantmentManager {
                 .observable(true, EventPriority.LOWEST)
                 .subscribe {
                     val player = it.view.player as Player
+                    val rename = it.inventory.renameText
+                    val itemLeft = it.inventory.getItem(0)
+                    val itemRight = it.inventory.getItem(1)
+
                     Logger.withTrackerPlayerEvent(player, it, "EnchantManager.PrepareAnvilEvent", "player ${player.uniqueId} error occurs when enchant") {
+                        if (it.view.title.startsWith("&f[&5系统&f]".colorize())) {
+                            it.result = globalManager.component.woolAccept()
+                            return@withTrackerPlayerEvent
+                        }
+
                         val ecPlayer = globalManager.players.getByPlayer(player)
-                        val rename = it.inventory.renameText
-                        val itemLeft = it.inventory.getItem(0)
-                        val itemRight = it.inventory.getItem(1)
                         if (itemLeft != null && itemRight != null && it.result == null) {
                             if (itemRight.type == Material.ENCHANTED_BOOK || itemRight.type == itemLeft.type) {
-                                it.result = ItemStack(itemLeft.type)
+                                if (originEnchantments[Enchantment.DURABILITY]!!.isSupported(itemLeft.type)) {
+                                    it.result = ItemStack(itemLeft.type)
+                                }
                             }
                         }
 

@@ -1,4 +1,4 @@
-package com.ec.minecraft.inventory
+package com.ec.minecraft.inventory.container
 
 import com.ec.database.Players
 import com.ec.database.VoteRewards
@@ -8,7 +8,6 @@ import com.ec.extension.inventory.UIProvider
 import com.ec.model.player.ECPlayer
 import com.ec.util.StringUtil.colorize
 import com.ec.util.StringUtil.generateUniqueID
-import dev.reactant.resquare.bukkit.itemStackOf
 import dev.reactant.resquare.dom.Node
 import dev.reactant.resquare.dom.childrenOf
 import dev.reactant.resquare.dom.declareComponent

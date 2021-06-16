@@ -1,10 +1,8 @@
-package com.ec.minecraft.inventory
+package com.ec.minecraft.inventory.container
 
 import com.ec.extension.inventory.UIBase
 import com.ec.extension.inventory.UIProvider
 import com.ec.util.StringUtil.colorize
-import dev.reactant.reactant.extensions.itemMeta
-import dev.reactant.resquare.dom.Component
 import dev.reactant.resquare.dom.childrenOf
 import dev.reactant.resquare.dom.declareComponent
 import dev.reactant.resquare.dom.unaryPlus
@@ -16,7 +14,6 @@ import org.bukkit.Material
 import org.bukkit.entity.HumanEntity
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.meta.ItemMeta
 
 class PaymentUI: UIProvider<PaymentUI.PaymentUIProps>("payment") {
 

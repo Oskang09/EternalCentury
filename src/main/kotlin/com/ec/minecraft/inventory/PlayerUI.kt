@@ -102,7 +102,12 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
                     material = Material.BLAZE_POWDER,
                     display = "&f&l前往 &b[&5系统&b] &6粒子特效".colorize(),
                     routeTo = "command:pp gui"
-                )
+                ),
+                PlayerUIPropsData(
+                    material = Material.CHEST,
+                    display = "&f&l前往 &b[&5系统&b] &6抽奖水池".colorize(),
+                    routeTo = "crate"
+                ),
             )
         )
     }

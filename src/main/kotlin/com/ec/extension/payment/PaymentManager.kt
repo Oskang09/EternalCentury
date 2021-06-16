@@ -96,7 +96,7 @@ class PaymentManager {
         val mapperKey = globalManager.players.getByPlayer(player).database[Players.id]
         if (paymentMapper[mapperKey] != null) {
             val builder = ComponentBuilder()
-            builder.append(globalManager.message.system("您上次的付款请求还没国企。请到"))
+            builder.append(globalManager.message.system("&f您上次的付款请求还没过期。请到"))
 
             val message = TextComponent("&7&l[网页]".colorize())
             message.clickEvent = ClickEvent(ClickEvent.Action.OPEN_URL, paymentMapper[mapperKey])
