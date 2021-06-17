@@ -27,4 +27,8 @@ class MessageService {
         return "&f[&a${chatType.toDisplay()}&f] &r${player.displayName} : &f".colorize() + message
     }
 
+    fun broadcast(message: String): String {
+        return "&f[&a${ChatType.ANNOUNCEMENT.toDisplay()}&f] ".colorize() + message
+    }
+
 }

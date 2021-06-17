@@ -130,13 +130,13 @@ class DiscordManager: LifeCycleHook {
                             return@subscribe
                         }
 
-                        val display = TextComponent(("&7[" + item.type.name + "]&r").colorize())
+                        val display = TextComponent(("&7[" + (item.itemMeta?.displayName ?: item.type.name) + "]&r").colorize())
                         display.hoverEvent = HoverEvent(HoverEvent.Action.SHOW_ITEM, ComponentBuilder(NBTItem.convertItemtoNBT(item).toString()).create())
 
                         component.append(messages[0])
                         component.append(display)
                         component.append(messages[1])
-                        message = message.replace("%item%", " (游戏内查看) ")
+                        message = message.replace("%item%", " ${display}(游戏内查看) ")
                     } else {
                         component.append(message)
                     }
@@ -293,16 +293,16 @@ class DiscordManager: LifeCycleHook {
 
     fun broadcast(message: String, item: ItemStack? = null) {
         var discordMessage = message
-        val component = ComponentBuilder()
+        val component = ComponentBuilder(globalManager.message.broadcast(""))
         if (message.contains("%item%") && item != null) {
             val messages = message.split("%item%")
-            val display = TextComponent(("&7[" + item.type.name + "]&r").colorize())
+            val display = TextComponent(("&7[" + (item.itemMeta?.displayName ?: item.type.name) + "]&r").colorize())
             display.hoverEvent = HoverEvent(HoverEvent.Action.SHOW_ITEM, ComponentBuilder(NBTItem.convertItemtoNBT(item).toString()).create())
 
             component.append(messages[0])
             component.append(display)
             component.append(messages[1])
-            discordMessage = message.replace("%item%", " (游戏内查看) ")
+            discordMessage = message.replace("%item%", " ${display}(游戏内查看) ")
         } else {
             component.append(message)
         }
