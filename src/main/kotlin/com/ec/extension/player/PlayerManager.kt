@@ -49,6 +49,7 @@ class PlayerManager {
 
              AsyncPlayerPreLoginEvent::class
                 .observable(true, EventPriority.HIGHEST)
+                 .doOnError(Logger.trackError("PlayerManager.AsyncPlayerPreLoginEvent", "error occurs in event subscriber"))
                 .subscribe {
                     if (globalManager.serverConfig.maintenance) {
                         if (!globalManager.serverConfig.adminPlayers.contains(it.name)) {
@@ -119,6 +120,7 @@ class PlayerManager {
 
             PlayerJoinEvent::class
                 .observable(EventPriority.HIGHEST)
+                .doOnError(Logger.trackError("PlayerManager.PlayerJoinEvent", "error occurs in event subscriber"))
                 .subscribe { event ->
                     event.joinMessage = null
 
@@ -193,6 +195,7 @@ class PlayerManager {
 
             PlayerQuitEvent::class
                 .observable(EventPriority.HIGHEST)
+                .doOnError(Logger.trackError("PlayerManager.PlayerQuitEvent", "error occurs in event subscriber"))
                 .subscribe { event ->
                     event.quitMessage = null
 

@@ -30,5 +30,6 @@ data class ServerDiscordConfig(
     val chatSurvival: String = "",
     val chatPvpve: String = "",
     val chatRedstone: String = "",
-    val commandChannel:String = "",
+    val chatAnnouncement: String = "",
+    val commandChannel:String = ""
 )

@@ -7,7 +7,6 @@ import picocli.CommandLine
 
 @CommandLine.Command(
     name = "point-add",
-    aliases = ["ppadd"],
     description = ["添点数限到指定玩家账号"]
 )
 internal class PointAddCommand(private val globalManager: GlobalManager): ReactantCommand() {

@@ -83,6 +83,7 @@ class PaymentManager {
                         it[title] = "revenue monster oauth refresh"
                         it[message] = "fail to refresh"
                         it[timestamp] = Logger.getReadableCurrentTime()
+                        it[resolved] = false
                         it[stack] = err.stackTraceToString().replace("\t", "  ").split("\r\n").toMutableList()
                     }
                 }

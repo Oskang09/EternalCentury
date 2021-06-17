@@ -48,12 +48,29 @@ object Logger {
                     it[title] = valTitle
                     it[message] = valMessage
                     it[timestamp] = getReadableCurrentTime()
+                    it[resolved] = false
                     it[stack] = e.stackTraceToString().replace("\t", "  ").split("\r\n").toMutableList()
                 }
             }
             return generatedId
         }
         return null
+    }
+
+    fun trackError(valTitle: String, valMessage: String): (Throwable) -> Unit {
+        return { e ->
+            val generatedId = "".generateUniqueID()
+            transaction {
+                Issues.insert {
+                    it[id] = generatedId
+                    it[title] = valTitle
+                    it[message] = valMessage
+                    it[timestamp] = getReadableCurrentTime()
+                    it[resolved] = false
+                    it[stack] = e.stackTraceToString().replace("\t", "  ").split("\r\n").toMutableList()
+                }
+            }
+        }
     }
 
     fun getReadableCurrentTime(): String {

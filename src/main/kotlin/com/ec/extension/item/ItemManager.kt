@@ -1,6 +1,9 @@
 package com.ec.extension.item
 
 import com.ec.config.ItemConfig
+import com.ec.config.RewardConfig
+import com.ec.database.model.Item
+import com.ec.database.model.Reward
 import com.ec.model.ItemNBT
 import com.ec.extension.GlobalManager
 import com.ec.util.StringUtil.colorize
@@ -13,6 +16,9 @@ import dev.reactant.reactant.extensions.itemMeta
 import dev.reactant.reactant.extra.config.type.MultiConfigs
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.bukkit.event.EventPriority
+import org.bukkit.event.block.Action
+import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemFactory
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
@@ -31,7 +37,28 @@ class ItemManager(
         this.globalManager = globalManager
 
         itemConfigs.getAll(true).forEach {
-            items[it.path] = it.content
+            items[it.content.id] = it.content
+        }
+
+        globalManager.events {
+
+            PlayerInteractEvent::class
+                .observable(false, EventPriority.LOWEST)
+                .filter { it.action == Action.RIGHT_CLICK_AIR || it.action == Action.RIGHT_CLICK_BLOCK  }
+                .filter { it.hasItem() && it.item != null && it.item!!.type != Material.AIR }
+                .filter { hasItemNBT(it.item!!) }
+                .subscribe {
+                    val item = it.item!!
+                    val nbt = deserializeFromItem(item)
+                    if (nbt != null && nbt.id != "") {
+                        val config = items[nbt.id]!!
+                        if (config.consume) {
+                            playerRemove(it.player, nbt.id, 1)
+                            globalManager.sendRewardToPlayer(it.player, Reward(type = "command", commands = config.commands))
+                        }
+                    }
+                }
+
         }
     }
 
@@ -114,14 +141,14 @@ class ItemManager(
         return player.inventory.contains(item)
     }
 
-    fun playerRemove(player: Player, itemId: String, amount: Int = 1): Boolean {
-        if (playerHas(player, itemId, amount)) {
-            val item = globalManager.items.getItemByKey(itemId)
-            item.amount = amount
-            player.inventory.remove(item)
-            return true
-        }
-        return false
+    fun playerRemove(player: Player, itemId: String, amount: Int = 1) {
+        val item = globalManager.items.getItemByKey(itemId)
+        item.amount = amount
+        player.inventory.removeItem(item)
+    }
+
+    fun hasItemNBT(item: ItemStack): Boolean {
+        return NBTItem(item).hasKey("ecnbt")
     }
 
     fun serializeToItem(item: ItemStack, nbt: ItemNBT) {
@@ -139,7 +166,7 @@ class ItemManager(
         return null
     }
 
-    fun getItemByConfig(data: ItemConfig): ItemStack {
+    fun getItem(data: Item): ItemStack {
         val item = ItemStack(Material.valueOf(data.material))
         item.amount = data.amount
 
@@ -171,9 +198,41 @@ class ItemManager(
         return item
     }
 
+    fun getItemByConfig(data: ItemConfig): ItemStack {
+        val item = ItemStack(Material.valueOf(data.material))
+        item.amount = data.amount
+
+        val nbt = ItemNBT()
+        item.itemMeta<ItemMeta> {
+            val newLores = lore ?: mutableListOf()
+
+            data.enchantments.forEach {
+                val enchantment = globalManager.enchantments.getEnchantmentById(it.key)
+                if (enchantment.isSupported(item.type)) {
+                    nbt.enchantments[enchantment.id] = it.value
+                    newLores.add(enchantment.getDisplayLore(it.value))
+
+                    enchantment.getOrigin()?.let { ench ->
+                        addEnchant(ench, it.value, true)
+                    }
+                }
+            }
+
+            if (data.name != "") {
+                setDisplayName(data.name.colorize())
+            }
+
+            lore = newLores.colorize()
+            addItemFlags(ItemFlag.HIDE_ENCHANTS)
+        }
+
+        nbt.id = data.id
+        serializeToItem(item, nbt)
+        return item
+    }
+
     fun getItemByKey(key: String): ItemStack {
-        val data = items[key]!!
-        return getItemByConfig(data)
+        return getItemByConfig(items[key]!!)
     }
 
 }

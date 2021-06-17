@@ -1,4 +1,4 @@
-package com.ec.extension.item
+package com.ec.minecraft.ugui
 
 import com.ec.extension.GlobalManager
 import me.oska.module.ItemProvider

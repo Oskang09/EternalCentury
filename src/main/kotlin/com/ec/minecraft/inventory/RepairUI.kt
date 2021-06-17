@@ -1,4 +1,4 @@
-package com.ec.minecraft.inventory.container
+package com.ec.minecraft.inventory
 
 import com.ec.extension.inventory.UIBase
 import com.ec.extension.inventory.UIProvider

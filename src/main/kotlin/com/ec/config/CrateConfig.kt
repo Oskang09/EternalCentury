@@ -1,9 +1,15 @@
 package com.ec.config
 
+import com.ec.database.model.Item
+import com.ec.database.model.Reward
+
 data class CrateConfig(
-    val requiredKey: String,
-    val requiredKeyCount: Int,
-    val display: ItemConfig,
-    val rewards: List<RewardConfig>,
-    val rewardDisplays: List<ItemConfig>,
+    val id: String = "",
+    val display: ItemConfig = ItemConfig(),
+    val rewards: List<CrateConfigItemReward>,
+)
+
+data class CrateConfigItemReward(
+    val item: Item = Item(),
+    val reward: List<Reward> = listOf()
 )

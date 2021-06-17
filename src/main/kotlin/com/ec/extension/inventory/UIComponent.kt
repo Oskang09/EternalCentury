@@ -3,7 +3,6 @@ package com.ec.extension.inventory
 import com.ec.util.StringUtil.colorize
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.extensions.itemMeta
-import dev.reactant.resquare.render.useState
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
@@ -12,6 +11,7 @@ import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.inventory.meta.SkullMeta
+import java.util.*
 
 @Component
 class UIComponent {
@@ -30,15 +30,20 @@ class UIComponent {
         return item
     }
 
-    fun playerHead(player: String, meta: ((SkullMeta) -> Unit)? = null): ItemStack {
+    fun playerHead(textures: String, meta: ((SkullMeta) -> Unit)? = null): ItemStack {
         val head = ItemStack(Material.PLAYER_HEAD)
+        val hashAsId = UUID(textures.hashCode().toLong(), textures.hashCode().toLong())
+        Bukkit.getUnsafe().modifyItemStack(head,
+            "{SkullOwner:{Id:\"" + hashAsId.toString() + "\",Properties:{textures:[{Value:\""
+                    + textures + "\"}]}}}"
+        )
+
         head.itemMeta<SkullMeta> {
             if (meta != null) {
                 meta(this)
             }
-
-            owningPlayer = Bukkit.getPlayer(player)
         }
+
         return head
     }
 

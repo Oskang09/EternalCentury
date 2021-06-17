@@ -12,6 +12,7 @@ object ModelUtil {
             ChatType.MCMMO -> "角色达人"
             ChatType.REDSTONE -> "红石机关"
             ChatType.PARTY -> "队伍讨论"
+            ChatType.ANNOUNCEMENT -> "实时广播"
         }
     }
 

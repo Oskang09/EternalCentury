@@ -9,6 +9,7 @@ import com.ec.extension.title.TitleAPI
 import com.ec.extension.ugui.ModuleAPI
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.component.lifecycle.LifeCycleHook
+import dev.reactant.reactant.extra.command.ReactantCommand
 import org.reflections8.Reflections
 import java.lang.reflect.Modifier
 
@@ -18,6 +19,12 @@ class ReflectionManager: LifeCycleHook {
 
     override fun onEnable() {
         reflections = Reflections("com.ec")
+    }
+
+    fun loopCommands(action: (Class<out ReactantCommand>) -> Unit) {
+        reflections.getSubTypesOf(ReactantCommand::class.java).forEach {
+            action(it)
+        }
     }
 
     fun loopModules(action: (ModuleAPI) -> Unit) {

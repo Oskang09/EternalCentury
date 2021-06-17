@@ -9,6 +9,7 @@ import com.ec.database.model.ChatType
 import com.ec.database.model.economy.EconomyInfo
 import com.ec.database.model.point.PointInfo
 import com.ec.extension.GlobalManager
+import com.ec.logger.Logger
 import com.ec.model.ObservableObject
 import com.ec.model.player.ECPlayerState
 import com.ec.util.ModelUtil.toDisplay
@@ -35,6 +36,7 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.AsyncPlayerChatEvent
+import org.bukkit.inventory.ItemStack
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.awt.Color
@@ -75,15 +77,17 @@ class DiscordManager: LifeCycleHook {
             ChatType.MCMMO to globalManager.serverConfig.discord.chatMcmmo,
             ChatType.SURVIVAL to globalManager.serverConfig.discord.chatSurvival,
             ChatType.PVPVE to globalManager.serverConfig.discord.chatPvpve,
-            ChatType.REDSTONE to globalManager.serverConfig.discord.chatRedstone
+            ChatType.REDSTONE to globalManager.serverConfig.discord.chatRedstone,
+            ChatType.ANNOUNCEMENT to globalManager.serverConfig.discord.chatAnnouncement,
         ).forEach { (chatType, channelId) ->
-            channels[chatType] = guild.getTextChannelById(channelId) !!
+            channels[chatType] = guild.getTextChannelById(channelId)!!
         }
 
         globalManager.events {
 
             AsyncPlayerChatEvent::class
                 .observable(true, EventPriority.HIGHEST)
+                .doOnError(Logger.trackError("DiscordManager.AsyncPlayerChatEvent", "error occurs in event subscriber"))
                 .filter { it.isAsynchronous }
                 .subscribe {
                     it.isCancelled = true
@@ -184,12 +188,14 @@ class DiscordManager: LifeCycleHook {
 
         jda.getTextChannelById(globalManager.serverConfig.discord.commandChannel)!!
             .onMessage()
+            .doOnError(Logger.trackError("DiscordManager.COMMAND_CHANNEL", "error occurs in discord event"))
             .subscribe {
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), it.message.contentRaw)
             }
 
         jda.getTextChannelById(globalManager.serverConfig.discord.registerChannel)!!
             .onMessage()
+            .doOnError(Logger.trackError("DiscordManager.REGISTER_CHANNEL", "error occurs in discord event"))
             .doOnNext { it.message.delete().complete() }
             .filter { globalManager.players.getByDiscordTag(it.message.author.asTag) == null }
             .subscribe {
@@ -283,5 +289,30 @@ class DiscordManager: LifeCycleHook {
         message.addReaction("✅").queue()
         message.addReaction("❌").queue()
         return true
+    }
+
+    fun broadcast(message: String, item: ItemStack? = null) {
+        var discordMessage = message
+        val component = ComponentBuilder()
+        if (message.contains("%item%") && item != null) {
+            val messages = message.split("%item%")
+            val display = TextComponent(("&7[" + item.type.name + "]&r").colorize())
+            display.hoverEvent = HoverEvent(HoverEvent.Action.SHOW_ITEM, ComponentBuilder(NBTItem.convertItemtoNBT(item).toString()).create())
+
+            component.append(messages[0])
+            component.append(display)
+            component.append(messages[1])
+            discordMessage = message.replace("%item%", " (游戏内查看) ")
+        } else {
+            component.append(message)
+        }
+
+        channels[ChatType.ANNOUNCEMENT]!!.sendMessage(discordMessage).queue()
+        Bukkit.getOnlinePlayers()
+            .parallelStream()
+            .filter { p -> globalManager.players.getByPlayer(p).database[Players.channels].contains(ChatType.ANNOUNCEMENT) }
+            .forEach { p ->
+                p.spigot().sendMessage(ChatMessageType.CHAT, *component.create())
+            }
     }
 }

@@ -7,7 +7,6 @@ import picocli.CommandLine
 
 @CommandLine.Command(
     name = "balance-add",
-    aliases = ["badd"],
     description = ["添加金钱到指定玩家账号"]
 )
 internal class BalanceAddCommand(private val globalManager: GlobalManager): ReactantCommand() {

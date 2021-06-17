@@ -245,7 +245,7 @@ class VoteUI: UIProvider<VoteUI.VoteUIProps>("vote") {
                         val key = "${props.currentYear}-${props.currentMonth}-streak-${rewardIndex}"
                         val extraRewards = globalManager.serverConfig.signRewards[key]
                         if (extraRewards != null) {
-                            globalManager.sendRewardToPlayer(extraRewards, player)
+                            globalManager.sendRewardToPlayer(player, extraRewards)
                         }
 
                         player.inventory.addItem(globalManager.enchantments.getRandomEnchantedBook(1, 3))
@@ -299,7 +299,7 @@ class VoteUI: UIProvider<VoteUI.VoteUIProps>("vote") {
                      val key = "${props.currentYear}-${props.currentMonth}-${props.currentDay}"
                      val extraRewards = globalManager.serverConfig.signRewards[key]
                      if (extraRewards != null) {
-                         globalManager.sendRewardToPlayer(extraRewards, player)
+                         globalManager.sendRewardToPlayer(player, extraRewards)
                      }
 
                      player.inventory.addItem(ItemStack(Material.EXPERIENCE_BOTTLE, 1))

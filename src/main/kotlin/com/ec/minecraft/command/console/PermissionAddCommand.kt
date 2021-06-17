@@ -7,7 +7,6 @@ import picocli.CommandLine
 
 @CommandLine.Command(
     name = "permission-add",
-    aliases = ["peadd"],
     description = ["添加权限到指定玩家账号"]
 )
 internal class PermissionAddCommand(private val globalManager: GlobalManager): ReactantCommand() {

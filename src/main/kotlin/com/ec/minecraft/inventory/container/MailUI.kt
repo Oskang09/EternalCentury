@@ -55,7 +55,7 @@ class MailUI: IteratorUI("mail") {
                         if (!it[Mails.isRead]) {
                             val clickedPlayer = evt.whoClicked as Player
                             if (it[Mails.rewards].size > 0) {
-                                globalManager.sendRewardToPlayer(it[Mails.rewards], clickedPlayer)
+                                globalManager.sendRewardToPlayer(clickedPlayer, it[Mails.rewards])
                             }
 
                             transaction {

@@ -1,10 +1,6 @@
 package com.ec.model
 
-import com.fasterxml.jackson.annotation.JsonProperty
-
 data class ItemNBT(
-
-    @JsonProperty("enchantments")
+    var id: String = "DEFAULT",
     val enchantments: MutableMap<String, Int> = mutableMapOf()
-
 )

@@ -1,26 +1,28 @@
 package com.ec.extension
 
 import com.ec.ECCore
-import com.ec.config.RewardConfig
 import com.ec.config.ServerConfig
-import com.ec.database.model.ChatType
+import com.ec.database.model.Reward
 import com.ec.extension.crate.CrateManager
 import com.ec.extension.discord.DiscordManager
 import com.ec.extension.enchantment.EnchantmentManager
 import com.ec.extension.inventory.UIComponent
 import com.ec.extension.inventory.UIManager
 import com.ec.extension.item.ItemManager
-import com.ec.extension.item.UguiProvider
+import com.ec.minecraft.ugui.UguiProvider
 import com.ec.extension.papi.PlaceholderManager
 import com.ec.extension.payment.PaymentManager
 import com.ec.extension.player.PlayerManager
 import com.ec.extension.point.PointManager
 import com.ec.extension.title.TitleManager
+import com.ec.logger.Logger
 import com.ec.model.Emoji
+import com.ec.model.skin.SkinProfile
 import com.ec.service.EconomyService
 import com.ec.service.MessageService
 import com.ec.service.PermissionService
 import com.ec.util.StringUtil.colorize
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.gmail.nossr50.util.player.UserManager
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.component.lifecycle.LifeCycleHook
@@ -72,8 +74,15 @@ class GlobalManager(
     private val serverConfigFile: Config<ServerConfig>,
 ): LifeCycleHook {
 
+    private val mapper = jacksonObjectMapper()
     lateinit var skins: SkinsRestorerAPI
     var serverConfig: ServerConfig = serverConfigFile.content
+
+    fun getPlayerOriginSkinProfile(skinName: String): SkinProfile? {
+        val profile = skins.getSkinData(skinName) ?: return null
+        val jsonString = mapper.writeValueAsString(profile)
+        return mapper.readValue(jsonString, SkinProfile::class.java)
+    }
 
     fun runInMainThread(action: () -> Unit) {
         Bukkit.getScheduler().runTask(ECCore.instance, action)
@@ -91,7 +100,11 @@ class GlobalManager(
         }
     }
 
-    fun sendRewardToPlayer(rewards: List<RewardConfig>, player: Player) {
+    fun sendRewardToPlayer(player: Player, rewards: List<Reward>) {
+        sendRewardToPlayer(player, *rewards.toTypedArray())
+    }
+
+    fun sendRewardToPlayer(player: Player, vararg rewards: Reward) {
         rewards.forEach { cfg ->
             when (cfg.type.lowercase()) {
                 "item" -> player.inventory.addItem(
@@ -216,6 +229,7 @@ class GlobalManager(
 
             ServerListPingEvent::class
                 .observable(true, EventPriority.HIGHEST)
+                .doOnError(Logger.trackError("GlobalManager.ServerListPingEvent", "error occurs in event subscriber"))
                 .subscribe {
                     it.maxPlayers = 0
                     it.motd = "           §f§l[§5§lEC§f§l] §b§l永恒新世纪  §f§l多种玩法,多种乐趣！\n    §f§l| §c§lMCMMO §f§l| §a§l原味生存 §f§l| §7§l自制插件 §f§l| §d§l赛季玩法 §f§l|".colorize()
@@ -223,6 +237,7 @@ class GlobalManager(
 
             NPCRightClickEvent::class
                 .observable(true, EventPriority.HIGHEST)
+                .doOnError(Logger.trackError("GlobalManager.NPCRightClickEvent", "error occurs in event subscriber"))
                 .subscribe {
                     val player = it.clicker
                     when (it.npc.id) {

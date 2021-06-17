@@ -84,10 +84,10 @@ class CrateUI: UIProvider<CrateUI.CrateUIProps>("crate") {
         var items: List<Node>
         if (crate != null) {
             info = globalManager.items.getItemByConfig(crate.display)
-            items = crate.rewardDisplays.map {
+            items = crate.rewards.map {
                 div(DivProps(
                     style = styles.item,
-                    item = globalManager.items.getItemByConfig(it),
+                    item = globalManager.items.getItem(it.item),
                 ))
             }
         } else {

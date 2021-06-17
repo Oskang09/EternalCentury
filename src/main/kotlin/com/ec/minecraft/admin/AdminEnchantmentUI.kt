@@ -43,9 +43,7 @@ class AdminEnchantmentUI: PaginationUI("admin-enchantment") {
                     addItemFlags(*ItemFlag.values())
                 }
 
-                val itemNbt = ItemNBT(mutableMapOf(
-                    it.id to level
-                ))
+                val itemNbt = ItemNBT("", mutableMapOf(it.id to level))
                 globalManager.items.serializeToItem(item, itemNbt)
 
                 items.add(PaginationItem(

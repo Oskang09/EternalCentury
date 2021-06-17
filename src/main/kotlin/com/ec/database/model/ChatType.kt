@@ -6,5 +6,6 @@ enum class ChatType {
     SURVIVAL,
     PVPVE,
     REDSTONE,
-    PARTY
+    PARTY,
+    ANNOUNCEMENT
 }

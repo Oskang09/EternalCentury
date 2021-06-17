@@ -18,8 +18,12 @@ class CrateManager(
         this.globalManager = globalManager
 
         crateConfigs.getAll(true).subscribe {
-            crates[it.path] = it.content
+            crates[it.content.id] = it.content
         }
+    }
+
+    fun getCrateById(crate: String): CrateConfig {
+        return crates[crate]!!
     }
 
     fun getCrates(): List<CrateConfig> {

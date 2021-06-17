@@ -45,6 +45,7 @@ class EnchantmentManager {
 
             PrepareAnvilEvent::class
                 .observable(true, EventPriority.LOWEST)
+                .doOnError(Logger.trackError("EnchantmentManager.PrepareAnvilEvent", "error occurs in event subscriber"))
                 .subscribe {
                     val player = it.view.player as Player
                     val rename = it.inventory.renameText
@@ -53,7 +54,9 @@ class EnchantmentManager {
 
                     Logger.withTrackerPlayerEvent(player, it, "EnchantManager.PrepareAnvilEvent", "player ${player.uniqueId} error occurs when enchant") {
                         if (it.view.title.startsWith("&f[&5系统&f]".colorize())) {
-                            it.result = globalManager.component.woolAccept()
+                            it.result = globalManager.component.item(Material.PLAYER_HEAD) { meta ->
+                                meta.setDisplayName("&b[&5系统&b] &a确认 &f- &f${it.inventory.renameText}".colorize())
+                            }
                             return@withTrackerPlayerEvent
                         }
 
@@ -151,6 +154,7 @@ class EnchantmentManager {
 
             EnchantItemEvent::class
                 .observable(true, EventPriority.LOWEST)
+                .doOnError(Logger.trackError("EnchantmentManager.EnchantItemEvent", "error occurs in event subscriber"))
                 .subscribe {
                     val player = it.enchanter
                     Logger.withTrackerPlayerEvent(player, it, "EnchantManager - EnchantItemEvent", "player ${player.uniqueId} error occurs when enchant") {
@@ -226,7 +230,7 @@ class EnchantmentManager {
         return item
     }
 
-    fun getEnchantedBookByMap(enchantments: MutableMap<String, Int>): ItemStack {
+    fun getEnchantedBookByMap(enchantments: Map<String, Int>): ItemStack {
         val item = ItemStack(Material.ENCHANTED_BOOK)
         val itemNbt = ItemNBT()
         item.itemMeta<EnchantmentStorageMeta> {

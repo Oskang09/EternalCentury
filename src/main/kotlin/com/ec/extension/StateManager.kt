@@ -1,5 +1,6 @@
 package com.ec.extension
 
+import com.ec.logger.Logger
 import com.ec.model.ObservableMap
 import com.ec.util.StringUtil.generateUniqueID
 import dev.reactant.reactant.core.component.Component
@@ -18,6 +19,7 @@ class StateManager(
         eventService {
             PlayerQuitEvent::class
                 .observable(true, EventPriority.HIGHEST)
+                .doOnError(Logger.trackError("StateManager.PlayerQuitEvent", "error occurs in event subscriber"))
                 .subscribe { event ->
                     teleportPlayers.remove(event.player.name)
                     teleportPlayers.values.removeIf { it == event.player.name }
