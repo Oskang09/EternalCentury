@@ -10,7 +10,7 @@ import org.bukkit.Material
 import org.bukkit.entity.HumanEntity
 import org.bukkit.entity.Player
 
-class TeleportUI: PaginationUI("teleport") {
+class TeleportUI: PaginationUI<Unit>("teleport") {
 
     private fun teleportTo(player: Player, target: String) {
         if (globalManager.permission.has(player, "teleport.basic")) {

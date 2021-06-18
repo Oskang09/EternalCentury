@@ -12,8 +12,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.jetbrains.exposed.sql.update
 
-
-class TitleUI: PaginationUI("title") {
+class TitleUI: PaginationUI<Unit>("title") {
 
     override fun info(props: PaginationUIProps): UIBase {
         return UIBase(

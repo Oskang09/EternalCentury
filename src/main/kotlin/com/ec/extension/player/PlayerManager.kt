@@ -236,6 +236,12 @@ class PlayerManager {
         }
     }
 
+    fun getByPlayerId(id: String): ResultRow? {
+        return transaction {
+            Players.select { Players.id eq id }.singleOrNull()
+        }
+    }
+
     fun getByPlayerName(playerName: String): ResultRow? {
         return transaction {
             Players.select { Players.playerName eq playerName }.singleOrNull()

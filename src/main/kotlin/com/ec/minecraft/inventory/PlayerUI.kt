@@ -104,9 +104,14 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
                     routeTo = "command:pp gui"
                 ),
                 PlayerUIPropsData(
-                    material = Material.CHEST,
+                    material = Material.NETHER_STAR,
                     display = "&f&l前往 &b[&5系统&b] &6抽奖水池".colorize(),
                     routeTo = "crate"
+                ),
+                PlayerUIPropsData(
+                    material = Material.CHEST,
+                    display = "&f&l前往 &b[&5系统&b] &6拍卖咨询".colorize(),
+                    routeTo = "player-auction"
                 ),
             )
         )

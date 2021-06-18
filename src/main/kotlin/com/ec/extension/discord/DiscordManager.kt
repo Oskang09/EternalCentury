@@ -86,7 +86,7 @@ class DiscordManager: LifeCycleHook {
         globalManager.events {
 
             AsyncPlayerChatEvent::class
-                .observable(true, EventPriority.HIGHEST)
+                .observable(true, EventPriority.LOWEST)
                 .doOnError(Logger.trackError("DiscordManager.AsyncPlayerChatEvent", "error occurs in event subscriber"))
                 .filter { it.isAsynchronous }
                 .subscribe {

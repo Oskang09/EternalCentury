@@ -14,12 +14,13 @@ import dev.reactant.resquare.event.ResquareClickEvent
 import dev.reactant.resquare.render.useCancelRawEvent
 import dev.reactant.resquare.render.useState
 import org.bukkit.Material
+import org.bukkit.entity.HumanEntity
 import org.bukkit.inventory.ItemStack
 
 class PaginationUIProps(
     val info: ItemStack = ItemStack(Material.AIR),
     val items: List<PaginationItem> = mutableListOf(),
-    val extras: Node? = null,
+    val extras: List<Node?> = listOf(),
 )
 
 class PaginationItem(
@@ -27,7 +28,7 @@ class PaginationItem(
     val click: EventHandler<ResquareClickEvent>? = null,
 )
 
-abstract class PaginationUI(val name: String): UIProvider<PaginationUIProps>(name) {
+abstract class PaginationUI<T>(val name: String): UIProvider<PaginationUIProps>(name) {
 
     private val styles = object {
 
@@ -74,6 +75,14 @@ abstract class PaginationUI(val name: String): UIProvider<PaginationUIProps>(nam
         refresher.onNext(true)
     }
 
+    open fun props(player: HumanEntity, props: T?): PaginationUIProps {
+        return props(player)
+    }
+
+    fun displayWithProps(player: HumanEntity, props: T) {
+        this.displayTo(player, props(player, props))
+    }
+
     override val render = declareComponent<PaginationUIProps> { props ->
         useCancelRawEvent()
 
@@ -104,7 +113,7 @@ abstract class PaginationUI(val name: String): UIProvider<PaginationUIProps>(nam
                                 setPage(page - 1)
                             }
                         ))),
-                        +props.extras,
+                        +props.extras.filterNotNull(),
                         +(if (isLast) null else div(DivProps(
                             style = styles.leftBarItem,
                             item = globalManager.component.arrowNext(),

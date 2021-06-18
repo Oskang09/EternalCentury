@@ -8,6 +8,7 @@ import com.ec.extension.inventory.component.PaginationUIProps
 import com.ec.util.InputUtil
 import com.ec.util.StringUtil.colorize
 import dev.reactant.reactant.extensions.itemMeta
+import dev.reactant.resquare.dom.childrenOf
 import dev.reactant.resquare.elements.DivProps
 import dev.reactant.resquare.elements.div
 import dev.reactant.resquare.elements.styleOf
@@ -19,7 +20,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.meta.ItemMeta
 import org.jetbrains.exposed.sql.update
 
-class SkinUI: PaginationUI("skin") {
+class SkinUI: PaginationUI<Unit>("skin") {
 
     override fun info(props: PaginationUIProps): UIBase {
         return UIBase(
@@ -64,39 +65,41 @@ class SkinUI: PaginationUI("skin") {
                 ).colorize()
             },
             views,
-            extras = if (skinLimit == availableSkins.size - 1) null else div(DivProps(
-                style = styleOf {
-                    width = 1.px
-                    height = 1.px
-                },
-                item = globalManager.component.item(Material.PLAYER_HEAD) {
-                    it.setDisplayName("&b[&5系统&b] &6添加新造型".colorize())
-                    it.lore = arrayListOf(
-                        "&f1. 请确认名字正确后才添加",
-                        "&f2. 添加错误将无法更改",
-                    ).colorize()
-                },
-                onClick = { _ ->
-                    InputUtil.requestString(
-                        player, "输入您要的造型名称",
-                        { this.displayTo(it) }
-                    ) { _, input ->
-                        globalManager.getPlayerOriginSkinProfile(input) ?:
+            extras = listOf(
+                if (skinLimit == availableSkins.size - 1) null else div(DivProps(
+                    style = styleOf {
+                        width = 1.px
+                        height = 1.px
+                    },
+                    item = globalManager.component.item(Material.PLAYER_HEAD) {
+                        it.setDisplayName("&b[&5系统&b] &6添加新造型".colorize())
+                        it.lore = arrayListOf(
+                            "&f1. 请确认名字正确后才添加",
+                            "&f2. 添加错误将无法更改",
+                        ).colorize()
+                    },
+                    onClick = { _ ->
+                        InputUtil.requestString(
+                            player, "输入您要的造型名称",
+                            { this.displayTo(it) }
+                        ) { _, input ->
+                            globalManager.getPlayerOriginSkinProfile(input) ?:
                             return@requestString AnvilGUI.Response.text("此玩家没有造型")
 
-                        ecPlayer.ensureUpdate("SkinUI.AnvilGUI.addSkin") {
-                            val skinList = ecPlayer.database[Players.skins]
-                            skinList.add(input)
+                            ecPlayer.ensureUpdate("SkinUI.AnvilGUI.addSkin") {
+                                val skinList = ecPlayer.database[Players.skins]
+                                skinList.add(input)
 
-                            Players.update({ Players.id eq ecPlayer.database[Players.id] }) {
-                                it[skins] = skinList
+                                Players.update({ Players.id eq ecPlayer.database[Players.id] }) {
+                                    it[skins] = skinList
+                                }
                             }
-                        }
 
-                        AnvilGUI.Response.close()
+                            AnvilGUI.Response.close()
+                        }
                     }
-                }
-            ))
+                ))
+            )
         )
     }
 }

@@ -6,7 +6,7 @@ import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ColumnType
 import org.jetbrains.exposed.sql.Table
 
-fun <T : ConfigurationSerializable> Table.minecraft(name: String, clazz: Class<T>, jsonMapper: ObjectMapper = ObjectMapper()): Column<MutableList<T>>
+fun <T : ConfigurationSerializable> Table.minecraft(name: String, clazz: Class<T>, jsonMapper: ObjectMapper = ObjectMapper()): Column<T>
         = registerColumn(name, MinecraftType(clazz, jsonMapper))
 
 class MinecraftType<out T: ConfigurationSerializable> (private val clazz: Class<T>, private val mapper: ObjectMapper): ColumnType() {
@@ -25,7 +25,8 @@ class MinecraftType<out T: ConfigurationSerializable> (private val clazz: Class<
 
     override fun valueToDB(value: Any?): Any? {
         if (value == null) return ""
-        return mapper.writeValueAsString(value)
+        val serializable = value as ConfigurationSerializable
+        return mapper.writeValueAsString(serializable.serialize())
     }
 
 }

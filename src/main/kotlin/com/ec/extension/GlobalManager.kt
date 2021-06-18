@@ -241,6 +241,9 @@ class GlobalManager(
                 .subscribe {
                     val player = it.clicker
                     when (it.npc.id) {
+                        serverConfig.auctionNpcId -> {
+                            inventory.displayAuction(player, null)
+                        }
                         serverConfig.repairNpcId -> {
                             val item = player.inventory.itemInMainHand
                             if (item.hasItemMeta() && item.itemMeta is Damageable) {

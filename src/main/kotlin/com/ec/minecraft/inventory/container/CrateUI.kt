@@ -100,6 +100,7 @@ class CrateUI: UIProvider<CrateUI.CrateUIProps>("crate") {
                     style = styles.item,
                     item = globalManager.items.getItemByConfig(it.display),
                     onClick = { _ ->
+                        setPage(1)
                         setCrate(it)
                     }
                 ))

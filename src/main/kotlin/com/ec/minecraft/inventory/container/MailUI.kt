@@ -8,16 +8,16 @@ import com.ec.extension.inventory.component.IteratorUI
 import com.ec.extension.inventory.component.IteratorUIProps
 import com.ec.util.QueryUtil.iterator
 import com.ec.util.StringUtil.colorize
+import dev.reactant.resquare.elements.DivProps
+import dev.reactant.resquare.elements.div
+import dev.reactant.resquare.elements.styleOf
 import org.bukkit.Material
 import org.bukkit.entity.HumanEntity
 import org.bukkit.entity.Player
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.andWhere
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.update
 
-class MailUI: IteratorUI("mail") {
+class MailUI: IteratorUI<Unit>("mail") {
 
     override fun info(props: IteratorUIProps): UIBase {
         return UIBase(
@@ -27,17 +27,30 @@ class MailUI: IteratorUI("mail") {
 
     override fun props(player: HumanEntity): IteratorUIProps {
         val ecPlayer = globalManager.players.getByPlayer(player as Player)
-        val numOfMails = transaction { Mails.select { Mails.playerId eq ecPlayer.database[Players.id] }.count() }
-        val unreadMails = transaction { Mails.select { Mails.playerId eq ecPlayer.database[Players.id] }.andWhere { Mails.isRead eq false }.count() }
-
         return IteratorUIProps(
             info = globalManager.component.playerHead(player) {
                 it.setDisplayName("&b[&5系统&b] &6邮箱快递".colorize())
-                it.lore = arrayListOf(
-                    "&7总邮箱数 &f- &a${numOfMails}",
-                    "&7未读邮箱 &f- &a${unreadMails}"
-                ).colorize()
             },
+            extras = listOf(
+                div(DivProps(
+                    style = styleOf {
+                        width = 1.px
+                        height = 1.px
+                    },
+                    item = globalManager.component.item(Material.BARRIER) {
+                        it.setDisplayName("&b[&5系统&b] &6清理邮箱".colorize())
+                        it.lore = arrayListOf("&f此操作只会清理已读的邮件.").colorize()
+                    },
+                    onClick = { _ ->
+                        transaction {
+                            Mails.select { Mails.playerId eq ecPlayer.database[Players.id] }
+                                .andWhere { Mails.isRead eq true }
+                                .forEach { Mails.deleteWhere { Mails.id eq it[Mails.id] } }
+                        }
+                        refresh()
+                    }
+                ))
+            ),
             itemsGetter = { cursor -> transaction {
                 Mails.select { Mails.playerId eq ecPlayer.database[Players.id] }
                     .orderBy(Mails.createdAt to SortOrder.DESC)

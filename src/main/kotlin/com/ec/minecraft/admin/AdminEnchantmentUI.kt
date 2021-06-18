@@ -13,7 +13,7 @@ import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.EnchantmentStorageMeta
 
-class AdminEnchantmentUI: PaginationUI("admin-enchantment") {
+class AdminEnchantmentUI: PaginationUI<Unit>("admin-enchantment") {
 
     override fun info(props: PaginationUIProps): UIBase {
         return UIBase(

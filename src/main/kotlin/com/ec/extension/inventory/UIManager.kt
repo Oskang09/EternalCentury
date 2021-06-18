@@ -1,6 +1,8 @@
 package com.ec.extension.inventory
 
 import com.ec.extension.GlobalManager
+import com.ec.extension.inventory.component.IteratorUI
+import com.ec.minecraft.inventory.AuctionUI
 import dev.reactant.reactant.core.component.Component
 import org.bukkit.entity.HumanEntity
 import org.bukkit.entity.Player
@@ -26,6 +28,15 @@ class UIManager {
 
     fun displayAdmin(player: Player) {
         uis["admin"]!!.displayTo(player)
+    }
+
+    fun displayAuction(player: Player, props: AuctionUI.AuctionUIProps? = null) {
+        val ui = uis["auction"]!! as IteratorUI<AuctionUI.AuctionUIProps>
+        if (props == null) {
+            ui.displayTo(player)
+        } else {
+            ui.displayWithProps(player, props)
+        }
     }
 
     fun displayPlayer(player: Player) {

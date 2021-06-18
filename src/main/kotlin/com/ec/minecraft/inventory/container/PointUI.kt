@@ -9,7 +9,7 @@ import org.bukkit.Material
 import org.bukkit.entity.HumanEntity
 import org.bukkit.entity.Player
 
-class PointUI: PaginationUI("point") {
+class PointUI: PaginationUI<Unit>("point") {
 
     override fun info(props: PaginationUIProps): UIBase {
         return UIBase(

@@ -3,6 +3,7 @@ package com.ec.extension.inventory.component
 import com.ec.extension.inventory.UIProvider
 import com.ec.model.Observable
 import com.ec.util.QueryUtil
+import dev.reactant.resquare.dom.Node
 import dev.reactant.resquare.dom.childrenOf
 import dev.reactant.resquare.dom.declareComponent
 import dev.reactant.resquare.dom.unaryPlus
@@ -15,6 +16,7 @@ import dev.reactant.resquare.render.useCancelRawEvent
 import dev.reactant.resquare.render.useEffect
 import dev.reactant.resquare.render.useState
 import org.bukkit.Material
+import org.bukkit.entity.HumanEntity
 import org.bukkit.inventory.ItemStack
 import org.jetbrains.exposed.sql.ResultRow
 
@@ -22,6 +24,7 @@ class IteratorUIProps(
     val info: ItemStack = ItemStack(Material.AIR),
     val itemsGetter: (String) -> QueryUtil.IteratorResult,
     val itemMapper: (ResultRow) -> IteratorItem,
+    val extras: List<Node?> = listOf(),
 )
 
 class IteratorItem(
@@ -29,7 +32,7 @@ class IteratorItem(
     val click: EventHandler<ResquareClickEvent>? = null,
 )
 
-abstract class IteratorUI(val name: String): UIProvider<IteratorUIProps>(name) {
+abstract class IteratorUI<T>(val name: String): UIProvider<IteratorUIProps>(name) {
 
     private val styles = object {
 
@@ -72,6 +75,14 @@ abstract class IteratorUI(val name: String): UIProvider<IteratorUIProps>(name) {
 
     protected fun refresh() {
         refresher.onNext(true)
+    }
+
+    open fun props(player: HumanEntity, props: T?): IteratorUIProps {
+        return props(player)
+    }
+
+    fun displayWithProps(player: HumanEntity, props: T) {
+        this.displayTo(player, props(player, props))
     }
 
     override val render = declareComponent<IteratorUIProps> { props ->
@@ -124,10 +135,9 @@ abstract class IteratorUI(val name: String): UIProvider<IteratorUIProps>(name) {
                                 setPage(page - 1)
                             }
                         ))),
+                        +props.extras.filterNotNull(),
                         +(if (isLast) null else div(DivProps(
-                            style = styleOf(styles.leftBarItem){
-                                marginTop = 3.px
-                            },
+                            style = styles.leftBarItem,
                             item = globalManager.component.arrowNext(),
                             onClick = {
                                 setPage(page + 1)

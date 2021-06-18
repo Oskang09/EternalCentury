@@ -5,6 +5,7 @@ import org.bukkit.Location
 data class ServerConfig(
     val repairNpcId: Int = 0,
     val repairPrice: Float = 1F,
+    val auctionNpcId: Int = 0,
     val repairEnchantmentPrice: Float = 100F,
     var repairRate: Float =  1F, // 0.5 = 50%,
     val apiKey: String = "",

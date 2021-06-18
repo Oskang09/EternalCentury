@@ -1,16 +1,11 @@
 package com.ec.extension.inventory
 
 import com.ec.extension.GlobalManager
-import com.ec.model.Observable
 import dev.reactant.resquare.bukkit.container.createUI
 import dev.reactant.resquare.dom.Component
-import dev.reactant.resquare.dom.declareComponent
-import dev.reactant.resquare.render.useState
 import org.bukkit.entity.HumanEntity
-import org.bukkit.entity.Player
 
 abstract class UIProvider<T : Any>(val id: String) {
-    private lateinit var player: Player
     protected lateinit var globalManager: GlobalManager
     open fun initialize(globalManager: GlobalManager) {
         this.globalManager = globalManager
@@ -47,15 +42,7 @@ abstract class UIProvider<T : Any>(val id: String) {
             props = props(player)
         }
 
-        val base = info(props!!)
-        val container = createUI(
-            render, props, base.cols, base.rows, base.title,
-            multiThreadComponentRender = true,
-            multiThreadStyleRender = true,
-            autoDestroy = true
-        )
-
-        container.openInventory(player)
+        displayTo(player, props!!)
     }
 
 }

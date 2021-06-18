@@ -9,12 +9,15 @@ import org.jetbrains.exposed.sql.Table
 object MallHistories: Table() {
     val id = varchar("id", 20)
     val buyerId = varchar("buyer_id", 20)
+    val buyerName = varchar("buyer_name", 50)
     val sellerId = varchar("seller_id", 20)
+    val sellerName = varchar("seller_name", 50)
     val material = enum<Material>("material")
-    val name = varchar("name", 128)
+    val nativeId = varchar("native_id", 50).nullable()
     val item = minecraft("item", ItemStack::class.java)
     val amount = integer("amount")
-    val price = integer("price")
+    val price = double("price")
+    val historyAt = long("history_at")
 
     override val primaryKey = PrimaryKey(id)
 }

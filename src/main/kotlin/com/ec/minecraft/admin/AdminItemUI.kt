@@ -8,7 +8,7 @@ import com.ec.util.StringUtil.colorize
 import org.bukkit.Material
 import org.bukkit.entity.HumanEntity
 
-class AdminItemUI: PaginationUI("admin-item") {
+class AdminItemUI: PaginationUI<Unit>("admin-item") {
 
     override fun info(props: PaginationUIProps): UIBase {
         return UIBase(
