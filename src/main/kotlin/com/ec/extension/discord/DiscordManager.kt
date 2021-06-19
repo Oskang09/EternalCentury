@@ -11,6 +11,7 @@ import com.ec.database.model.point.PointInfo
 import com.ec.extension.GlobalManager
 import com.ec.logger.Logger
 import com.ec.model.ObservableObject
+import com.ec.model.player.ECPlayer
 import com.ec.model.player.ECPlayerState
 import com.ec.util.ModelUtil.toDisplay
 import com.ec.util.RandomUtil
@@ -20,6 +21,7 @@ import de.tr7zw.nbtapi.NBTItem
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.component.lifecycle.LifeCycleHook
 import io.javalin.core.util.RouteOverviewUtil.metaInfo
+import me.clip.placeholderapi.PlaceholderAPI
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
@@ -91,7 +93,8 @@ class DiscordManager: LifeCycleHook {
                 .filter { it.isAsynchronous }
                 .subscribe {
                     it.isCancelled = true
-                    if (globalManager.players.getByPlayer(it.player).state != ECPlayerState.AUTHENTICATED) {
+                    val ecPlayer = globalManager.players.getByPlayer(it.player)
+                    if (ecPlayer.state != ECPlayerState.AUTHENTICATED) {
                         return@subscribe
                     }
 
@@ -121,39 +124,21 @@ class DiscordManager: LifeCycleHook {
                         else -> ChatType.GLOBAL
                     }
 
-                    val component = ComponentBuilder(globalManager.message.playerChat(sender, chatType, ""))
-                    if (message.contains("%item%")) {
-                        val messages = message.split("%item%")
-                        val item = sender.inventory.itemInMainHand
-                        if (item.type == Material.AIR) {
-                            sender.sendMessage(globalManager.message.system("你手上没有物品，无法发送到聊天窗！"))
-                            return@subscribe
-                        }
-
-                        val display = TextComponent(("&7[" + (item.itemMeta?.displayName ?: item.type.name) + "]&r").colorize())
-                        display.hoverEvent = HoverEvent(HoverEvent.Action.SHOW_ITEM, ComponentBuilder(NBTItem.convertItemtoNBT(item).toString()).create())
-
-                        component.append(messages[0])
-                        component.append(display)
-                        component.append(messages[1])
-                        message = message.replace("%item%", " ${display}(游戏内查看) ")
-                    } else {
-                        component.append(message)
-                    }
-
                     if (chatType != ChatType.PARTY) {
-                        channels[chatType]!!.sendMessage(sender.displayName + " : " + message).queue()
+                        channels[chatType]!!.sendMessage(
+                            sender.displayName + " : " + overrideDiscordMessage(ecPlayer, message)
+                        ).queue()
 
                         Bukkit.getOnlinePlayers()
                             .parallelStream()
                             .filter { p -> !globalManager.players.getByPlayer(p).database[Players.ignoredPlayers].contains(sender.name) }
                             .filter { p -> globalManager.players.getByPlayer(p).database[Players.channels].contains(chatType) }
                             .forEach { p ->
-                                p.spigot().sendMessage(ChatMessageType.CHAT, *component.create())
+                                p.sendMessage(globalManager.message.playerChat(sender, chatType, message))
                             }
                     } else {
-                        globalManager.mcmmoGetPlayerParty(sender).forEach { p ->
-                            p.spigot().sendMessage(ChatMessageType.CHAT, *component.create())
+                        globalManager.mcmmo.getPlayerParty(sender).forEach { p ->
+                            p.sendMessage(globalManager.message.playerChat(sender, ChatType.PARTY, message))
                         }
                     }
                 }
@@ -261,6 +246,16 @@ class DiscordManager: LifeCycleHook {
         globalManager.serverConfig.discord.infoMessage = serverStatusMessage.editMessage(embed.build()).complete().id
 
         jda.shutdown()
+    }
+
+    // override interactive chat message
+    fun overrideDiscordMessage(player: ECPlayer, message: String): String {
+        return message
+            .replace("[inv]", " (游戏内查看) ")
+            .replace("[item]", " (游戏内查看) ")
+            .replace("[money]", " 金钱:${player.database[Players.balance].balance} ")
+            .replace("[ender]", " (游戏内查看) ")
+            .replace("[ping]", PlaceholderAPI.setPlaceholders(player.player," (%react_ping_flat%) "))
     }
 
     @OptIn(ExperimentalTime::class)

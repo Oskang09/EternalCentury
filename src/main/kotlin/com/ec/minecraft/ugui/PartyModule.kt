@@ -30,6 +30,7 @@ class PartyModule: ModuleAPI() {
         val config: Map<*, *>,
     ): Module() {
 
+        private val numOfMembers = config["num_of_member"] as Int?
         private val challenge = config["challenge"] as String
         private val actionType  = config["type"] as String
         private val teleportId = config["teleport_id"] as String
@@ -40,7 +41,7 @@ class PartyModule: ModuleAPI() {
                 ModuleType.ITEM_PROVIDER -> {}
                 ModuleType.REWARD -> {
                     when (actionType) {
-                        "TELEPORT" -> globalManager.mcmmoPartyTeleport(player,challenge, teleportId)
+                        "TELEPORT" -> globalManager.mcmmo.partyTeleport(player,challenge, teleportId)
                     }
                 }
             }
@@ -48,7 +49,13 @@ class PartyModule: ModuleAPI() {
 
         override fun check(player: Player): Boolean {
             if (type == ModuleType.REQUIREMENT) {
-                return globalManager.mcmmoPartyIsNearby(player, challenge)
+                if (numOfMembers != null) {
+                    val partyMembers = globalManager.mcmmo.getPlayerParty(player)
+                    if (partyMembers.size != numOfMembers) {
+                        return false
+                    }
+                }
+                return globalManager.mcmmo.partyIsNearby(player, challenge)
             }
             return true
         }

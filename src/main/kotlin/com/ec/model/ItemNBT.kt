@@ -1,6 +1,6 @@
 package com.ec.model
 
 data class ItemNBT(
-    var id: String = "DEFAULT",
+    var id: String = "",
     val enchantments: MutableMap<String, Int> = mutableMapOf()
 )

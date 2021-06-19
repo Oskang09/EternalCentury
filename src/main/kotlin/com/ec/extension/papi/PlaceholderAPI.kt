@@ -9,6 +9,7 @@ abstract class PlaceholderAPI{
         this.globalManager = globalManager
     }
 
+    abstract fun isDynamic(): Boolean
     abstract fun placeholderKey(): String
-    abstract fun onPlaceholderRequest(player: Player): String
+    abstract fun onPlaceholderRequest(player: Player, text: String): String
 }

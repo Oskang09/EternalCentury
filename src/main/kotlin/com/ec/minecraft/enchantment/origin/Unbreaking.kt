@@ -74,7 +74,8 @@ class Unbreaking: EnchantmentAPI("unbreaking") {
             Material.FLINT_AND_STEEL,
             Material.SHIELD,
             Material.ELYTRA,
-            Material.SHEARS
+            Material.SHEARS,
+            Material.BOW
         )
     }
 

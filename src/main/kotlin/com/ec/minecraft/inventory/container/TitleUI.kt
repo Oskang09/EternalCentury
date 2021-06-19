@@ -21,6 +21,10 @@ class TitleUI: PaginationUI<Unit>("title") {
     }
 
     override fun props(player: HumanEntity): PaginationUIProps {
+        globalManager.runOffMainThread {
+            globalManager.titles.checkPlayerTitleAvailability(player as Player)
+        }
+
         val ecPlayer = globalManager.players.getByPlayer(player as Player)
         val availableTitles = ecPlayer.getTitles()
         val titles = globalManager.titles.getTitles()

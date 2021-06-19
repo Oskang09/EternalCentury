@@ -131,6 +131,9 @@ class PlayerManager {
                     players[player.uniqueId] = ecPlayer
 
                     globalManager.permission.injectPermission(player)
+
+                    globalManager.runOffMainThread { globalManager.titles.checkPlayerTitleAvailability(player) }
+
                     globalManager.runOffMainThread {
                         transaction {
                             val announcement = Announcements.select { Announcements.isExpired eq false }.toList()
