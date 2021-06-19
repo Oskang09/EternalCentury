@@ -96,6 +96,9 @@ abstract class IteratorUI<T>(val name: String): UIProvider<IteratorUIProps>(name
         var isFirst = page == 0
         val isLast = nextCursor == "" && page == items.size - 1
 
+        val extras = props.extras.filterNotNull()
+        val extraLength = extras.size + if (isFirst) 0 else 1
+
         useEffect({
             if (items[page] == null) {
                 val iterator = props.itemsGetter(nextCursor)
@@ -128,16 +131,18 @@ abstract class IteratorUI<T>(val name: String): UIProvider<IteratorUIProps>(name
                             style = styles.leftBarItem,
                             item = ItemStack(Material.BLACK_STAINED_GLASS_PANE),
                         )),
-                        +(if (isFirst)  null else div(DivProps(
+                        +(if (isFirst) div(DivProps(styles.leftBarItem, globalManager.component.item(Material.AIR) )) else div(DivProps(
                             style = styles.leftBarItem,
                             item = globalManager.component.arrowPrevious(),
                             onClick = {
                                 setPage(page - 1)
                             }
                         ))),
-                        +props.extras.filterNotNull(),
+                        +extras,
                         +(if (isLast) null else div(DivProps(
-                            style = styles.leftBarItem,
+                            style = styleOf(styles.leftBarItem) {
+                                marginTop = (3-extraLength).px
+                            },
                             item = globalManager.component.arrowNext(),
                             onClick = {
                                 setPage(page + 1)

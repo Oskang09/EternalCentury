@@ -182,7 +182,10 @@ class DiscordManager: LifeCycleHook {
         }
 
         verifyObservableObject = ObservableObject(jda.on())
-        verifyObservableObject.subscribe({ it.member?.roles?.contains(newbieRole) == true && it.messageId == globalManager.serverConfig.discord.ruleMessage }) {
+        verifyObservableObject.subscribe({
+            it.member?.roles?.contains(newbieRole) != true &&
+            it.messageId == globalManager.serverConfig.discord.ruleMessage
+        }) {
             guild.addRoleToMember(it.member!!.idLong, newbieRole).complete()
         }
 

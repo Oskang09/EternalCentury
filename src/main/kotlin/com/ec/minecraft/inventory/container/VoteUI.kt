@@ -328,8 +328,12 @@ class VoteUI: UIProvider<VoteUI.VoteUIProps>("vote") {
                             style = styles.leftBarItem
                         )),
                         div(DivProps(
+                            style = styles.verticalBar,
+                            item = ItemStack(Material.BLACK_STAINED_GLASS_PANE),
+                        )),
+                        div(DivProps(
                             style = styleOf(styles.leftBarItem){
-                                marginTop = 4.px
+                                marginTop = 3.px
                             },
                             item = globalManager.component.item(if (isTodaySigned) Material.BOOK else Material.WRITABLE_BOOK) {
                                 var previewText = "未完成"

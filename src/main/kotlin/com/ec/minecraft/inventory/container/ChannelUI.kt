@@ -90,8 +90,7 @@ class ChannelUI: UIProvider<ChannelUI.ChannelUIProps>("channel") {
             }
         }, arrayOf())
 
-        div(
-            DivProps(
+        div(DivProps(
             style = styles.container,
             item = ItemStack(Material.WHITE_STAINED_GLASS_PANE),
             children = childrenOf(

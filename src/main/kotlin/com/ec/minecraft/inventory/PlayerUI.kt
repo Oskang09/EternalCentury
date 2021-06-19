@@ -64,7 +64,7 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
                     routeTo = "title"
                 ),
                 PlayerUIPropsData(
-                    material = Material.ITEM_FRAME,
+                    material = Material.BOOK,
                     display = "&f&l前往 &b[&5系统&b] &6每日签到".colorize(),
                     routeTo = "vote"
                 ),

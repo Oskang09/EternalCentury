@@ -35,11 +35,10 @@ open class Observable<T> where T: Any {
             consumer.accept(it)
         }
 
-        val onceIterator = subscriberOnce.iterator()
-        while (onceIterator.hasNext()) {
-            val consumer = onceIterator.next()
+        subscriberOnce.forEach { consumer ->
             consumer.accept(it)
-            onceIterator.remove()
+
+            subscriberOnce.remove(consumer)
         }
     }
 

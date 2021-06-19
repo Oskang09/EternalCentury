@@ -8,9 +8,11 @@ import dev.reactant.reactant.extra.command.ReactantCommand
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 import picocli.CommandLine
 import java.time.Instant
 
@@ -49,6 +51,10 @@ internal class SellCommand(private val globalManager: GlobalManager): ReactantCo
 
         val nbtItem = globalManager.items.deserializeFromItem(handItem)
         player.inventory.remove(handItem)
+
+        val numOfItems = handItem.amount
+        handItem.amount = 1
+
         transaction {
 
             Malls.insert {
@@ -56,7 +62,7 @@ internal class SellCommand(private val globalManager: GlobalManager): ReactantCo
                 it[playerId] = ecPlayer.database[Players.id]
                 it[playerName] = player.name
                 it[material] = handItem.type
-                it[amount] = handItem.amount
+                it[amount] = numOfItems
                 it[item] = handItem
                 it[price] = inputPrice
                 it[createdAt] = Instant.now().epochSecond

@@ -17,6 +17,8 @@ import org.bukkit.Material
 import org.bukkit.entity.HumanEntity
 import org.bukkit.entity.Player
 import org.bukkit.inventory.meta.ItemMeta
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -66,10 +68,11 @@ class PlayerAuctionUI: IteratorUI<Unit>("player-auction") {
 
                 display.itemMeta<ItemMeta> {
                     val lores = lore ?: mutableListOf()
+
                     lores.add("&7--------------------------------")
-                    lores.add("&a点击进行购买，SHIFT键一次性购买全部。")
+                    lores.add("&a点击后将下架物品")
                     lores.add("")
-                    lores.add("&1卖家 - &e${it[Malls.playerName]}")
+                    lores.add("&1库存 - &e${it[Malls.amount]}")
                     lores.add("&1价格 &f(单价/总价) - &e${it[Malls.price]} &f/ &e${(it[Malls.price] * it[Malls.amount]).roundTo(2)} ")
                     lores.add("&7--------------------------------")
                     lore = lores.colorize()
@@ -77,7 +80,26 @@ class PlayerAuctionUI: IteratorUI<Unit>("player-auction") {
 
                 IteratorItem(
                     item = display,
-                    click = { }
+                    click = { _ ->
+                        transaction {
+                            val target = Malls.select { Malls.id eq it[Malls.id] }.singleOrNull()
+                            when {
+                                target == null -> {
+                                    player.sendMessage(globalManager.message.system("物品已经出售了，无法进行下架。"))
+                                }
+                                target[Malls.amount] != it[Malls.amount] -> {
+                                    player.sendMessage(globalManager.message.system("物品咨询已刷新，刷新后重试。"))
+                                }
+                                else -> {
+                                    val item = it[Malls.item]
+                                    item.amount = it[Malls.amount]
+                                    Malls.deleteWhere { Malls.id eq it[Malls.id] }
+                                    player.inventory.addItem(item)
+                                }
+                            }
+                            refresh()
+                        }
+                    }
                 )
             }
         )

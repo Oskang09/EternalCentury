@@ -2,8 +2,11 @@ package com.ec.extension.inventory
 
 import com.ec.extension.GlobalManager
 import com.ec.extension.inventory.component.IteratorUI
+import com.ec.extension.inventory.component.PaginationUI
 import com.ec.minecraft.inventory.AuctionUI
+import com.ec.minecraft.inventory.filter.ItemUI
 import dev.reactant.reactant.core.component.Component
+import org.bukkit.Material
 import org.bukkit.entity.HumanEntity
 import org.bukkit.entity.Player
 
@@ -28,6 +31,11 @@ class UIManager {
 
     fun displayAdmin(player: Player) {
         uis["admin"]!!.displayTo(player)
+    }
+
+    fun displayItemFilter(player: Player, onSelect: (Material?, String?) -> Unit) {
+        val ui = uis["item-filter"]!! as PaginationUI<ItemUI.InputProps>
+        ui.displayWithProps(player, ItemUI.InputProps(onSelect = onSelect))
     }
 
     fun displayAuction(player: Player, props: AuctionUI.AuctionUIProps? = null) {

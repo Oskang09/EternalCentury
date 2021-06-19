@@ -18,8 +18,8 @@ class UIComponent {
 
     fun item(material: Material, glowing: Boolean = false, meta: ((ItemMeta) -> Unit)? = null): ItemStack {
         val item = ItemStack(material)
-        item.itemMeta<ItemMeta> {
-            if (meta != null) {
+        if (meta != null) {
+            item.itemMeta<ItemMeta> {
                 meta(this)
             }
         }
