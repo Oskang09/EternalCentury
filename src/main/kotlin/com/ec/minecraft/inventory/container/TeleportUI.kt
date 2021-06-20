@@ -13,14 +13,10 @@ import org.bukkit.entity.Player
 class TeleportUI: PaginationUI<Unit>("teleport") {
 
     private fun teleportTo(player: Player, target: String) {
-        if (globalManager.permission.has(player, "teleport.basic")) {
-            Bukkit.dispatchCommand(
-                Bukkit.getConsoleSender(),
-                "tpgo ${player.name} $target",
-            )
-        } else {
-            player.sendMessage(globalManager.message.system("您没有权限传送，是不是忘记了新手任务？"))
-        }
+        Bukkit.dispatchCommand(
+            Bukkit.getConsoleSender(),
+            "tpgo ${player.name} $target",
+        )
     }
 
     override fun info(props: PaginationUIProps): UIBase {

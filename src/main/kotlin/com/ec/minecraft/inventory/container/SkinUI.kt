@@ -35,11 +35,11 @@ class SkinUI: PaginationUI<Unit>("skin") {
 
         availableSkins.add(player.name)
         val views = availableSkins.map { skinName ->
-            val profile = globalManager.getPlayerOriginSkinProfile(skinName)
+            val profile = globalManager.getPlayerOriginTexture(skinName)
             val item = if (profile == null) {
                 globalManager.component.item(Material.PLAYER_HEAD)
             } else {
-                globalManager.component.playerHead(profile.value)
+                globalManager.component.playerHead(profile)
             }
 
             item.itemMeta<ItemMeta> {
@@ -47,11 +47,13 @@ class SkinUI: PaginationUI<Unit>("skin") {
             }
 
             return@map PaginationItem(item) {
-                if (profile == null) {
-                    globalManager.skins.removeSkin(player.name)
-                } else {
-                    globalManager.skins.setSkin(player.name, skinName)
-                    globalManager.skins.applySkin(PlayerWrapper(it.whoClicked as Player))
+                globalManager.runOffMainThread {
+                    if (profile == null) {
+                        globalManager.skins.removeSkin(player.name)
+                    } else {
+                        globalManager.skins.setSkin(player.name, skinName)
+                        globalManager.skins.applySkin(PlayerWrapper(it.whoClicked as Player))
+                    }
                 }
             }
         }
@@ -83,7 +85,7 @@ class SkinUI: PaginationUI<Unit>("skin") {
                             player, "输入您要的造型名称",
                             { this.displayTo(it) }
                         ) { _, input ->
-                            globalManager.getPlayerOriginSkinProfile(input) ?:
+                            globalManager.getPlayerOriginTexture(input) ?:
                             return@requestString AnvilGUI.Response.text("此玩家没有造型")
 
                             ecPlayer.ensureUpdate("SkinUI.AnvilGUI.addSkin") {

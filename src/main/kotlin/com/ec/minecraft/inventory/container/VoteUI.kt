@@ -318,6 +318,7 @@ class VoteUI: UIProvider<VoteUI.VoteUIProps>("vote") {
                     style = styles.leftBar,
                     children = childrenOf(
                         div(DivProps(
+                            style = styles.leftBarItem,
                             item =  globalManager.component.playerHead(props.player.player) {
                                 it.setDisplayName("&b[&5系统&b] &6每日签到".colorize())
                                 it.lore = arrayListOf(
@@ -325,10 +326,9 @@ class VoteUI: UIProvider<VoteUI.VoteUIProps>("vote") {
                                     "&7总签到数 &f-  &a${props.numOfDays}"
                                 ).colorize()
                             },
-                            style = styles.leftBarItem
                         )),
                         div(DivProps(
-                            style = styles.verticalBar,
+                            style = styles.leftBarItem,
                             item = ItemStack(Material.BLACK_STAINED_GLASS_PANE),
                         )),
                         div(DivProps(

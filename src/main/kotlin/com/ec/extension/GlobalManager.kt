@@ -80,10 +80,9 @@ class GlobalManager(
     lateinit var skins: SkinsRestorerAPI
     var serverConfig: ServerConfig = serverConfigFile.content
 
-    fun getPlayerOriginSkinProfile(skinName: String): SkinProfile? {
-        val profile = skins.getSkinData(skinName) ?: return null
-        val jsonString = mapper.writeValueAsString(profile)
-        return mapper.readValue(jsonString, SkinProfile::class.java)
+    fun getPlayerOriginTexture(skinName: String): String? {
+        val profile = skins.getSkinData(skinName)
+        return profile?.value
     }
 
     fun runInMainThread(action: () -> Unit) {

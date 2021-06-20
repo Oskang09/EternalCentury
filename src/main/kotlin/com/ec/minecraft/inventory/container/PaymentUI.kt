@@ -57,7 +57,7 @@ class PaymentUI: UIProvider<PaymentUI.PaymentUIProps>("payment") {
                 1000 to 100,
                 3000 to 320,
                 5000 to 550,
-                10000 to 1350,
+                10000 to 1400,
                 20000 to 3000
             ),
             displayMapper = listOf(
@@ -130,7 +130,7 @@ class PaymentUI: UIProvider<PaymentUI.PaymentUIProps>("payment") {
                     it.setDisplayName("&f[&e赞助&f] &f翡翠点卷".colorize())
                     it.lore = arrayListOf(
                         "&7需付费 &f- &eMYR 100",
-                        "&7点数获得 &f- &e1350",
+                        "&7点数获得 &f- &e1400",
                         "",
                         "&f&l付费前必须知道",
                         "&f1. 请理性消费",

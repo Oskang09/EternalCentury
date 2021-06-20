@@ -20,7 +20,7 @@ class McmmoPoint: PointAPI("mcmmo") {
     override fun getItemStack(point: PointDetail): ItemStack {
         val stack = ItemStack(Material.BOOK)
         stack.itemMeta<ItemMeta> {
-            setDisplayName("MMO点数")
+            setDisplayName("&aMMO点数".colorize())
             lore = arrayListOf(
                 "&7&l --- &f&l点数介绍 &7&l--- ",
                 "&f此点数为玩家MCMMO的总等级，就算季节刷新他都会永远保存",

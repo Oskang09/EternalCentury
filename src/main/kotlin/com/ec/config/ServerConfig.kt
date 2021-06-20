@@ -26,11 +26,6 @@ data class ServerDiscordConfig(
     val registerChannel: String = "",
     val newbieRole: String = "",
     val playerRole: String = "",
-    val chatGlobal: String = "",
-    val chatMcmmo: String = "",
-    val chatSurvival: String = "",
-    val chatPvpve: String = "",
-    val chatRedstone: String = "",
     val chatAnnouncement: String = "",
     val commandChannel:String = ""
 )

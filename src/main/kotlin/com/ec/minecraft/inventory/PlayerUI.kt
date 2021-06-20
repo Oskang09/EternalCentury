@@ -84,11 +84,6 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
                     routeTo = "mail"
                 ),
                 PlayerUIPropsData(
-                    material = Material.OAK_SIGN,
-                    display = "&f&l前往 &b[&5系统&b] &6聊天频道".colorize(),
-                    routeTo = "channel"
-                ),
-                PlayerUIPropsData(
                     material = Material.GOLDEN_APPLE,
                     display = "&f&l前往 &b[&5系统&b] &6伺服赞助".colorize(),
                     routeTo = "payment"

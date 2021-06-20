@@ -54,7 +54,7 @@ class DiscordManager: LifeCycleHook {
     private lateinit var newbieRole: Role
     private lateinit var playerRole: Role
     private lateinit var verifyObservableObject: ObservableObject<MessageReactionAddEvent>
-    private var channels: MutableMap<ChatType, TextChannel> = mutableMapOf()
+    private lateinit var annoucementChannel: TextChannel
 
     fun onInitialize(globalManager: GlobalManager) {
         this.globalManager = globalManager
@@ -73,28 +73,17 @@ class DiscordManager: LifeCycleHook {
         guild = jda.getGuildById(globalManager.serverConfig.discord.guild)!!
         newbieRole = guild.getRoleById(globalManager.serverConfig.discord.newbieRole)!!
         playerRole = guild.getRoleById(globalManager.serverConfig.discord.playerRole)!!
-
-        mutableMapOf(
-            ChatType.GLOBAL to globalManager.serverConfig.discord.chatGlobal,
-            ChatType.MCMMO to globalManager.serverConfig.discord.chatMcmmo,
-            ChatType.SURVIVAL to globalManager.serverConfig.discord.chatSurvival,
-            ChatType.PVPVE to globalManager.serverConfig.discord.chatPvpve,
-            ChatType.REDSTONE to globalManager.serverConfig.discord.chatRedstone,
-            ChatType.ANNOUNCEMENT to globalManager.serverConfig.discord.chatAnnouncement,
-        ).forEach { (chatType, channelId) ->
-            channels[chatType] = guild.getTextChannelById(channelId)!!
-        }
+        annoucementChannel = guild.getTextChannelById(globalManager.serverConfig.discord.chatAnnouncement)!!
 
         globalManager.events {
 
             AsyncPlayerChatEvent::class
-                .observable(true, EventPriority.LOWEST)
+                .observable(false, EventPriority.HIGHEST)
                 .doOnError(Logger.trackError("DiscordManager.AsyncPlayerChatEvent", "error occurs in event subscriber"))
-                .filter { it.isAsynchronous }
                 .subscribe {
-                    it.isCancelled = true
                     val ecPlayer = globalManager.players.getByPlayer(it.player)
                     if (ecPlayer.state != ECPlayerState.AUTHENTICATED) {
+                        it.isCancelled = true
                         return@subscribe
                     }
 
@@ -105,40 +94,16 @@ class DiscordManager: LifeCycleHook {
                             message = message.replace("@party ", "")
                             ChatType.PARTY
                         }
-                        message.startsWith("@mcmmo ") -> {
-                            message = message.replace("@mcmmo ", "")
-                            ChatType.MCMMO
-                        }
-                        message.startsWith("@survival ") -> {
-                            message = message.replace("@survival ", "")
-                            ChatType.SURVIVAL
-                        }
-                        message.startsWith("@pvpve") -> {
-                            message = message.replace("@survival ", "")
-                            ChatType.PVPVE
-                        }
-                        message.startsWith("@redstone") -> {
-                            message = message.replace("@redstone ", "")
-                            ChatType.REDSTONE
-                        }
                         else -> ChatType.GLOBAL
                     }
 
+                    it.message = globalManager.message.playerChat(sender, chatType, message)
                     if (chatType != ChatType.PARTY) {
-                        channels[chatType]!!.sendMessage(
-                            sender.displayName + " : " + overrideDiscordMessage(ecPlayer, message)
-                        ).queue()
-
-                        Bukkit.getOnlinePlayers()
-                            .parallelStream()
-                            .filter { p -> !globalManager.players.getByPlayer(p).database[Players.ignoredPlayers].contains(sender.name) }
-                            .filter { p -> globalManager.players.getByPlayer(p).database[Players.channels].contains(chatType) }
-                            .forEach { p ->
-                                p.sendMessage(globalManager.message.playerChat(sender, chatType, message))
-                            }
+                        it.recipients.removeIf { p -> globalManager.players.getByPlayer(p).database[Players.ignoredPlayers].contains(sender.name) }
                     } else {
-                        globalManager.mcmmo.getPlayerParty(sender).forEach { p ->
-                            p.sendMessage(globalManager.message.playerChat(sender, ChatType.PARTY, message))
+                        it.isCancelled = true
+                        globalManager.mcmmo.getPlayerParty(sender).map { p ->
+                            p.sendMessage(it.message)
                         }
                     }
                 }
@@ -213,7 +178,6 @@ class DiscordManager: LifeCycleHook {
                         data[permissions] = mutableListOf()
                         data[blockedTeleport] = mutableListOf()
                         data[ignoredPlayers] = mutableListOf()
-                        data[channels] = ChatType.values().toMutableList()
 
                     }
                 }
@@ -246,16 +210,6 @@ class DiscordManager: LifeCycleHook {
         globalManager.serverConfig.discord.infoMessage = serverStatusMessage.editMessage(embed.build()).complete().id
 
         jda.shutdown()
-    }
-
-    // override interactive chat message
-    fun overrideDiscordMessage(player: ECPlayer, message: String): String {
-        return message
-            .replace("[inv]", " (游戏内查看) ")
-            .replace("[item]", " (游戏内查看) ")
-            .replace("[money]", " 金钱:${player.database[Players.balance].balance} ")
-            .replace("[ender]", " (游戏内查看) ")
-            .replace("[ping]", PlaceholderAPI.setPlaceholders(player.player," (%react_ping_flat%) "))
     }
 
     @OptIn(ExperimentalTime::class)
@@ -305,10 +259,9 @@ class DiscordManager: LifeCycleHook {
             component.append(message)
         }
 
-        channels[ChatType.ANNOUNCEMENT]!!.sendMessage(discordMessage).queue()
+        annoucementChannel.sendMessage(discordMessage).queue()
         Bukkit.getOnlinePlayers()
             .parallelStream()
-            .filter { p -> globalManager.players.getByPlayer(p).database[Players.channels].contains(ChatType.ANNOUNCEMENT) }
             .forEach { p ->
                 p.spigot().sendMessage(ChatMessageType.CHAT, *component.create())
             }
