@@ -7,27 +7,14 @@ import org.bukkit.enchantments.Enchantment
 
 class Piercing: EnchantmentAPI("piercing") {
 
-    override fun getEmoji(): Emoji {
-        return Emoji.BOW
-    }
+    override val emoji = Emoji.BOW
+    override val display = "分裂箭矢"
+    override val maxLevel = 4
+    override val startLevel = 1
+    override val description = listOf("")
+    override val origin = Enchantment.PIERCING!!
 
     override fun isSupportedMaterial(): List<Material> {
         return listOf(Material.CROSSBOW)
-    }
-
-    override fun getLore(): String {
-        return "分裂箭矢"
-    }
-
-    override fun getMaxLevel(): Int {
-        return 4
-    }
-
-    override fun getStartLevel(): Int {
-        return 1
-    }
-
-    override fun getOrigin(): Enchantment {
-        return Enchantment.PIERCING
     }
 }

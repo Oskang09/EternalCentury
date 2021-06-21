@@ -29,14 +29,14 @@ class AdminEnchantmentUI: PaginationUI<Unit>("admin-enchantment") {
         val items = mutableListOf<PaginationItem>()
 
         enchantments.forEach {
-            for (level in it.getStartLevel() .. it.getMaxLevel()) {
+            for (level in it.startLevel .. it.maxLevel) {
                 val item = ItemStack(Material.ENCHANTED_BOOK)
                 item.itemMeta<EnchantmentStorageMeta> {
                     val newLores = lore ?: mutableListOf()
                     newLores.add(it.getDisplayLore(level))
                     lore = newLores.colorize()
 
-                    it.getOrigin()?.let { ench ->
+                    it.origin?.let { ench ->
                         addStoredEnchant(ench, level, true)
                     }
 

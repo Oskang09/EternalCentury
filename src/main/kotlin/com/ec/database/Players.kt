@@ -17,6 +17,7 @@ object Players: Table() {
     val currentTitle = varchar("current_title", 50).default("")
     val enchantmentRandomSeed = integer("enchantment_seed")
     val skinLimit = integer("skin_limit").default(1)
+    val resLimit = integer("res_limit").default(1)
     val auctionLimit = integer("auction_limit").default(1)
     val skins = array("skins", String::class.java)
     val balance = json("balance", EconomyInfo::class.java)

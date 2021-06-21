@@ -7,9 +7,12 @@ import org.bukkit.enchantments.Enchantment
 
 class Sweeping : EnchantmentAPI("sweeping") {
 
-    override fun getEmoji(): Emoji {
-        return Emoji.SWORD
-    }
+    override val emoji = Emoji.SWORD
+    override val display = "橫掃之刃"
+    override val maxLevel = 3
+    override val startLevel = 1
+    override val description = listOf("")
+    override val origin = Enchantment.SWEEPING_EDGE!!
 
     override fun isSupportedMaterial(): List<Material> {
         return listOf(
@@ -21,21 +24,4 @@ class Sweeping : EnchantmentAPI("sweeping") {
             Material.WOODEN_SWORD,
         )
     }
-
-    override fun getLore(): String {
-        return "橫掃之刃"
-    }
-
-    override fun getMaxLevel(): Int {
-        return 3
-    }
-
-    override fun getStartLevel(): Int {
-        return 1
-    }
-
-    override fun getOrigin(): Enchantment {
-        return Enchantment.SWEEPING_EDGE
-    }
-
 }

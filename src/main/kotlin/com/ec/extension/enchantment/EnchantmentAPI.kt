@@ -14,15 +14,14 @@ abstract class EnchantmentAPI(val id: String) {
         this.globalManager = globalManager
     }
 
-    abstract fun getEmoji(): Emoji
+    abstract val description: List<String>
+    abstract val emoji: Emoji
+    abstract val display: String
+    abstract val maxLevel: Int
+    abstract val startLevel: Int
+    open val origin: Enchantment? = null
     abstract fun isSupportedMaterial(): List<Material>
-    abstract fun getLore(): String
-    abstract fun getMaxLevel(): Int
-    abstract fun getStartLevel(): Int
 
-    open fun getOrigin(): Enchantment? {
-        return null
-    }
 
     private fun baseSupportedMaterial(): List<Material> {
         return listOf(Material.BOOK, Material.ENCHANTED_BOOK)
@@ -33,7 +32,7 @@ abstract class EnchantmentAPI(val id: String) {
     }
 
     fun getDisplayLore(level: Int): String {
-        return ("&e" +getEmoji().text + " &7" + getLore() + " " + level.toRoman()).colorize()
+        return ("&e" +emoji.text + " &7" + display + " " + level.toRoman()).colorize()
     }
 
 }

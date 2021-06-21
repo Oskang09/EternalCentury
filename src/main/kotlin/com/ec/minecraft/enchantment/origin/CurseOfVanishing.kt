@@ -7,9 +7,13 @@ import org.bukkit.enchantments.Enchantment
 
 class CurseOfVanishing: EnchantmentAPI("vanishing_curse") {
 
-    override fun getEmoji(): Emoji {
-        return Emoji.INFECTION
-    }
+
+    override val emoji = Emoji.INFECTION
+    override val display = "消失詛咒"
+    override val maxLevel = 1
+    override val startLevel = 1
+    override val description = listOf("")
+    override val origin = Enchantment.VANISHING_CURSE!!
 
     override fun isSupportedMaterial(): List<Material> {
         return listOf(
@@ -76,21 +80,5 @@ class CurseOfVanishing: EnchantmentAPI("vanishing_curse") {
             Material.ELYTRA,
             Material.SHEARS
         )
-    }
-
-    override fun getLore(): String {
-        return "消失詛咒"
-    }
-
-    override fun getMaxLevel(): Int {
-        return 1
-    }
-
-    override fun getStartLevel(): Int {
-        return 1
-    }
-
-    override fun getOrigin(): Enchantment {
-        return Enchantment.VANISHING_CURSE
     }
 }

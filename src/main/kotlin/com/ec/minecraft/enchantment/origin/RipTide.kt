@@ -7,27 +7,14 @@ import org.bukkit.enchantments.Enchantment
 
 class RipTide: EnchantmentAPI("rip_tide") {
 
-    override fun getEmoji(): Emoji {
-        return Emoji.TRIDENT
-    }
+    override val emoji = Emoji.TRIDENT
+    override val display = "波濤"
+    override val maxLevel = 3
+    override val startLevel = 1
+    override val description = listOf("")
+    override val origin = Enchantment.RIPTIDE!!
 
     override fun isSupportedMaterial(): List<Material> {
         return listOf(Material.TRIDENT)
-    }
-
-    override fun getLore(): String {
-        return "波濤"
-    }
-
-    override fun getMaxLevel(): Int {
-        return 3
-    }
-
-    override fun getStartLevel(): Int {
-        return 1
-    }
-
-    override fun getOrigin(): Enchantment {
-        return Enchantment.RIPTIDE
     }
 }

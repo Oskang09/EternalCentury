@@ -7,9 +7,12 @@ import org.bukkit.enchantments.Enchantment
 
 class Unbreaking: EnchantmentAPI("unbreaking") {
 
-    override fun getEmoji(): Emoji {
-        return Emoji.TOOLS
-    }
+    override val emoji = Emoji.TOOLS
+    override val display = "耐久"
+    override val maxLevel = 3
+    override val startLevel = 1
+    override val description = listOf("")
+    override val origin = Enchantment.DURABILITY!!
 
     override fun isSupportedMaterial(): List<Material> {
         return listOf(
@@ -77,21 +80,5 @@ class Unbreaking: EnchantmentAPI("unbreaking") {
             Material.SHEARS,
             Material.BOW
         )
-    }
-
-    override fun getLore(): String {
-        return "耐久"
-    }
-
-    override fun getMaxLevel(): Int {
-        return 3
-    }
-
-    override fun getStartLevel(): Int {
-        return 1
-    }
-
-    override fun getOrigin(): Enchantment {
-        return Enchantment.DURABILITY
     }
 }

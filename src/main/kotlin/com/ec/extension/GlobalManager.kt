@@ -168,26 +168,6 @@ class GlobalManager(
                     it.motd = "           §f§l[§5§lEC§f§l] §b§l永恒新世纪  §f§l多种玩法,多种乐趣！\n    §f§l| §c§lMCMMO §f§l| §a§l原味生存 §f§l| §7§l自制插件 §f§l| §d§l赛季玩法 §f§l|".colorize()
                 }
 
-            NPCRightClickEvent::class
-                .observable(true, EventPriority.HIGHEST)
-                .doOnError(Logger.trackError("GlobalManager.NPCRightClickEvent", "error occurs in event subscriber"))
-                .subscribe {
-                    val player = it.clicker
-                    when (it.npc.id) {
-                        serverConfig.auctionNpcId -> {
-                            inventory.displayAuction(player, null)
-                        }
-                        serverConfig.repairNpcId -> {
-                            val item = player.inventory.itemInMainHand
-                            if (item.hasItemMeta() && item.itemMeta is Damageable) {
-                                return@subscribe inventory.displayRepair(player);
-                            }
-                            player.sendMessage(message.npc(it.npc, "您的物品暂时不需要修理"))
-                        }
-
-                    }
-                }
-
         }
     }
 

@@ -7,9 +7,12 @@ import org.bukkit.enchantments.Enchantment
 
 class Smite : EnchantmentAPI("smite") {
 
-    override fun getEmoji(): Emoji {
-        return Emoji.SWORD
-    }
+    override val emoji = Emoji.SWORD
+    override val display = "不死剋星"
+    override val maxLevel = 5
+    override val startLevel = 1
+    override val description = listOf("")
+    override val origin = Enchantment.DAMAGE_UNDEAD!!
 
     override fun isSupportedMaterial(): List<Material> {
         return listOf(
@@ -26,22 +29,6 @@ class Smite : EnchantmentAPI("smite") {
             Material.STONE_AXE,
             Material.WOODEN_AXE,
         )
-    }
-
-    override fun getLore(): String {
-        return "不死剋星"
-    }
-
-    override fun getMaxLevel(): Int {
-        return 5
-    }
-
-    override fun getStartLevel(): Int {
-        return 1
-    }
-
-    override fun getOrigin(): Enchantment {
-        return Enchantment.DAMAGE_UNDEAD
     }
 
 }

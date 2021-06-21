@@ -34,7 +34,7 @@ class EnchantmentManager {
 
         globalManager.reflections.loopEnchantments {
             it.initialize(globalManager)
-            val origin = it.getOrigin()
+            val origin = it.origin
             if (origin != null) {
                 originEnchantments[origin] = it
             }
@@ -131,7 +131,7 @@ class EnchantmentManager {
 
                                     itemNbt.enchantments[ench.id] = level
                                     newLores.add(ench.getDisplayLore(level))
-                                    ench.getOrigin()?.let { origin ->
+                                    ench.origin?.let { origin ->
                                         addEnchant(origin, level, true)
                                     }
                                 }
@@ -205,7 +205,7 @@ class EnchantmentManager {
             repeat(numOfEnchantments) {
                 val randomKey = enchantments.keys.random()
                 val ench = enchantments[randomKey]!!
-                var level = RandomUtil.randomInteger(ench.getMaxLevel() - 1) + 1
+                var level = RandomUtil.randomInteger(ench.maxLevel - 1) + 1
                 if (level > levelCapped) {
                    level = levelCapped
                 }
@@ -215,7 +215,7 @@ class EnchantmentManager {
             itemEnchantments.forEach { (enchantment, level) ->
                 val ench = getEnchantmentById(enchantment)
                 newLores.add(ench.getDisplayLore(level))
-                ench.getOrigin()?.let { origin ->
+                ench.origin?.let { origin ->
                     addStoredEnchant(origin, level, true)
                 }
 
@@ -238,7 +238,7 @@ class EnchantmentManager {
             enchantments.forEach { (enchantment, level) ->
                 val ench = getEnchantmentById(enchantment)
                 newLores.add(ench.getDisplayLore(level))
-                ench.getOrigin()?.let { origin ->
+                ench.origin?.let { origin ->
                     addStoredEnchant(origin, level, true)
                 }
 
@@ -261,7 +261,7 @@ class EnchantmentManager {
             val source = sourceMap[enchantment] ?: 0
             val current = it.value
             val combine = source + current
-            val max = enchantment.getMaxLevel()
+            val max = enchantment.maxLevel
             if (combine > max) {
                 sourceMap[enchantment] = max
             } else {
@@ -278,7 +278,7 @@ class EnchantmentManager {
             val source = sourceMap[it.key] ?: 0
             val current = it.value
             val combine = source + current
-            val max = it.key.getMaxLevel()
+            val max = it.key.maxLevel
             if (combine > max) {
                 sourceMap[it.key] = max
             } else {
@@ -297,7 +297,7 @@ class EnchantmentManager {
             val source = sourceMap[originEnchantment] ?: 0
             val current = it.value
             val combine = source + current
-            val max = originEnchantment.getMaxLevel()
+            val max = originEnchantment.maxLevel
             if (combine > max) {
                 sourceMap[originEnchantment] = max
             } else {

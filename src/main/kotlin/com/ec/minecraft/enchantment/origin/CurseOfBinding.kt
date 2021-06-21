@@ -7,9 +7,12 @@ import org.bukkit.enchantments.Enchantment
 
 class CurseOfBinding: EnchantmentAPI("binding_curse") {
 
-    override fun getEmoji(): Emoji {
-        return Emoji.INFECTION
-    }
+    override val emoji = Emoji.INFECTION
+    override val display = "綁定詛咒"
+    override val maxLevel = 1
+    override val startLevel = 1
+    override val description = listOf("")
+    override val origin = Enchantment.BINDING_CURSE!!
 
     override fun isSupportedMaterial(): List<Material> {
         return listOf(
@@ -39,21 +42,5 @@ class CurseOfBinding: EnchantmentAPI("binding_curse") {
             Material.TURTLE_HELMET,
             Material.NETHERITE_HELMET
         )
-    }
-
-    override fun getLore(): String {
-        return "綁定詛咒"
-    }
-
-    override fun getMaxLevel(): Int {
-        return 1
-    }
-
-    override fun getStartLevel(): Int {
-        return 1
-    }
-
-    override fun getOrigin(): Enchantment {
-        return Enchantment.BINDING_CURSE
     }
 }

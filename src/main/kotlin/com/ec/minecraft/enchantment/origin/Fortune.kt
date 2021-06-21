@@ -7,9 +7,12 @@ import org.bukkit.enchantments.Enchantment
 
 class Fortune: EnchantmentAPI("fortune") {
 
-    override fun getEmoji(): Emoji {
-        return Emoji.TOOLS
-    }
+    override val emoji = Emoji.TOOLS
+    override val display = "幸運"
+    override val maxLevel = 3
+    override val startLevel = 1
+    override val description = listOf("")
+    override val origin = Enchantment.LOOT_BONUS_BLOCKS!!
 
     override fun isSupportedMaterial(): List<Material> {
         return listOf(
@@ -39,22 +42,6 @@ class Fortune: EnchantmentAPI("fortune") {
             Material.STONE_SHOVEL,
             Material.WOODEN_SHOVEL,
         )
-    }
-
-    override fun getLore(): String {
-        return "幸運"
-    }
-
-    override fun getMaxLevel(): Int {
-        return 3
-    }
-
-    override fun getStartLevel(): Int {
-        return 1
-    }
-
-    override fun getOrigin(): Enchantment {
-        return Enchantment.LOOT_BONUS_BLOCKS
     }
 
 }

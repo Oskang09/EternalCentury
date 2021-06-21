@@ -7,9 +7,12 @@ import org.bukkit.enchantments.Enchantment
 
 class FeatherFalling: EnchantmentAPI("feather_falling") {
 
-    override fun getEmoji(): Emoji {
-        return Emoji.SHIELD
-    }
+    override val emoji = Emoji.SHIELD
+    override val display = "輕盈"
+    override val maxLevel = 2
+    override val startLevel = 1
+    override val description = listOf("")
+    override val origin = Enchantment.PROTECTION_FALL!!
 
     override fun isSupportedMaterial(): List<Material> {
         return listOf(
@@ -20,21 +23,5 @@ class FeatherFalling: EnchantmentAPI("feather_falling") {
             Material.GOLDEN_BOOTS,
             Material.NETHERITE_BOOTS,
         )
-    }
-
-    override fun getLore(): String {
-        return "輕盈"
-    }
-
-    override fun getMaxLevel(): Int {
-        return 2
-    }
-
-    override fun getStartLevel(): Int {
-        return 1
-    }
-
-    override fun getOrigin(): Enchantment {
-        return Enchantment.PROTECTION_FALL
     }
 }

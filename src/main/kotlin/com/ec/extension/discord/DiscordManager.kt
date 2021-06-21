@@ -11,22 +11,21 @@ import com.ec.database.model.point.PointInfo
 import com.ec.extension.GlobalManager
 import com.ec.logger.Logger
 import com.ec.model.ObservableObject
-import com.ec.model.player.ECPlayer
 import com.ec.model.player.ECPlayerState
-import com.ec.util.ModelUtil.toDisplay
 import com.ec.util.RandomUtil
 import com.ec.util.StringUtil.colorize
 import com.ec.util.StringUtil.generateUniqueID
 import de.tr7zw.nbtapi.NBTItem
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.component.lifecycle.LifeCycleHook
-import io.javalin.core.util.RouteOverviewUtil.metaInfo
-import me.clip.placeholderapi.PlaceholderAPI
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.OnlineStatus
-import net.dv8tion.jda.api.entities.*
+import net.dv8tion.jda.api.entities.Activity
+import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.entities.Role
+import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.md_5.bungee.api.ChatMessageType
@@ -34,7 +33,6 @@ import net.md_5.bungee.api.chat.ComponentBuilder
 import net.md_5.bungee.api.chat.HoverEvent
 import net.md_5.bungee.api.chat.TextComponent
 import org.bukkit.Bukkit
-import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.AsyncPlayerChatEvent
@@ -88,22 +86,22 @@ class DiscordManager: LifeCycleHook {
                     }
 
                     val sender = it.player
-                    var message = it.message
                     val chatType = when {
-                        message.startsWith("@party ") -> {
-                            message = message.replace("@party ", "")
+                        it.message.startsWith("@party ") -> {
+                            it.message = it.message.replace("@party ", "")
                             ChatType.PARTY
                         }
                         else -> ChatType.GLOBAL
                     }
 
-                    it.message = globalManager.message.playerChat(sender, chatType, message)
+                    val prefix = globalManager.message.playerChatPrefix(chatType)
+                    it.format = "$prefix &r%s : &f%s".colorize()
                     if (chatType != ChatType.PARTY) {
                         it.recipients.removeIf { p -> globalManager.players.getByPlayer(p).database[Players.ignoredPlayers].contains(sender.name) }
                     } else {
                         it.isCancelled = true
                         globalManager.mcmmo.getPlayerParty(sender).map { p ->
-                            p.sendMessage(it.message)
+                            p.sendMessage(prefix + " &r${sender.displayName} : &f${it.message}".colorize())
                         }
                     }
                 }

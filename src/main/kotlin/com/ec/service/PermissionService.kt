@@ -20,7 +20,9 @@ class PermissionService: Permission() {
         "residence.command.message.enter",
         "residence.command.message.leave",
         "residence.command.message.enter.remove",
-        "residence.command.message.leave.remove"
+        "residence.command.message.leave.remove",
+        "playerparticles.particles.max.3",
+        "playerparticles.groups.max.3",
     )
 
     private lateinit var globalManager: GlobalManager
@@ -33,9 +35,13 @@ class PermissionService: Permission() {
         val ecPlayer = globalManager.players.getByPlayer(player)
         val permissions = ecPlayer.database[Players.permissions]
         permissions.addAll(playersDefaultPermissions)
+
+        val residenceLimit = ecPlayer.database[Players.resLimit]
+        permissions.add("residence.max.res.$residenceLimit")
         permissions.forEach {
             player.addAttachment(ECCore.instance, it, true)
         }
+
     }
 
     override fun getName(): String {

@@ -7,9 +7,12 @@ import org.bukkit.enchantments.Enchantment
 
 class SilkTouch: EnchantmentAPI("silk_touch") {
 
-    override fun getEmoji(): Emoji {
-        return Emoji.TOOLS
-    }
+    override val emoji = Emoji.TOOLS
+    override val display = "絲綢之觸"
+    override val maxLevel = 1
+    override val startLevel = 1
+    override val description = listOf("")
+    override val origin = Enchantment.SILK_TOUCH!!
 
     override fun isSupportedMaterial(): List<Material> {
         return listOf(
@@ -38,21 +41,5 @@ class SilkTouch: EnchantmentAPI("silk_touch") {
             Material.STONE_SHOVEL,
             Material.WOODEN_SHOVEL,
         )
-    }
-
-    override fun getLore(): String {
-        return "絲綢之觸"
-    }
-
-    override fun getMaxLevel(): Int {
-        return 1
-    }
-
-    override fun getStartLevel(): Int {
-        return 1
-    }
-
-    override fun getOrigin(): Enchantment {
-        return Enchantment.SILK_TOUCH
     }
 }

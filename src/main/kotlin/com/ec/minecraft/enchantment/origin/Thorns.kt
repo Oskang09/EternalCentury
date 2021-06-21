@@ -7,9 +7,12 @@ import org.bukkit.enchantments.Enchantment
 
 class Thorns : EnchantmentAPI("thorns") {
 
-    override fun getEmoji(): Emoji {
-        return Emoji.SHIELD
-    }
+    override val emoji = Emoji.SHIELD
+    override val display = "尖刺"
+    override val maxLevel = 3
+    override val startLevel = 1
+    override val description = listOf("")
+    override val origin = Enchantment.THORNS!!
 
     override fun isSupportedMaterial(): List<Material> {
         return listOf(
@@ -39,21 +42,5 @@ class Thorns : EnchantmentAPI("thorns") {
             Material.TURTLE_HELMET,
             Material.NETHERITE_HELMET
         )
-    }
-
-    override fun getLore(): String {
-        return "尖刺"
-    }
-
-    override fun getMaxLevel(): Int {
-        return 3
-    }
-
-    override fun getStartLevel(): Int {
-        return 1
-    }
-
-    override fun getOrigin(): Enchantment {
-        return Enchantment.THORNS
     }
 }

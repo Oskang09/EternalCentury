@@ -7,9 +7,12 @@ import org.bukkit.enchantments.Enchantment
 
 class FireAspect: EnchantmentAPI("fire_aspect") {
 
-    override fun getEmoji(): Emoji {
-        return Emoji.FIRE
-    }
+    override val emoji = Emoji.FIRE
+    override val display = "燃燒"
+    override val maxLevel = 2
+    override val startLevel = 1
+    override val description = listOf("")
+    override val origin = Enchantment.FIRE_ASPECT!!
 
     override fun isSupportedMaterial(): List<Material> {
         return listOf(
@@ -20,21 +23,5 @@ class FireAspect: EnchantmentAPI("fire_aspect") {
             Material.STONE_SWORD,
             Material.WOODEN_SWORD,
         )
-    }
-
-    override fun getLore(): String {
-        return "燃燒"
-    }
-
-    override fun getMaxLevel(): Int {
-        return 2
-    }
-
-    override fun getStartLevel(): Int {
-        return 1
-    }
-
-    override fun getOrigin(): Enchantment {
-        return Enchantment.FIRE_ASPECT
     }
 }

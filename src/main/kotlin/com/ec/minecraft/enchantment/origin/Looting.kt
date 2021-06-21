@@ -7,9 +7,12 @@ import org.bukkit.enchantments.Enchantment
 
 class Looting: EnchantmentAPI("looting") {
 
-    override fun getEmoji(): Emoji {
-        return Emoji.SWORD
-    }
+    override val emoji = Emoji.SWORD
+    override val display = "掠奪"
+    override val maxLevel = 3
+    override val startLevel = 1
+    override val description = listOf("")
+    override val origin = Enchantment.LOOT_BONUS_MOBS!!
 
     override fun isSupportedMaterial(): List<Material> {
         return listOf(
@@ -20,21 +23,5 @@ class Looting: EnchantmentAPI("looting") {
             Material.STONE_SWORD,
             Material.WOODEN_SWORD,
         )
-    }
-
-    override fun getLore(): String {
-        return "掠奪"
-    }
-
-    override fun getMaxLevel(): Int {
-        return 3
-    }
-
-    override fun getStartLevel(): Int {
-        return 1
-    }
-
-    override fun getOrigin(): Enchantment {
-        return Enchantment.LOOT_BONUS_MOBS
     }
 }

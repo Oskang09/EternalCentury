@@ -5,6 +5,7 @@ import com.ec.extension.enchantment.EnchantmentAPI
 import com.ec.logger.Logger
 import com.ec.model.Emoji
 import org.bukkit.Material
+import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
@@ -14,6 +15,25 @@ import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 
 class Wither: EnchantmentAPI("wither") {
+
+    override val emoji = Emoji.INFECTION
+    override val display = "凋零"
+    override val maxLevel = 1
+    override val startLevel = 1
+    override val description = listOf("")
+
+    override fun isSupportedMaterial(): List<Material> {
+        return listOf(
+            Material.NETHERITE_SWORD,
+            Material.DIAMOND_SWORD,
+            Material.GOLDEN_SWORD,
+            Material.IRON_SWORD,
+            Material.STONE_SWORD,
+            Material.WOODEN_SWORD,
+            Material.BOW,
+            Material.CROSSBOW
+        )
+    }
 
     override fun initialize(globalManager: GlobalManager) {
         super.initialize(globalManager)
@@ -65,35 +85,6 @@ class Wither: EnchantmentAPI("wither") {
                 }
 
         }
-    }
-
-    override fun getEmoji(): Emoji {
-        return Emoji.INFECTION
-    }
-
-    override fun isSupportedMaterial(): List<Material> {
-        return listOf(
-            Material.NETHERITE_SWORD,
-            Material.DIAMOND_SWORD,
-            Material.GOLDEN_SWORD,
-            Material.IRON_SWORD,
-            Material.STONE_SWORD,
-            Material.WOODEN_SWORD,
-            Material.BOW,
-            Material.CROSSBOW
-        )
-    }
-
-    override fun getLore(): String {
-        return "凋零"
-    }
-
-    override fun getMaxLevel(): Int {
-        return 1
-    }
-
-    override fun getStartLevel(): Int {
-        return 1
     }
 
 }

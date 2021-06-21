@@ -7,27 +7,14 @@ import org.bukkit.enchantments.Enchantment
 
 class Power: EnchantmentAPI("power") {
 
-    override fun getEmoji(): Emoji {
-        return Emoji.BOW
-    }
+    override val emoji = Emoji.BOW
+    override val display = "强力"
+    override val maxLevel = 5
+    override val startLevel = 1
+    override val description = listOf("")
+    override val origin = Enchantment.ARROW_DAMAGE!!
 
     override fun isSupportedMaterial(): List<Material> {
         return listOf(Material.BOW)
-    }
-
-    override fun getLore(): String {
-        return "强力"
-    }
-
-    override fun getMaxLevel(): Int {
-        return 5
-    }
-
-    override fun getStartLevel(): Int {
-        return 1
-    }
-
-    override fun getOrigin(): Enchantment {
-        return Enchantment.ARROW_DAMAGE
     }
 }

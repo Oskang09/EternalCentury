@@ -7,9 +7,12 @@ import org.bukkit.enchantments.Enchantment
 
 class Knockback: EnchantmentAPI("knockback") {
 
-    override fun getEmoji(): Emoji {
-        return Emoji.SWORD
-    }
+    override val emoji = Emoji.SWORD
+    override val display = "擊退"
+    override val maxLevel = 2
+    override val startLevel = 1
+    override val description = listOf("")
+    override val origin = Enchantment.KNOCKBACK!!
 
     override fun isSupportedMaterial(): List<Material> {
         return listOf(
@@ -20,21 +23,5 @@ class Knockback: EnchantmentAPI("knockback") {
             Material.STONE_SWORD,
             Material.WOODEN_SWORD,
         )
-    }
-
-    override fun getLore(): String {
-        return "擊退"
-    }
-
-    override fun getMaxLevel(): Int {
-        return 2
-    }
-
-    override fun getStartLevel(): Int {
-        return 1
-    }
-
-    override fun getOrigin(): Enchantment {
-        return Enchantment.KNOCKBACK
     }
 }

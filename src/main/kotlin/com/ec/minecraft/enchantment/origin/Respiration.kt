@@ -7,9 +7,12 @@ import org.bukkit.enchantments.Enchantment
 
 class Respiration: EnchantmentAPI("respiration") {
 
-    override fun getEmoji(): Emoji {
-        return Emoji.SHIELD
-    }
+    override val emoji = Emoji.SHIELD
+    override val display = "水中呼吸"
+    override val maxLevel = 3
+    override val startLevel = 1
+    override val description = listOf("")
+    override val origin = Enchantment.OXYGEN!!
 
     override fun isSupportedMaterial(): List<Material> {
         return listOf(
@@ -21,21 +24,5 @@ class Respiration: EnchantmentAPI("respiration") {
             Material.TURTLE_HELMET,
             Material.NETHERITE_HELMET,
         )
-    }
-
-    override fun getLore(): String {
-        return "水中呼吸"
-    }
-
-    override fun getMaxLevel(): Int {
-        return 3
-    }
-
-    override fun getStartLevel(): Int {
-        return 1
-    }
-
-    override fun getOrigin(): Enchantment {
-        return Enchantment.OXYGEN
     }
 }

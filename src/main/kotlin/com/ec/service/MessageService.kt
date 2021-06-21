@@ -19,12 +19,8 @@ class MessageService {
         return "&b[&9私讯&b] &r${from.displayName}: &f".colorize() + message
     }
 
-    fun npc(npc: NPC, message: String): String {
-        return "${npc.fullName} : &f$message".colorize()
-    }
-
-    fun playerChat(player: Player, chatType: ChatType, message: String): String {
-        return "&f[&a${chatType.toDisplay()}&f] &r${player.displayName} : &f".colorize() + message
+    fun playerChatPrefix(chatType: ChatType): String {
+        return "&f[&a${chatType.toDisplay()}&f]".colorize()
     }
 
     fun broadcast(message: String): String {

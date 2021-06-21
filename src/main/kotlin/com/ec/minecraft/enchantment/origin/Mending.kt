@@ -7,9 +7,12 @@ import org.bukkit.enchantments.Enchantment
 
 class Mending: EnchantmentAPI("mending") {
 
-    override fun getEmoji(): Emoji {
-        return Emoji.TOOLS
-    }
+    override val emoji = Emoji.TOOLS
+    override val display = "修補"
+    override val maxLevel = 1
+    override val startLevel = 1
+    override val description = listOf("")
+    override val origin = Enchantment.MENDING!!
 
     override fun isSupportedMaterial(): List<Material> {
         return listOf(
@@ -70,21 +73,5 @@ class Mending: EnchantmentAPI("mending") {
             Material.TURTLE_HELMET,
             Material.NETHERITE_HELMET,
         )
-    }
-
-    override fun getLore(): String {
-        return "修補"
-    }
-
-    override fun getMaxLevel(): Int {
-        return 1
-    }
-
-    override fun getStartLevel(): Int {
-        return 1
-    }
-
-    override fun getOrigin(): Enchantment {
-        return Enchantment.MENDING
     }
 }

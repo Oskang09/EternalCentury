@@ -7,9 +7,12 @@ import org.bukkit.enchantments.Enchantment
 
 class BaneOfArthropods: EnchantmentAPI("bane_of_arthropods") {
 
-    override fun getEmoji(): Emoji {
-        return Emoji.SWORD
-    }
+    override val emoji = Emoji.SWORD
+    override val display = "節肢剋星"
+    override val maxLevel = 5
+    override val startLevel = 1
+    override val description = listOf("")
+    override val origin = Enchantment.DAMAGE_ARTHROPODS!!
 
     override fun isSupportedMaterial(): List<Material> {
         return listOf(
@@ -26,21 +29,5 @@ class BaneOfArthropods: EnchantmentAPI("bane_of_arthropods") {
             Material.STONE_AXE,
             Material.WOODEN_AXE,
         )
-    }
-
-    override fun getLore(): String {
-        return "節肢剋星"
-    }
-
-    override fun getMaxLevel(): Int {
-        return 5
-    }
-
-    override fun getStartLevel(): Int {
-        return 1
-    }
-
-    override fun getOrigin(): Enchantment {
-        return Enchantment.DAMAGE_ARTHROPODS
     }
 }

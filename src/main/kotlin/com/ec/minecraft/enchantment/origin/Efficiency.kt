@@ -7,9 +7,12 @@ import org.bukkit.enchantments.Enchantment
 
 class Efficiency: EnchantmentAPI("efficiency") {
 
-    override fun getEmoji(): Emoji {
-        return Emoji.TOOLS
-    }
+    override val emoji = Emoji.TOOLS
+    override val display = "效率"
+    override val maxLevel = 5
+    override val startLevel = 1
+    override val description = listOf("")
+    override val origin = Enchantment.DIG_SPEED!!
 
     override fun isSupportedMaterial(): List<Material> {
         return listOf(
@@ -39,22 +42,6 @@ class Efficiency: EnchantmentAPI("efficiency") {
             Material.STONE_SHOVEL,
             Material.WOODEN_SHOVEL,
         )
-    }
-
-    override fun getLore(): String {
-        return "效率"
-    }
-
-    override fun getMaxLevel(): Int {
-        return 1
-    }
-
-    override fun getStartLevel(): Int {
-        return 1
-    }
-
-    override fun getOrigin(): Enchantment {
-        return Enchantment.DIG_SPEED
     }
 
 }

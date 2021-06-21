@@ -7,9 +7,11 @@ import org.bukkit.enchantments.Enchantment
 
 class BlastProtection: EnchantmentAPI("blast_protection") {
 
-    override fun getEmoji(): Emoji {
-        return Emoji.SHIELD
-    }
+    override val emoji = Emoji.SHIELD
+    override val display = "爆炸保護"
+    override val maxLevel = 4
+    override val startLevel = 1
+    override val description = listOf("")
 
     override fun isSupportedMaterial(): List<Material> {
         return listOf(
@@ -39,21 +41,5 @@ class BlastProtection: EnchantmentAPI("blast_protection") {
             Material.TURTLE_HELMET,
             Material.NETHERITE_HELMET
         )
-    }
-
-    override fun getLore(): String {
-        return "爆炸保護"
-    }
-
-    override fun getMaxLevel(): Int {
-        return 4
-    }
-
-    override fun getStartLevel(): Int {
-        return 1
-    }
-
-    override fun getOrigin(): Enchantment {
-        return Enchantment.PROTECTION_EXPLOSIONS
     }
 }

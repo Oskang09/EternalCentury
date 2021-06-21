@@ -7,9 +7,12 @@ import org.bukkit.enchantments.Enchantment
 
 class FrostWalker: EnchantmentAPI("frost_walker") {
 
-    override fun getEmoji(): Emoji {
-        return Emoji.SNOWMAN
-    }
+    override val emoji = Emoji.TOOLS
+    override val display = "魚叉"
+    override val maxLevel = 2
+    override val startLevel = 1
+    override val description = listOf("")
+    override val origin = Enchantment.FROST_WALKER!!
 
     override fun isSupportedMaterial(): List<Material> {
         return listOf(
@@ -20,21 +23,5 @@ class FrostWalker: EnchantmentAPI("frost_walker") {
             Material.GOLDEN_BOOTS,
             Material.NETHERITE_BOOTS,
         )
-    }
-
-    override fun getLore(): String {
-        return "魚叉"
-    }
-
-    override fun getMaxLevel(): Int {
-        return 2
-    }
-
-    override fun getStartLevel(): Int {
-        return 1
-    }
-
-    override fun getOrigin(): Enchantment {
-        return Enchantment.FROST_WALKER
     }
 }

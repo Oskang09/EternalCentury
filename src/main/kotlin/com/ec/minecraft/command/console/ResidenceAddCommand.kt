@@ -9,10 +9,10 @@ import picocli.CommandLine
 import java.util.*
 
 @CommandLine.Command(
-    name = "skin-add",
-    description = ["添加玩家账号可用造型数"]
+    name = "res-add",
+    description = ["添加玩家账号可用领地数"]
 )
-internal class SkinAddCommand(private val globalManager: GlobalManager): ReactantCommand() {
+internal class ResidenceAddCommand(private val globalManager: GlobalManager): ReactantCommand() {
 
     @CommandLine.Parameters(
         index = "0",
@@ -27,11 +27,12 @@ internal class SkinAddCommand(private val globalManager: GlobalManager): Reactan
         val player = globalManager.players.getByPlayerName(playerName!!)!!
         transaction {
             Players.update({ Players.id eq player[Players.id] }) {
-                it[skinLimit] = player[skinLimit] + 1
+                it[resLimit] = player[resLimit] + 1
             }
 
-            globalManager.players.refreshPlayerIfOnline(UUID.fromString(player[Players.uuid]))
+            globalManager.players.refreshPlayerIfOnline(UUID.fromString(player[Players.uuid])) {
+                globalManager.permission.injectPermission(it)
+            }
         }
     }
-
 }

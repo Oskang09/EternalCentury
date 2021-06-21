@@ -7,27 +7,14 @@ import org.bukkit.enchantments.Enchantment
 
 class Lure: EnchantmentAPI("lure") {
 
-    override fun getEmoji(): Emoji {
-        return Emoji.FISHING_ROD
-    }
+    override val emoji = Emoji.FISHING_ROD
+    override val display = "魚餌"
+    override val maxLevel = 3
+    override val startLevel = 1
+    override val description = listOf("")
+    override val origin = Enchantment.LURE!!
 
     override fun isSupportedMaterial(): List<Material> {
         return listOf(Material.FISHING_ROD)
-    }
-
-    override fun getLore(): String {
-        return "魚餌"
-    }
-
-    override fun getMaxLevel(): Int {
-        return 3
-    }
-
-    override fun getStartLevel(): Int {
-        return 1
-    }
-
-    override fun getOrigin(): Enchantment {
-        return Enchantment.LURE
     }
 }

@@ -174,13 +174,15 @@ class ItemManager(
         item.itemMeta<ItemMeta> {
             val newLores = lore ?: mutableListOf()
 
+            newLores.addAll(data.lore)
+
             data.enchantments.forEach {
                 val enchantment = globalManager.enchantments.getEnchantmentById(it.key)
                 if (enchantment.isSupported(item.type)) {
                     nbt.enchantments[enchantment.id] = it.value
                     newLores.add(enchantment.getDisplayLore(it.value))
 
-                    enchantment.getOrigin()?.let { ench ->
+                    enchantment.origin?.let { ench ->
                         addEnchant(ench, it.value, true)
                     }
                 }
@@ -206,13 +208,15 @@ class ItemManager(
         item.itemMeta<ItemMeta> {
             val newLores = lore ?: mutableListOf()
 
+            newLores.addAll(data.lore)
+
             data.enchantments.forEach {
                 val enchantment = globalManager.enchantments.getEnchantmentById(it.key)
                 if (enchantment.isSupported(item.type)) {
                     nbt.enchantments[enchantment.id] = it.value
                     newLores.add(enchantment.getDisplayLore(it.value))
 
-                    enchantment.getOrigin()?.let { ench ->
+                    enchantment.origin?.let { ench ->
                         addEnchant(ench, it.value, true)
                     }
                 }

@@ -7,9 +7,12 @@ import org.bukkit.enchantments.Enchantment
 
 class AquaInfinity: EnchantmentAPI("aqua_infinity") {
 
-    override fun getEmoji(): Emoji {
-        return Emoji.TOOLS
-    }
+    override val emoji = Emoji.TOOLS
+    override val display = "親水性"
+    override val maxLevel = 1
+    override val startLevel = 1
+    override val description = listOf("")
+    override val origin = Enchantment.WATER_WORKER!!
 
     override fun isSupportedMaterial(): List<Material> {
         return listOf(
@@ -21,22 +24,6 @@ class AquaInfinity: EnchantmentAPI("aqua_infinity") {
             Material.TURTLE_HELMET,
             Material.NETHERITE_HELMET,
         )
-    }
-
-    override fun getLore(): String {
-        return "親水性"
-    }
-
-    override fun getMaxLevel(): Int {
-        return 1
-    }
-
-    override fun getStartLevel(): Int {
-        return 1
-    }
-
-    override fun getOrigin(): Enchantment {
-        return Enchantment.WATER_WORKER
     }
 
 }

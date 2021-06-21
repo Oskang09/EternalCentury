@@ -7,27 +7,14 @@ import org.bukkit.enchantments.Enchantment
 
 class Punch : EnchantmentAPI("punch") {
 
-    override fun getEmoji(): Emoji {
-        return Emoji.BOW
-    }
+    override val emoji = Emoji.BOW
+    override val display = "衝擊"
+    override val maxLevel = 2
+    override val startLevel = 1
+    override val description = listOf("")
+    override val origin = Enchantment.ARROW_KNOCKBACK!!
 
     override fun isSupportedMaterial(): List<Material> {
         return listOf(Material.BOW)
-    }
-
-    override fun getLore(): String {
-        return "衝擊"
-    }
-
-    override fun getMaxLevel(): Int {
-        return 2
-    }
-
-    override fun getStartLevel(): Int {
-        return 1
-    }
-
-    override fun getOrigin(): Enchantment {
-        return Enchantment.ARROW_KNOCKBACK
     }
 }
