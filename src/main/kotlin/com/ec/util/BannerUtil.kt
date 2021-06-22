@@ -11,8 +11,18 @@ import java.util.function.Supplier
 
 object BannerUtil {
     private var numberBanners: ArrayList<ItemStack> = ArrayList()
+    val colonBanner = build(Supplier {
+        val patterns: MutableList<Pattern> = ArrayList()
+        patterns.add(Pattern(DyeColor.WHITE, PatternType.STRIPE_CENTER))
+        patterns.add(Pattern(DyeColor.BLACK, PatternType.STRIPE_MIDDLE))
+        patterns.add(Pattern(DyeColor.BLACK, PatternType.STRIPE_MIDDLE))
+        patterns.add(Pattern(DyeColor.BLACK, PatternType.STRIPE_TOP))
+        patterns.add(Pattern(DyeColor.BLACK, PatternType.STRIPE_BOTTOM))
+        return@Supplier patterns
+    })
 
     init {
+
         // https://www.gamergeeks.nz/apps/minecraft/banner-maker#mcb=a15bs0ls0ts0rs0dls0bo15
         numberBanners.add(build(Supplier {
             val patterns: MutableList<Pattern> =
@@ -140,7 +150,7 @@ object BannerUtil {
 
     }
 
-    operator fun get(number: Int): ItemStack? {
+    operator fun get(number: Int): ItemStack {
         return if (number < 0 || number > 9) {
             ItemStack(Material.AIR)
         } else numberBanners[number].clone()

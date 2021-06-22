@@ -1,7 +1,7 @@
 package com.ec.minecraft.admin
 
-import com.ec.extension.inventory.UIBase
-import com.ec.extension.inventory.UIProvider
+import com.ec.manager.inventory.UIBase
+import com.ec.manager.inventory.UIProvider
 import com.ec.util.StringUtil.colorize
 import dev.reactant.reactant.extensions.itemMeta
 import dev.reactant.resquare.dom.childrenOf

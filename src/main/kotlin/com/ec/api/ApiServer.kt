@@ -1,6 +1,6 @@
 package com.ec.api
 
-import com.ec.extension.GlobalManager
+import com.ec.manager.GlobalManager
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.component.lifecycle.LifeCycleHook
 import io.javalin.Javalin

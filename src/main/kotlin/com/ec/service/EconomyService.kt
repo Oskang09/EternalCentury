@@ -4,14 +4,12 @@ import com.ec.database.Economies
 import com.ec.database.Players
 import com.ec.database.model.economy.EconomyInfo
 import com.ec.database.model.economy.EconomyType
-import com.ec.extension.GlobalManager
-import com.ec.logger.Logger
+import com.ec.manager.GlobalManager
 import com.ec.util.DoubleUtil.roundTo
 import com.ec.util.StringUtil.generateUniqueID
 import dev.reactant.reactant.core.component.Component
 import net.milkbowl.vault.economy.Economy
 import net.milkbowl.vault.economy.EconomyResponse
-import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction

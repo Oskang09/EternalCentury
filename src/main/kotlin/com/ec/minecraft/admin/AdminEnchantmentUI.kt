@@ -1,10 +1,10 @@
 package com.ec.minecraft.admin
 
 import com.ec.model.ItemNBT
-import com.ec.extension.inventory.UIBase
-import com.ec.extension.inventory.component.PaginationItem
-import com.ec.extension.inventory.component.PaginationUI
-import com.ec.extension.inventory.component.PaginationUIProps
+import com.ec.manager.inventory.UIBase
+import com.ec.manager.inventory.component.PaginationItem
+import com.ec.manager.inventory.component.PaginationUI
+import com.ec.manager.inventory.component.PaginationUIProps
 import com.ec.util.StringUtil.colorize
 import dev.reactant.reactant.extensions.itemMeta
 import org.bukkit.Material

@@ -1,6 +1,6 @@
 package com.ec.minecraft.papi
 
-import com.ec.extension.papi.PlaceholderAPI
+import com.ec.manager.papi.PlaceholderAPI
 import org.bukkit.entity.Player
 
 class McMMORank: PlaceholderAPI() {

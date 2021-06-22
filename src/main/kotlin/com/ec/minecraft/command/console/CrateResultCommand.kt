@@ -1,14 +1,10 @@
 package com.ec.minecraft.command.console
 
-import com.ec.database.Players
-import com.ec.database.model.ChatType
-import com.ec.extension.GlobalManager
+import com.ec.manager.GlobalManager
 import com.ec.util.ChanceUtil
 import dev.reactant.reactant.extra.command.ReactantCommand
 import org.bukkit.Bukkit
-import org.jetbrains.exposed.sql.update
 import picocli.CommandLine
-import java.util.*
 
 @CommandLine.Command(
     name = "crate-result",

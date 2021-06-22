@@ -1,8 +1,8 @@
 package com.ec.minecraft.point
 
 import com.ec.database.model.point.PointDetail
-import com.ec.extension.GlobalManager
-import com.ec.extension.point.PointAPI
+import com.ec.manager.GlobalManager
+import com.ec.manager.point.PointAPI
 import com.ec.util.StringUtil.colorize
 import com.gmail.nossr50.events.experience.McMMOPlayerLevelUpEvent
 import dev.reactant.reactant.extensions.itemMeta

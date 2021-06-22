@@ -1,7 +1,7 @@
 package com.ec.minecraft.ugui
 
-import com.ec.extension.GlobalManager
-import com.ec.extension.ugui.ModuleAPI
+import com.ec.manager.GlobalManager
+import com.ec.manager.ugui.ModuleAPI
 import me.oska.module.Module
 import me.oska.module.ModuleNotConfigured
 import me.oska.module.ModuleType

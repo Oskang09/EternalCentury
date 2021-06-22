@@ -1,9 +1,8 @@
 package com.ec.minecraft.inventory.container
 
 import com.ec.config.CrateConfig
-import com.ec.extension.inventory.UIBase
-import com.ec.extension.inventory.UIProvider
-import com.ec.extension.inventory.component.PaginationUIProps
+import com.ec.manager.inventory.UIBase
+import com.ec.manager.inventory.UIProvider
 import com.ec.util.StringUtil.colorize
 import dev.reactant.resquare.dom.Node
 import dev.reactant.resquare.dom.childrenOf

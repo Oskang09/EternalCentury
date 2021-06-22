@@ -1,11 +1,10 @@
 package com.ec.minecraft.enchantment
 
-import com.ec.extension.GlobalManager
-import com.ec.extension.enchantment.EnchantmentAPI
+import com.ec.manager.GlobalManager
+import com.ec.manager.enchantment.EnchantmentAPI
 import com.ec.logger.Logger
 import com.ec.model.Emoji
 import org.bukkit.Material
-import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority

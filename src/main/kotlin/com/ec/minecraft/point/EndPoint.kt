@@ -1,7 +1,7 @@
 package com.ec.minecraft.point
 
 import com.ec.database.model.point.PointDetail
-import com.ec.extension.point.PointAPI
+import com.ec.manager.point.PointAPI
 import com.ec.util.StringUtil.colorize
 import dev.reactant.reactant.extensions.itemMeta
 import org.bukkit.Material

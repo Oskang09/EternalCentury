@@ -3,8 +3,8 @@ package com.ec.minecraft.inventory.container
 import com.ec.database.Players
 import com.ec.database.VoteRewards
 import com.ec.database.Votes
-import com.ec.extension.inventory.UIBase
-import com.ec.extension.inventory.UIProvider
+import com.ec.manager.inventory.UIBase
+import com.ec.manager.inventory.UIProvider
 import com.ec.model.player.ECPlayer
 import com.ec.util.StringUtil.colorize
 import com.ec.util.StringUtil.generateUniqueID

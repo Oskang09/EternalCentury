@@ -2,10 +2,10 @@ package com.ec.minecraft.inventory.container
 
 import com.ec.database.Malls
 import com.ec.database.Players
-import com.ec.extension.inventory.UIBase
-import com.ec.extension.inventory.component.IteratorItem
-import com.ec.extension.inventory.component.IteratorUI
-import com.ec.extension.inventory.component.IteratorUIProps
+import com.ec.manager.inventory.UIBase
+import com.ec.manager.inventory.component.IteratorItem
+import com.ec.manager.inventory.component.IteratorUI
+import com.ec.manager.inventory.component.IteratorUIProps
 import com.ec.util.DoubleUtil.roundTo
 import com.ec.util.QueryUtil.iterator
 import com.ec.util.StringUtil.colorize
@@ -17,7 +17,6 @@ import org.bukkit.Material
 import org.bukkit.entity.HumanEntity
 import org.bukkit.entity.Player
 import org.bukkit.inventory.meta.ItemMeta
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction

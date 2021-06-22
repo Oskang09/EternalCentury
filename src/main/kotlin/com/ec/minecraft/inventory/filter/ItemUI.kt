@@ -1,9 +1,9 @@
 package com.ec.minecraft.inventory.filter
 
-import com.ec.extension.inventory.UIBase
-import com.ec.extension.inventory.component.PaginationItem
-import com.ec.extension.inventory.component.PaginationUI
-import com.ec.extension.inventory.component.PaginationUIProps
+import com.ec.manager.inventory.UIBase
+import com.ec.manager.inventory.component.PaginationItem
+import com.ec.manager.inventory.component.PaginationUI
+import com.ec.manager.inventory.component.PaginationUIProps
 import com.ec.util.StringUtil.colorize
 import org.bukkit.Material
 import org.bukkit.entity.HumanEntity

@@ -1,7 +1,7 @@
 package com.ec.minecraft.inventory
 
-import com.ec.extension.inventory.UIBase
-import com.ec.extension.inventory.UIProvider
+import com.ec.manager.inventory.UIBase
+import com.ec.manager.inventory.UIProvider
 import com.ec.util.DoubleUtil.roundTo
 import com.ec.util.StringUtil.colorize
 import dev.reactant.resquare.dom.childrenOf

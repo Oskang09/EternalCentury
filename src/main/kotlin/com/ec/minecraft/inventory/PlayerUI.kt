@@ -1,7 +1,7 @@
 package com.ec.minecraft.inventory
 
-import com.ec.extension.inventory.UIBase
-import com.ec.extension.inventory.UIProvider
+import com.ec.manager.inventory.UIBase
+import com.ec.manager.inventory.UIProvider
 import com.ec.util.StringUtil.colorize
 import dev.reactant.reactant.extensions.itemMeta
 import dev.reactant.resquare.dom.childrenOf
@@ -107,6 +107,11 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
                     material = Material.CHEST,
                     display = "&f&l前往 &b[&5系统&b] &6拍卖咨询".colorize(),
                     routeTo = "player-auction"
+                ),
+                PlayerUIPropsData(
+                    material = Material.OAK_SIGN,
+                    display = "&f&l前往 &b[&5系统&b] &6活动咨询".colorize(),
+                    routeTo = "activity"
                 ),
             )
         )

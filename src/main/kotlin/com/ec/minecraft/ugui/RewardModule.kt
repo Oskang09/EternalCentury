@@ -1,8 +1,8 @@
 package com.ec.minecraft.ugui
 
 import com.ec.database.model.Reward
-import com.ec.extension.GlobalManager
-import com.ec.extension.ugui.ModuleAPI
+import com.ec.manager.GlobalManager
+import com.ec.manager.ugui.ModuleAPI
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import me.oska.module.Module
 import me.oska.module.ModuleType

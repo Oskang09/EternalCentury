@@ -1,9 +1,8 @@
 package com.ec.minecraft.enchantment.origin
 
 import com.ec.model.Emoji
-import com.ec.extension.enchantment.EnchantmentAPI
+import com.ec.manager.enchantment.EnchantmentAPI
 import org.bukkit.Material
-import org.bukkit.enchantments.Enchantment
 
 class BlastProtection: EnchantmentAPI("blast_protection") {
 

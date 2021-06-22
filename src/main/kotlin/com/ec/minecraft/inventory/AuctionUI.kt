@@ -3,11 +3,10 @@ package com.ec.minecraft.inventory
 import com.ec.database.MallHistories
 import com.ec.database.Malls
 import com.ec.database.Players
-import com.ec.extension.inventory.UIBase
-import com.ec.extension.inventory.component.IteratorItem
-import com.ec.extension.inventory.component.IteratorUI
-import com.ec.extension.inventory.component.IteratorUIProps
-import com.ec.extension.inventory.component.PaginationUIProps
+import com.ec.manager.inventory.UIBase
+import com.ec.manager.inventory.component.IteratorItem
+import com.ec.manager.inventory.component.IteratorUI
+import com.ec.manager.inventory.component.IteratorUIProps
 import com.ec.util.DoubleUtil.roundTo
 import com.ec.util.QueryUtil.iterator
 import com.ec.util.StringUtil.colorize
@@ -16,8 +15,6 @@ import dev.reactant.reactant.extensions.itemMeta
 import dev.reactant.resquare.elements.DivProps
 import dev.reactant.resquare.elements.div
 import dev.reactant.resquare.elements.styleOf
-import dev.reactant.resquare.event.EventHandler
-import dev.reactant.resquare.event.ResquareClickEvent
 import org.bukkit.Material
 import org.bukkit.entity.HumanEntity
 import org.bukkit.entity.Player

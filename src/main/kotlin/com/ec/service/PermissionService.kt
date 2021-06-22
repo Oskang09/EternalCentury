@@ -2,11 +2,10 @@ package com.ec.service
 
 import com.ec.ECCore
 import com.ec.database.Players
-import com.ec.extension.GlobalManager
+import com.ec.manager.GlobalManager
 import dev.reactant.reactant.core.component.Component
 import net.milkbowl.vault.permission.Permission
 import org.bukkit.entity.Player
-import org.bukkit.permissions.PermissionAttachment
 import java.util.*
 
 @Component

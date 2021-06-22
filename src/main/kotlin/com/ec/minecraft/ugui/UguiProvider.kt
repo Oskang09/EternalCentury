@@ -1,6 +1,6 @@
 package com.ec.minecraft.ugui
 
-import com.ec.extension.GlobalManager
+import com.ec.manager.GlobalManager
 import me.oska.module.ItemProvider
 import org.bukkit.inventory.ItemStack
 

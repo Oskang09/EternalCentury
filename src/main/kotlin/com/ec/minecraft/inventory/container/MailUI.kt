@@ -2,10 +2,10 @@ package com.ec.minecraft.inventory.container
 
 import com.ec.database.Mails
 import com.ec.database.Players
-import com.ec.extension.inventory.UIBase
-import com.ec.extension.inventory.component.IteratorItem
-import com.ec.extension.inventory.component.IteratorUI
-import com.ec.extension.inventory.component.IteratorUIProps
+import com.ec.manager.inventory.UIBase
+import com.ec.manager.inventory.component.IteratorItem
+import com.ec.manager.inventory.component.IteratorUI
+import com.ec.manager.inventory.component.IteratorUIProps
 import com.ec.util.QueryUtil.iterator
 import com.ec.util.StringUtil.colorize
 import dev.reactant.resquare.elements.DivProps

@@ -1,6 +1,6 @@
 package com.ec.minecraft.command
 
-import com.ec.extension.GlobalManager
+import com.ec.manager.GlobalManager
 import com.ec.util.StringUtil.colorize
 import dev.reactant.reactant.extra.command.ReactantCommand
 import picocli.CommandLine

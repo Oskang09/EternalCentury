@@ -1,7 +1,7 @@
 package com.ec.minecraft.command.console
 
 import com.ec.database.Players
-import com.ec.extension.GlobalManager
+import com.ec.manager.GlobalManager
 import dev.reactant.reactant.extra.command.ReactantCommand
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update

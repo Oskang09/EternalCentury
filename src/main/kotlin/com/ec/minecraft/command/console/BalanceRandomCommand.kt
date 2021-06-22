@@ -1,6 +1,6 @@
 package com.ec.minecraft.command.console
 
-import com.ec.extension.GlobalManager
+import com.ec.manager.GlobalManager
 import com.ec.util.DoubleUtil.roundTo
 import dev.reactant.reactant.extra.command.ReactantCommand
 import org.bukkit.Bukkit
