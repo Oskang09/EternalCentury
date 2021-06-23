@@ -56,65 +56,81 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
     }
 
     override fun props(player: HumanEntity): PlayerUIProps {
-        return PlayerUIProps(
-            data = listOf(
-                PlayerUIPropsData(
-                    material = Material.NAME_TAG,
-                    display = "&f&l前往 &b[&5系统&b] &6称号列表".colorize(),
-                    routeTo = "title"
-                ),
-                PlayerUIPropsData(
-                    material = Material.BOOK,
-                    display = "&f&l前往 &b[&5系统&b] &6每日签到".colorize(),
-                    routeTo = "vote"
-                ),
-                PlayerUIPropsData(
-                    material = Material.DIAMOND,
-                    display = "&f&l前往 &b[&5系统&b] &6点数咨询".colorize(),
-                    routeTo = "point"
-                ),
-                PlayerUIPropsData(
-                    material = Material.END_PORTAL_FRAME,
-                    display = "&f&l前往 &b[&5系统&b] &6伺服传送".colorize(),
-                    routeTo = "teleport"
-                ),
-                PlayerUIPropsData(
-                    material = Material.MINECART,
-                    display = "&f&l前往 &b[&5系统&b] &6邮件快递".colorize(),
-                    routeTo = "mail"
-                ),
-                PlayerUIPropsData(
-                    material = Material.GOLDEN_APPLE,
-                    display = "&f&l前往 &b[&5系统&b] &6伺服赞助".colorize(),
-                    routeTo = "payment"
-                ),
-                PlayerUIPropsData(
-                    material = Material.PLAYER_HEAD,
-                    display = "&f&l前往 &b[&5系统&b] &6玩家造型".colorize(),
-                    routeTo = "skin"
-                ),
-                PlayerUIPropsData(
-                    material = Material.BLAZE_POWDER,
-                    display = "&f&l前往 &b[&5系统&b] &6粒子特效".colorize(),
-                    routeTo = "command:pp gui"
-                ),
-                PlayerUIPropsData(
-                    material = Material.NETHER_STAR,
-                    display = "&f&l前往 &b[&5系统&b] &6抽奖水池".colorize(),
-                    routeTo = "crate"
-                ),
-                PlayerUIPropsData(
-                    material = Material.CHEST,
-                    display = "&f&l前往 &b[&5系统&b] &6拍卖咨询".colorize(),
-                    routeTo = "player-auction"
-                ),
-                PlayerUIPropsData(
-                    material = Material.OAK_SIGN,
-                    display = "&f&l前往 &b[&5系统&b] &6活动咨询".colorize(),
-                    routeTo = "activity"
-                ),
-            )
+        val display = mutableListOf(
+            PlayerUIPropsData(
+                material = Material.NAME_TAG,
+                display = "&f&l前往 &b[&5系统&b] &6称号列表".colorize(),
+                routeTo = "title"
+            ),
+            PlayerUIPropsData(
+                material = Material.BOOK,
+                display = "&f&l前往 &b[&5系统&b] &6每日签到".colorize(),
+                routeTo = "vote"
+            ),
+            PlayerUIPropsData(
+                material = Material.DIAMOND,
+                display = "&f&l前往 &b[&5系统&b] &6点数咨询".colorize(),
+                routeTo = "point"
+            ),
+            PlayerUIPropsData(
+                material = Material.END_PORTAL_FRAME,
+                display = "&f&l前往 &b[&5系统&b] &6伺服传送".colorize(),
+                routeTo = "teleport"
+            ),
+            PlayerUIPropsData(
+                material = Material.MINECART,
+                display = "&f&l前往 &b[&5系统&b] &6邮件快递".colorize(),
+                routeTo = "mail"
+            ),
+            PlayerUIPropsData(
+                material = Material.GOLDEN_APPLE,
+                display = "&f&l前往 &b[&5系统&b] &6伺服赞助".colorize(),
+                routeTo = "payment"
+            ),
+            PlayerUIPropsData(
+                material = Material.PLAYER_HEAD,
+                display = "&f&l前往 &b[&5系统&b] &6玩家造型".colorize(),
+                routeTo = "skin"
+            ),
+            PlayerUIPropsData(
+                material = Material.BLAZE_POWDER,
+                display = "&f&l前往 &b[&5系统&b] &6粒子特效".colorize(),
+                routeTo = "command:pp gui"
+            ),
+            PlayerUIPropsData(
+                material = Material.NETHER_STAR,
+                display = "&f&l前往 &b[&5系统&b] &6抽奖水池".colorize(),
+                routeTo = "crate"
+            ),
+            PlayerUIPropsData(
+                material = Material.CHEST,
+                display = "&f&l前往 &b[&5系统&b] &6拍卖咨询".colorize(),
+                routeTo = "player-auction"
+            ),
+            PlayerUIPropsData(
+                material = Material.OAK_SIGN,
+                display = "&f&l前往 &b[&5系统&b] &6活动咨询".colorize(),
+                routeTo = "activity"
+            ),
         )
+
+        if (globalManager.permission.has(player, "ec.enderchest")) {
+            display.add(PlayerUIPropsData(
+                material = Material.ENDER_CHEST,
+                display = "&f&l前往 &b[&5系统&b] &6随身末影盒".colorize(),
+                routeTo = "command:ec"
+            ))
+        }
+
+        if (globalManager.permission.has(player, "ec.workbench")) {
+            display.add(PlayerUIPropsData(
+                material = Material.CRAFTING_TABLE,
+                display = "&f&l前往 &b[&5系统&b] &6随身工作台".colorize(),
+                routeTo = "command:wb"
+            ))
+        }
+
+        return PlayerUIProps(display)
     }
 
     override val isStaticProps: Boolean = true
