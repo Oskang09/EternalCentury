@@ -69,6 +69,7 @@ class MailUI: IteratorUI<Unit>("mail") {
                             val clickedPlayer = evt.whoClicked as Player
                             if (it[Mails.rewards].size > 0) {
                                 globalManager.sendRewardToPlayer(clickedPlayer, it[Mails.rewards])
+                                player.inventory.addItem(*it[Mails.item].toTypedArray())
                             }
 
                             transaction {
@@ -85,6 +86,11 @@ class MailUI: IteratorUI<Unit>("mail") {
                         if (it[Mails.rewards].size > 0) {
                             lore.add("")
                             lore.add("&f快递物件 &b>")
+                            it[Mails.item].forEach { item ->
+                                val name = item.itemMeta?.displayName ?: item.itemMeta?.localizedName ?: item.type.toString()
+                                val amount = item.amount
+                                lore.add("&f${amount}x $name")
+                            }
                             it[Mails.rewards].forEach { reward ->
                                 lore.add(reward.display)
                             }

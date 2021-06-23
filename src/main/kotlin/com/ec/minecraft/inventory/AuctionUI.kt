@@ -155,7 +155,7 @@ class AuctionUI: IteratorUI<AuctionUI.AuctionUIProps>("auction") {
                                              }
                                          }
 
-                                         player.inventory.addItem(item)
+                                         globalManager.givePlayerItem(player.name, listOf(item))
                                      }
                                  }
                                  refresh()

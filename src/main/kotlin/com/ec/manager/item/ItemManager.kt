@@ -29,6 +29,8 @@ class ItemManager(
 ) {
     private val mapper = jacksonObjectMapper()
     private val items: MutableMap<String, ItemConfig> = mutableMapOf()
+    private val ppEffectItems: MutableMap<String, ItemConfig> = mutableMapOf()
+    private val ppStyleItems: MutableMap<String, ItemConfig> = mutableMapOf()
     private lateinit var globalManager: GlobalManager
 
     fun onInitialize(globalManager: GlobalManager) {
@@ -36,6 +38,13 @@ class ItemManager(
 
         itemConfigs.getAll(true).forEach {
             items[it.content.id] = it.content
+            if (it.content.id.startsWith("pp-effect")) {
+                ppEffectItems[it.content.id] = it.content
+            }
+
+            if (it.content.id.startsWith("pp-style")) {
+                ppStyleItems[it.content.id] = it.content
+            }
         }
 
         globalManager.events {
@@ -58,6 +67,14 @@ class ItemManager(
                 }
 
         }
+    }
+
+    fun getRandomPPEffects(): ItemStack {
+        return getItemByConfig(ppEffectItems.values.random())
+    }
+
+    fun getRandomPPStyles(): ItemStack {
+        return getItemByConfig(ppStyleItems.values.random())
     }
 
     fun getRandomEggMaterial(): Material {

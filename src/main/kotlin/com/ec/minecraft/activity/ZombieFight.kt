@@ -1,6 +1,9 @@
 package com.ec.minecraft.activity
 
+import com.ec.config.ItemConfig
+import com.ec.database.Players
 import com.ec.database.ZombieFights
+import com.ec.database.model.Reward
 import com.ec.manager.GlobalManager
 import com.ec.manager.activity.ActivityAPI
 import com.ec.util.ChanceUtil
@@ -156,11 +159,11 @@ class ZombieFight: ActivityAPI("zombie-fight") {
                         }
 
                         globalManager.runOffMainThread {
-                            if (damages[it.damager.uniqueId.toString()] == null) {
-                                damages[it.damager.uniqueId.toString()] = AtomicDouble(0.0)
+                            if (damages[it.damager.name] == null) {
+                                damages[it.damager.name] = AtomicDouble(0.0)
                             }
 
-                            damages[it.damager.uniqueId.toString()]!!.getAndAdd(it.finalDamage)
+                            damages[it.damager.name]!!.getAndAdd(it.finalDamage)
                             totalDamageDeal.addAndGet(it.finalDamage)
                         }
                     }
@@ -218,15 +221,29 @@ class ZombieFight: ActivityAPI("zombie-fight") {
                     .sortedBy { (_, value) -> value.get() }
                     .forEachIndexed { index, pair ->
                         ZombieFights.insert {
+                            val ecPlayer = globalManager.players.getByPlayerName(pair.first)!!
+                            val overallRank = index + 1
                             it[id] = "".generateUniqueID()
-                            it[playerUuid] = pair.first
+                            it[playerId] = ecPlayer[Players.id]
                             it[damage] = pair.second.get()
-                            it[rank] = index + 1
+                            it[rank] = overallRank
 
                             val endDateTime = endInstant()
                             it[year] = endDateTime.year
                             it[month] = endDateTime.monthValue
                             it[day] = endDateTime.dayOfMonth
+
+                            globalManager.points.depositPlayerPoint(pair.first, "activity", 1.0)
+                            globalManager.economy.depositPlayer(pair.first, 500.0)
+                            if (overallRank <= 3) {
+                                globalManager.givePlayerItem(
+                                    pair.first,
+                                    listOf(
+                                        globalManager.items.getItemByKey("money-pack-1"),
+                                        globalManager.items.getItemByKey("enchantment-crate-1"),
+                                    )
+                                )
+                            }
                         }
                     }
             }

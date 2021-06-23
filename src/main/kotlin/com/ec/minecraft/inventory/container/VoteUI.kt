@@ -248,8 +248,13 @@ class VoteUI: UIProvider<VoteUI.VoteUIProps>("vote") {
                             globalManager.sendRewardToPlayer(player, extraRewards)
                         }
 
-                        player.inventory.addItem(globalManager.enchantments.getRandomEnchantedBook(1, 3))
-                        player.inventory.addItem(ItemStack(globalManager.items.getRandomEggMaterial(), 1))
+                        globalManager.givePlayerItem(
+                            player.name,
+                            listOf(
+                                globalManager.items.getItemByKey("enchantment-crate-1"),
+                                ItemStack(globalManager.items.getRandomEggMaterial(), 1),
+                            )
+                        )
                         globalManager.economy.depositPlayer(player, 500.0)
                         player.sendMessage(globalManager.message.system("连续签到奖励领取成功！"))
                     }
@@ -265,8 +270,8 @@ class VoteUI: UIProvider<VoteUI.VoteUIProps>("vote") {
                     meta.setDisplayName("&b[&5$previewText&b] &f&l连续签到奖励 $rewardIndex".colorize())
                     val lores = arrayListOf(
                         "&7 - &e500 金钱",
-                        "&7 - &e随机一本附魔书",
-                        "&7 - &e随机一个生物蛋"
+                        "&7 - &e随机一个生物蛋",
+                        "&7 - &f[&9稀有&f] &f附魔书抽奖本&e（小）",
                     )
 
                     val key = "${props.currentYear}-${props.currentMonth}-streak-${rewardIndex}"
@@ -302,7 +307,10 @@ class VoteUI: UIProvider<VoteUI.VoteUIProps>("vote") {
                          globalManager.sendRewardToPlayer(player, extraRewards)
                      }
 
-                     player.inventory.addItem(ItemStack(Material.EXPERIENCE_BOTTLE, 1))
+                     globalManager.givePlayerItem(
+                         player.name,
+                         listOf(ItemStack(Material.EXPERIENCE_BOTTLE, 1))
+                     )
                      globalManager.economy.depositPlayer(player, 100.0)
                      props.player.player.sendMessage(globalManager.message.system("签到成功！"))
                  }

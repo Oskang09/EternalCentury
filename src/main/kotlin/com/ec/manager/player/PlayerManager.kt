@@ -7,14 +7,17 @@ import com.ec.manager.GlobalManager
 import com.ec.logger.Logger
 import com.ec.model.player.ECPlayer
 import com.ec.model.player.ECPlayerState
+import com.ec.util.StringUtil.colorize
 import com.ec.util.StringUtil.generateUniqueID
 import dev.reactant.reactant.core.component.Component
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
+import org.bukkit.event.block.SignChangeEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.*
+import org.bukkit.inventory.ItemStack
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.Instant
@@ -29,6 +32,24 @@ class PlayerManager {
         this.globalManager = globalManager
 
          globalManager.events {
+
+             AsyncPlayerChatEvent::class
+                 .observable(false, EventPriority.LOWEST)
+                 .subscribe {
+                     if (globalManager.permission.has(it.player, "ec.colorchat")) {
+                         it.message = it.message.colorize()
+                     }
+                 }
+
+             SignChangeEvent::class
+                 .observable(false, EventPriority.LOWEST)
+                 .subscribe {
+                     if (globalManager.permission.has(it.player, "ec.colorsign")) {
+                         it.lines.forEachIndexed { index, line ->
+                             it.setLine(index, line.colorize())
+                         }
+                     }
+                 }
 
              PlayerRespawnEvent::class
                  .observable(true, EventPriority.HIGHEST)

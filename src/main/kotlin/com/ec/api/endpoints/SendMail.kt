@@ -43,6 +43,7 @@ class SendMail: EndpointAPI() {
                 mail[title] = request.title
                 mail[content] = request.content
                 mail[rewards] = request.rewards
+                mail[item] = arrayListOf()
                 mail[isRead] = false
                 mail[createdAt] = Instant.now().epochSecond
             }

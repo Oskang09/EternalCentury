@@ -40,7 +40,7 @@ class ItemModule: ModuleAPI() {
                     globalManager.items.playerRemove(player, itemKey, amount)
                 }
                 ModuleType.REWARD -> {
-                    player.inventory.addItem(globalManager.items.getItemByKey(itemKey))
+                    globalManager.givePlayerItem(player.name, listOf(globalManager.items.getItemByKey(itemKey)))
                 }
             }
         }

@@ -141,7 +141,7 @@ class PaymentManager {
                     { paymentMapper.remove(mapperKey) }
                 ) {
                     transaction {
-
+                        // TODO: Map transaction into db and process payment for player
                     }
                 }
 

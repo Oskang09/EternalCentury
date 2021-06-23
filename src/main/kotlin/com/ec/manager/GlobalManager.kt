@@ -2,6 +2,8 @@ package com.ec.manager
 
 import com.ec.ECCore
 import com.ec.config.ServerConfig
+import com.ec.database.Mails
+import com.ec.database.Players
 import com.ec.database.model.Reward
 import com.ec.manager.activity.ActivityManager
 import com.ec.manager.crate.CrateManager
@@ -22,6 +24,7 @@ import com.ec.service.EconomyService
 import com.ec.service.MessageService
 import com.ec.service.PermissionService
 import com.ec.util.StringUtil.colorize
+import com.ec.util.StringUtil.generateUniqueID
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.component.lifecycle.LifeCycleHook
@@ -37,6 +40,10 @@ import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.server.ServerListPingEvent
+import org.bukkit.inventory.ItemStack
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.transactions.transaction
+import java.time.Instant
 import kotlin.concurrent.thread
 
 @Component
@@ -103,17 +110,53 @@ class GlobalManager(
     }
 
     fun sendRewardToPlayer(player: Player, vararg rewards: Reward) {
+        val itemRewards = mutableListOf<ItemStack>()
+
         rewards.forEach { cfg ->
             when (cfg.type.lowercase()) {
-                "item" -> player.inventory.addItem(
+                "item" -> itemRewards.add(
                     if (cfg.itemId != null) items.getItemByKey(cfg.itemId)
                     else items.getItemByConfig(cfg.item!!)
                 )
                 "enchantment" ->
-                    player.inventory.addItem(enchantments.getEnchantedBookByMap(cfg.enchantments!!))
+                    itemRewards.add(enchantments.getEnchantedBookByMap(cfg.enchantments!!))
                 "command" -> cfg.commands?.map {
                     val cmd = it.replace("<player>", player.name)
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd)
+                }
+            }
+        }
+
+        givePlayerItem(player.name, itemRewards)
+    }
+
+    fun givePlayerItem(name: String, items: List<ItemStack>) {
+        val itemLeft = items.toMutableList()
+        val player = Bukkit.getPlayerExact(name)
+        if (player != null && player.isOnline) {
+            while (itemLeft.isNotEmpty()) {
+                if (player.inventory.firstEmpty() == -1) {
+                    break
+                }
+
+                player.inventory.addItem(itemLeft.removeLast())
+            }
+        }
+
+        if (itemLeft.size > 0) {
+            val ecPlayer = players.getByPlayerName(name)
+            if (ecPlayer != null) {
+                transaction {
+                    Mails.insert {
+                        it[id] = "".generateUniqueID()
+                        it[playerId] = ecPlayer[Players.id]
+                        it[title] = "&f[&5系统&f] &f未领取奖励"
+                        it[content] = "&f因为您离线或者背包满了所以物品寄托在了信箱。"
+                        it[item] = arrayListOf(*itemLeft.toTypedArray())
+                        it[rewards] = arrayListOf()
+                        it[isRead] = false
+                        it[createdAt] = Instant.now().epochSecond
+                    }
                 }
             }
         }
