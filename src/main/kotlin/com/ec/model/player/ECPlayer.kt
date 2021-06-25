@@ -21,7 +21,8 @@ data class ECPlayer(var player: Player) {
     private var uuid: UUID? = player.uniqueId
     var chatChannels: MutableList<ChatType> = mutableListOf()
     var playerJoinedAt: Instant = Instant.now()
-    var state: ECPlayerState = ECPlayerState.LOGIN
+    var state: ECPlayerAuthState = ECPlayerAuthState.LOGIN
+    var gameState: ECPlayerGameState = ECPlayerGameState.FREE
     var database: ResultRow = transaction {
         return@transaction Players.select { Players.playerName eq player.name }.single()
     }

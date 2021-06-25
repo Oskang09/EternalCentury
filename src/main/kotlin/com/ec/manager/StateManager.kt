@@ -1,22 +1,33 @@
 package com.ec.manager
 
+import com.ec.config.StateConfig
 import com.ec.logger.Logger
 import com.ec.model.ObservableMap
 import com.ec.util.StringUtil.generateUniqueID
 import dev.reactant.reactant.core.component.Component
+import dev.reactant.reactant.core.dependency.injection.Inject
+import dev.reactant.reactant.extra.config.type.MultiConfigs
+import dev.reactant.reactant.service.spec.config.Config
 import io.reactivex.rxjava3.disposables.Disposable
+import org.bukkit.Bukkit
+import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
+import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 
 @Component
-class StateManager {
+class StateManager(
+    @Inject("plugins/EternalCentury/states")
+    private val stateConfig: MultiConfigs<StateConfig>
+) {
 
     private val tickPerSecond = 20L
     private lateinit var globalManager: GlobalManager
 
     private val taskMapper = mutableMapOf<String, Disposable>()
+    private val states = mutableMapOf<String, Config<StateConfig>>()
     val balanceRanks = mutableMapOf<String, Int>()
     val mcmmoRanks = mutableMapOf<String, Int>()
     val teleportPlayers = ObservableMap<String, String>()
@@ -30,8 +41,19 @@ class StateManager {
                 .observable(true, EventPriority.HIGHEST)
                 .doOnError(Logger.trackError("StateManager.PlayerQuitEvent", "error occurs in event subscriber"))
                 .subscribe { event ->
+                    val player = event.player
                     teleportPlayers.remove(event.player.name)
                     teleportPlayers.values.removeIf { it == event.player.name }
+
+                    states.remove(player.name)?.save()
+                }
+
+            PlayerJoinEvent::class
+                .observable(true, EventPriority.HIGHEST)
+                .doOnError(Logger.trackError("StateManager.PlayerJoinEvent", "error occurs in event subscriber"))
+                .subscribe { event ->
+                    val player = event.player
+                    states[player.name] = stateConfig.getOrPut(player.uniqueId.toString() + ".json") { StateConfig() }.blockingGet()
                 }
 
         }
@@ -40,6 +62,16 @@ class StateManager {
         continuousTask(3600) {
             refreshRanking()
         }
+    }
+
+    fun getPlayerState(player: Player): StateConfig {
+        return states[player.name]!!.content
+    }
+
+    fun updatePlayerState(player: Player, updater: (StateConfig) -> Unit) {
+        val config = states[player.name]!!
+        updater(config.content)
+        config.save().subscribe()
     }
 
     private fun refreshRanking() {

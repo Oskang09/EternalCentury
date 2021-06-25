@@ -40,7 +40,7 @@ internal class TeleportGoCommand(private val globalManager: GlobalManager): Reac
             return
         }
 
-        target.teleport(location)
+        target.teleport(location.location)
     }
 
 }

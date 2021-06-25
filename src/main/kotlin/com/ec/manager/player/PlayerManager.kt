@@ -6,7 +6,8 @@ import com.ec.database.Players
 import com.ec.manager.GlobalManager
 import com.ec.logger.Logger
 import com.ec.model.player.ECPlayer
-import com.ec.model.player.ECPlayerState
+import com.ec.model.player.ECPlayerAuthState
+import com.ec.model.player.ECPlayerGameState
 import com.ec.util.StringUtil.colorize
 import com.ec.util.StringUtil.generateUniqueID
 import dev.reactant.reactant.core.component.Component
@@ -17,7 +18,6 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.block.SignChangeEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.*
-import org.bukkit.inventory.ItemStack
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.Instant
@@ -36,7 +36,7 @@ class PlayerManager {
              AsyncPlayerChatEvent::class
                  .observable(false, EventPriority.LOWEST)
                  .subscribe {
-                     if (globalManager.permission.has(it.player, "ec.colorchat")) {
+                     if (it.player.hasPermission("ec.colorchat")) {
                          it.message = it.message.colorize()
                      }
                  }
@@ -44,22 +44,21 @@ class PlayerManager {
              SignChangeEvent::class
                  .observable(false, EventPriority.LOWEST)
                  .subscribe {
-                     if (globalManager.permission.has(it.player, "ec.colorsign")) {
+                     if (it.player.hasPermission("ec.colorsign"))
                          it.lines.forEachIndexed { index, line ->
                              it.setLine(index, line.colorize())
                          }
                      }
-                 }
 
              PlayerRespawnEvent::class
                  .observable(true, EventPriority.HIGHEST)
                  .subscribe {
-                     it.respawnLocation = globalManager.serverConfig.teleports["old-spawn"]!!
+                     it.respawnLocation = globalManager.serverConfig.teleports["old-spawn"]!!.location
                  }
 
              PlayerSwapHandItemsEvent::class
                  .observable(true, EventPriority.HIGHEST)
-                 .filter { globalManager.players.getByPlayer(it.player).state == ECPlayerState.AUTHENTICATED }
+                 .filter { globalManager.players.getByPlayer(it.player).state == ECPlayerAuthState.AUTHENTICATED }
                  .filter { it.player.isSneaking }
                  .subscribe {
                      it.isCancelled = true
@@ -88,28 +87,28 @@ class PlayerManager {
 
              PlayerInteractEvent::class
                  .observable(true, EventPriority.HIGHEST)
-                 .filter { globalManager.players.getByPlayer(it.player).state != ECPlayerState.AUTHENTICATED }
+                 .filter { globalManager.players.getByPlayer(it.player).state != ECPlayerAuthState.AUTHENTICATED }
                  .subscribe {
                      it.isCancelled = true
                  }
 
              InventoryClickEvent::class
                  .observable(true, EventPriority.HIGHEST)
-                 .filter { globalManager.players.getByPlayer(it.whoClicked as Player).state != ECPlayerState.AUTHENTICATED }
+                 .filter { globalManager.players.getByPlayer(it.whoClicked as Player).state != ECPlayerAuthState.AUTHENTICATED }
                  .subscribe {
                      it.isCancelled = true
                  }
 
              PlayerDropItemEvent::class
                  .observable(true, EventPriority.HIGHEST)
-                 .filter { globalManager.players.getByPlayer(it.player).state != ECPlayerState.AUTHENTICATED }
+                 .filter { globalManager.players.getByPlayer(it.player).state != ECPlayerAuthState.AUTHENTICATED }
                  .subscribe {
                      it.isCancelled = true
                  }
 
              PlayerMoveEvent::class
                  .observable(true, EventPriority.HIGHEST)
-                 .filter { globalManager.players.getByPlayer(it.player).state != ECPlayerState.AUTHENTICATED }
+                 .filter { globalManager.players.getByPlayer(it.player).state != ECPlayerAuthState.AUTHENTICATED }
                  .subscribe {
                      val previous = it.from
                      val to = it.to
@@ -122,7 +121,7 @@ class PlayerManager {
              PlayerCommandPreprocessEvent::class
                  .observable(true, EventPriority.HIGHEST)
                  .subscribe {
-                     if (globalManager.players.getByPlayer(it.player).state != ECPlayerState.AUTHENTICATED) {
+                     if (globalManager.players.getByPlayer(it.player).state != ECPlayerAuthState.AUTHENTICATED) {
                          it.isCancelled = true
                          return@subscribe
                      }
@@ -146,7 +145,7 @@ class PlayerManager {
                     val player = event.player
                     val ecPlayer = ECPlayer(event.player)
                     ecPlayer.playerJoinedAt = Instant.now()
-                    ecPlayer.state = ECPlayerState.LOGIN
+                    ecPlayer.state = ECPlayerAuthState.LOGIN
                     players[player.uniqueId] = ecPlayer
 
                     globalManager.permission.injectPermission(player)
@@ -196,7 +195,7 @@ class PlayerManager {
                             val discordTag = ecPlayer.database[Players.discordTag]
                             val isSent = globalManager.discord.sendVerifyMessage(event.player, discordTag, "登入账号") {
                                 if (it) {
-                                    ecPlayer.state = ECPlayerState.AUTHENTICATED
+                                    ecPlayer.state = ECPlayerAuthState.AUTHENTICATED
                                     globalManager.runInMainThread {
                                         event.player.sendMessage(globalManager.message.system("Discord 登入验证成功！"))
                                     }
@@ -234,6 +233,20 @@ class PlayerManager {
                     }
                 }
         }
+    }
+
+    fun canPlayerTeleportToTarget(player: Player, target: Player): Boolean {
+        val playerWorld = player.world.name
+        val targetWorld = target.world.name
+
+        if (globalManager.serverConfig.teleportBlockedWorlds.contains(playerWorld) || globalManager.serverConfig.teleportBlockedWorlds.contains(targetWorld)) {
+            return false
+        }
+
+        if (globalManager.players.getByPlayer(player).gameState == ECPlayerGameState.FREE || globalManager.players.getByPlayer(player).gameState != ECPlayerGameState.FREE) {
+            return false
+        }
+        return true
     }
 
     fun refreshPlayerIfOnline(id: UUID, extraAction: ((Player) -> Unit)? = null) {

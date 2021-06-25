@@ -44,7 +44,7 @@ dependencies {
     compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
     compileOnly("com.github.PlaceholderAPI:PlaceholderAPI:2.10.9")
-    compileOnly("com.github.Oskang09:UniversalGUI:3.0.4")
+    compileOnly("com.github.Oskang09:UniversalGUI:3.0.5")
     compileOnly("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.3")
     compileOnly("net.citizensnpcs:citizensapi:2.0.27-SNAPSHOT")
     compileOnly("de.tr7zw:item-nbt-api-plugin:2.8.0")

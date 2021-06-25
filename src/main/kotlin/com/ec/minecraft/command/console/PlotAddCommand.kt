@@ -9,10 +9,10 @@ import picocli.CommandLine
 import java.util.*
 
 @CommandLine.Command(
-    name = "res-add",
-    description = ["添加玩家账号可用领地数"]
+    name = "plot-add",
+    description = ["添加玩家账号可用地皮数"]
 )
-internal class ResidenceAddCommand(private val globalManager: GlobalManager): ReactantCommand() {
+internal class PlotAddCommand(private val globalManager: GlobalManager): ReactantCommand() {
 
     @CommandLine.Parameters(
         index = "0",
@@ -27,7 +27,7 @@ internal class ResidenceAddCommand(private val globalManager: GlobalManager): Re
         val player = globalManager.players.getByPlayerName(playerName!!)!!
         transaction {
             Players.update({ Players.id eq player[Players.id] }) {
-                it[resLimit] = player[resLimit] + 1
+                it[plotLimit] = player[plotLimit] + 1
             }
 
             globalManager.players.refreshPlayerIfOnline(UUID.fromString(player[Players.uuid])) {

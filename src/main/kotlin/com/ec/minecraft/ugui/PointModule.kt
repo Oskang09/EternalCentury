@@ -5,12 +5,13 @@ import com.ec.manager.ugui.ModuleAPI
 import me.oska.module.Module
 import me.oska.module.ModuleNotConfigured
 import me.oska.module.ModuleType
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 
 class PointModule: ModuleAPI() {
 
     override fun getIdentifier(): String {
-        return "point"
+        return "ec-point"
     }
 
     override fun getName(): String {
@@ -50,6 +51,14 @@ class PointModule: ModuleAPI() {
                 return globalManager.points.hasPlayerPoint(player, name, value)
             }
             return true
+        }
+
+        override fun onFail(player: Player) {
+            player.sendMessage(globalManager.message.system("&f您没有足够的点数。"))
+        }
+
+        override fun onSuccess(player: Player) {
+
         }
 
     }

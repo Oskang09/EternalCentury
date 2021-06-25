@@ -9,7 +9,7 @@ import org.bukkit.entity.Player
 class PartyModule: ModuleAPI() {
 
     override fun getIdentifier(): String {
-        return "party"
+        return "ec-party"
     }
 
     override fun getName(): String {
@@ -58,6 +58,14 @@ class PartyModule: ModuleAPI() {
                 return globalManager.mcmmo.partyIsNearby(player, challenge)
             }
             return true
+        }
+
+        override fun onFail(player: Player) {
+
+        }
+
+        override fun onSuccess(player: Player) {
+
         }
 
     }

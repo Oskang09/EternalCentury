@@ -40,8 +40,8 @@ class PointManager {
 
     fun hasPlayerPoint(player: Player, name: String, point: Double): Boolean {
         val ecPlayer = globalManager.players.getByPlayer(player)
-        val pointMapper = ecPlayer.database[Players.points]
-        return (pointMapper.points[name]?.balance ?: 0.0) >= point
+        val pointMapper = ecPlayer.database[Players.points].points
+        return (pointMapper[name]?.balance ?: 0.0) >= point
     }
 
     fun withdrawPlayerPoint(playerName: String, name: String, point: Double) {
@@ -66,9 +66,11 @@ class PointManager {
                 lastUpdatedAt = Instant.now().epochSecond
             )
             nextBalance.grade = getGradeByPoint(name, nextBalance)
-            player[Players.points].points[name] = nextBalance
+
+            val pointMaps = player[Players.points]
+            pointMaps.points[name] = nextBalance
             Players.update({ Players.id eq player[Players.id]}) {
-                it[points] = player[points]
+                it[points] = pointMaps
             }
 
             globalManager.players.refreshPlayerIfOnline(UUID.fromString(player[Players.uuid]))
@@ -97,9 +99,11 @@ class PointManager {
                 lastUpdatedAt = Instant.now().epochSecond
             )
             nextBalance.grade = getGradeByPoint(name, nextBalance)
-            ecPlayer.database[Players.points].points[name] = nextBalance
+
+            val pointMaps = ecPlayer.database[Players.points]
+            pointMaps.points[name] = nextBalance
             Players.update({ Players.id eq ecPlayer.database[Players.id]}) {
-                it[points] = ecPlayer.database[points]
+                it[points] = pointMaps
             }
         }
     }
@@ -126,9 +130,11 @@ class PointManager {
                 lastUpdatedAt = Instant.now().epochSecond
             )
             nextBalance.grade = getGradeByPoint(name, nextBalance)
-            player[Players.points].points[name] = nextBalance
+
+            val pointMaps = player[Players.points]
+            pointMaps.points[name] = nextBalance
             Players.update({ Players.id eq player[Players.id]}) {
-                it[points] = player[points]
+                it[points] = pointMaps
             }
 
             globalManager.players.refreshPlayerIfOnline(UUID.fromString(player[Players.uuid]))
@@ -157,9 +163,11 @@ class PointManager {
                 lastUpdatedAt = Instant.now().epochSecond
             )
             nextBalance.grade = getGradeByPoint(name, nextBalance)
-            ecPlayer.database[Players.points].points[name] = nextBalance
+
+            val pointMaps = ecPlayer.database[Players.points]
+            pointMaps.points[name] = nextBalance
             Players.update({ Players.id eq ecPlayer.database[Players.id]}) {
-                it[points] = ecPlayer.database[points]
+                it[points] = pointMaps
             }
         }
     }

@@ -35,7 +35,7 @@ internal class PointAddCommand(private val globalManager: GlobalManager): Reacta
     override fun execute() {
         requireSenderIsConsole()
 
-        globalManager.points.depositPlayerPoint(Bukkit.getPlayer(playerName!!)!!, pointName!!, pointCount!!)
+        globalManager.points.depositPlayerPoint(playerName!!, pointName!!, pointCount!!)
     }
 
 }

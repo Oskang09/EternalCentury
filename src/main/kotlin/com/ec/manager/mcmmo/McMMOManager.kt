@@ -22,7 +22,11 @@ class McMMOManager {
     }
 
     fun getOverallRank(player: Player): Int {
-        return ExperienceAPI.getPlayerRankOverall(player.uniqueId)
+        return try {
+            ExperienceAPI.getPlayerRankOverall(player.uniqueId)
+        } catch (e: Throwable) {
+            0
+        }
     }
 
     fun getRank(player: Player, skill: String): Int {
@@ -94,7 +98,7 @@ class McMMOManager {
         }
 
         party.onlineMembers.forEach {
-            it.teleport(globalManager.serverConfig.teleports[to]!!)
+            it.teleport(globalManager.serverConfig.teleports[to]!!.location)
         }
     }
 

@@ -4,6 +4,7 @@ import com.ec.ECCore
 import com.ec.manager.GlobalManager
 import dev.reactant.reactant.core.component.Component
 import me.clip.placeholderapi.expansion.PlaceholderExpansion
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 
 @Component

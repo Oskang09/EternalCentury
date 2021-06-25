@@ -12,7 +12,7 @@ abstract class ModuleAPI: ModuleInformation() {
     }
 
     override fun getAuthor(): String {
-        return "Oska"
+        return "EternalCentury"
     }
 
     override fun getVersion(): String {

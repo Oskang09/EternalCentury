@@ -2,6 +2,7 @@ package com.ec.manager
 
 import com.ec.ECCore
 import com.ec.config.ServerConfig
+import com.ec.config.StateConfig
 import com.ec.database.Mails
 import com.ec.database.Players
 import com.ec.database.model.Reward
@@ -29,6 +30,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.component.lifecycle.LifeCycleHook
 import dev.reactant.reactant.core.dependency.injection.Inject
+import dev.reactant.reactant.extra.config.type.MultiConfigs
 import dev.reactant.reactant.service.spec.config.Config
 import dev.reactant.reactant.service.spec.server.EventService
 import dev.reactant.reactant.service.spec.server.SchedulerService
@@ -105,6 +107,12 @@ class GlobalManager(
         }
     }
 
+    fun saveServerConfig() {
+        serverConfigFile.save().subscribe {
+            serverConfig = serverConfigFile.content
+        }
+    }
+
     fun sendRewardToPlayer(player: Player, rewards: List<Reward>) {
         sendRewardToPlayer(player, *rewards.toTypedArray())
     }
@@ -168,13 +176,14 @@ class GlobalManager(
 
     override fun onEnable() {
         val service = Bukkit.getServer().servicesManager
+
         permission = service.getRegistration(Permission::class.java)!!.provider as PermissionService
-        economy = service.getRegistration(Economy::class.java)!!.provider as EconomyService
-
         permission.onInitialize(this)
-        economy.onInitialize(this)
-        discord.onInitialize(this)
 
+        economy = service.getRegistration(Economy::class.java)!!.provider as EconomyService
+        economy.onInitialize(this)
+
+        discord.onInitialize(this)
         enchantments.onInitialize(this)
         placeholders.onInitialize(this)
         payments.onInitialize(this)

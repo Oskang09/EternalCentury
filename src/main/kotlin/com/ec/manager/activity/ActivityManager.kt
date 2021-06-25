@@ -27,24 +27,35 @@ class ActivityManager {
     private fun activitySchedule() {
         val current = ZonedDateTime.now(ZoneId.of("Asia/Kuala_Lumpur"))
         val event = getUpcomingActivity()
-        val seconds = ChronoUnit.SECONDS.between(current, event.startInstant())
-        globalManager.states.delayedTask(seconds) {
-            event.onStart()
-            globalManager.states.delayedTask(event.duration.toSeconds()) {
-                event.onEnd()
+        when (event == null) {
+            true -> {
+                val nextDay = ZonedDateTime.now(ZoneId.of("Asia/Kuala_Lumpur")).plusDays(1)
+                val seconds = ChronoUnit.SECONDS.between(current, nextDay)
+                globalManager.states.delayedTask(seconds) {
+                    activitySchedule()
+                }
             }
+            false -> {
+                val seconds = ChronoUnit.SECONDS.between(current, event.startInstant())
+                globalManager.states.delayedTask(seconds) {
+                    event.onStart()
+                    globalManager.states.delayedTask(event.duration.toSeconds()) {
+                        event.onEnd()
+                    }
 
-            activitySchedule()
+                    activitySchedule()
+                }
+            }
         }
     }
 
-    fun getUpcomingActivity(): ActivityAPI {
-        val today = ZonedDateTime.now(ZoneId.of("Asia/Kuala_Lumpur"))
+    fun getUpcomingActivity(): ActivityAPI? {
+        var today = ZonedDateTime.now(ZoneId.of("Asia/Kuala_Lumpur"))
         return activities.values
             .filter { it.weekdays.contains(today.dayOfWeek) }
             .filter { it.startInstant() > today }
             .sortedBy { it.startInstant() }
-            .single()
+            .singleOrNull()
     }
 
     fun getTodayActivities(): List<ActivityAPI> {

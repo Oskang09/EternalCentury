@@ -204,9 +204,12 @@ class EnchantmentManager {
             repeat(numOfEnchantments) {
                 val randomKey = enchantments.keys.random()
                 val ench = enchantments[randomKey]!!
-                var level = RandomUtil.randomInteger(ench.maxLevel - 1) + 1
+                var level = RandomUtil.randomInteger(ench.maxLevel) + 1
                 if (level > levelCapped) {
                    level = levelCapped
+                    if (level > ench.maxLevel) {
+                        level = ench.maxLevel
+                    }
                 }
                 itemEnchantments[randomKey] = level
             }

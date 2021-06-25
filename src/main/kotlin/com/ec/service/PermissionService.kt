@@ -5,7 +5,10 @@ import com.ec.database.Players
 import com.ec.manager.GlobalManager
 import dev.reactant.reactant.core.component.Component
 import net.milkbowl.vault.permission.Permission
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 import java.util.*
 
 @Component
@@ -14,12 +17,21 @@ class PermissionService: Permission() {
     private val playersDefaultPermissions = listOf(
         "mcmmo.commands.defaults",
         "mcmmo.ability.*",
-        "residence.create",
-        "residence.permisiononerror",
-        "residence.command.message.enter",
-        "residence.command.message.leave",
-        "residence.command.message.enter.remove",
-        "residence.command.message.leave.remove",
+        "plots.claim",
+        "plots.set.flag",
+        "plots.set.home",
+        "plots.flag.remove",
+        "plots.flag.add",
+        "plots.biome",
+        "plots.music",
+        "plots.add",
+        "plots.trust",
+        "plots.remove",
+        "plots.deny",
+        "plots.kick",
+        "plots.like",
+        "plots.dislike",
+        "plots.rate",
         "playerparticles.particles.max.3",
         "playerparticles.groups.max.3",
     )
@@ -35,12 +47,13 @@ class PermissionService: Permission() {
         val permissions = ecPlayer.database[Players.permissions]
         permissions.addAll(playersDefaultPermissions)
 
-        val residenceLimit = ecPlayer.database[Players.resLimit]
-        permissions.add("residence.max.res.$residenceLimit")
+        val plotLimit = ecPlayer.database[Players.plotLimit]
+        permissions.add("plots.plot.$plotLimit")
         permissions.forEach {
             player.addAttachment(ECCore.instance, it, true)
         }
 
+        player.recalculatePermissions()
     }
 
     override fun getName(): String {
@@ -62,18 +75,39 @@ class PermissionService: Permission() {
 
     override fun playerAdd(world: String?, player: String, permission: String): Boolean {
         val ecPlayer = globalManager.players.getByPlayerName(player) ?: return false
-        globalManager.players.refreshPlayerIfOnline(UUID.fromString(ecPlayer[Players.uuid]!!)) {
-            it.addAttachment(ECCore.instance, permission, true)
+        transaction {
+            val list = ecPlayer[Players.permissions]
+            list.add(permission)
+
+            Players.update({ Players.id eq ecPlayer[Players.id] }) {
+                it[permissions] = list
+            }
         }
-        return ecPlayer[Players.permissions].contains(permission) || playersDefaultPermissions.contains(permission)
+
+        globalManager.players.refreshPlayerIfOnline(UUID.fromString(ecPlayer[Players.uuid]!!)) {
+            globalManager.permission.injectPermission(it)
+        }
+
+        return ecPlayer[Players.permissions].contains(permission)
     }
 
     override fun playerRemove(world: String?, player: String, permission: String): Boolean {
         val ecPlayer = globalManager.players.getByPlayerName(player) ?: return false
-        globalManager.players.refreshPlayerIfOnline(UUID.fromString(ecPlayer[Players.uuid]!!)) {
-            it.addAttachment(ECCore.instance, permission, false)
+
+        transaction {
+            val list = ecPlayer[Players.permissions]
+            list.remove(permission)
+
+            Players.update({ Players.id eq ecPlayer[Players.id] }) {
+                it[permissions] = list
+            }
         }
-        return ecPlayer[Players.permissions].contains(permission) || playersDefaultPermissions.contains(permission)
+
+        globalManager.players.refreshPlayerIfOnline(UUID.fromString(ecPlayer[Players.uuid]!!)) {
+            globalManager.permission.injectPermission(it)
+        }
+
+        return ecPlayer[Players.permissions].contains(permission)
     }
 
     override fun groupHas(world: String?, group: String?, permission: String?): Boolean {

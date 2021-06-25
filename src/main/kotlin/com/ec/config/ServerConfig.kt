@@ -1,7 +1,5 @@
 package com.ec.config
 
-import org.bukkit.Location
-
 data class ServerConfig(
     val repairNpcId: Int = 0,
     val repairPrice: Float = 1F,
@@ -13,7 +11,8 @@ data class ServerConfig(
     var maintenance: Boolean = false,
     val allowedCommands: List<String> = listOf(),
     val adminPlayers: List<String> = listOf(),
-    val teleports: MutableMap<String, Location> = mutableMapOf(),
+    val teleportBlockedWorlds: List<String> = listOf(),
+    val teleports: MutableMap<String, LocationConfig> = mutableMapOf(),
     val signRewards: MutableMap<String, List<RewardConfig>> = mutableMapOf()
 )
 
@@ -26,6 +25,5 @@ data class ServerDiscordConfig(
     val registerChannel: String = "",
     val newbieRole: String = "",
     val playerRole: String = "",
-    val chatAnnouncement: String = "",
-    val commandChannel:String = ""
+    val chatAnnouncement: String = ""
 )

@@ -112,28 +112,21 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
                 display = "&f&l前往 &b[&5系统&b] &6活动咨询".colorize(),
                 routeTo = "activity"
             ),
-        )
-
-        if (globalManager.permission.has(player, "ec.enderchest")) {
-            display.add(PlayerUIPropsData(
+            PlayerUIPropsData(
                 material = Material.ENDER_CHEST,
                 display = "&f&l前往 &b[&5系统&b] &6随身末影盒".colorize(),
                 routeTo = "command:ec"
-            ))
-        }
-
-        if (globalManager.permission.has(player, "ec.workbench")) {
-            display.add(PlayerUIPropsData(
+            ),
+            PlayerUIPropsData(
                 material = Material.CRAFTING_TABLE,
                 display = "&f&l前往 &b[&5系统&b] &6随身工作台".colorize(),
                 routeTo = "command:wb"
-            ))
-        }
-
+            )
+        )
         return PlayerUIProps(display)
     }
 
-    override val isStaticProps: Boolean = true
+    override val isStaticProps = true
     override val render = declareComponent<PlayerUIProps> { props ->
 
         useCancelRawEvent()

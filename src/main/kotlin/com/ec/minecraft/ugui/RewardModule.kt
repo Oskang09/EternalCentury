@@ -49,5 +49,13 @@ class RewardModule: ModuleAPI() {
             return true
         }
 
+        override fun onFail(player: Player) {
+
+        }
+
+        override fun onSuccess(player: Player) {
+
+        }
+
     }
 }

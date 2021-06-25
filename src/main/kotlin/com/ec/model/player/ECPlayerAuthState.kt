@@ -1,6 +1,6 @@
 package com.ec.model.player
 
-enum class ECPlayerState {
+enum class ECPlayerAuthState {
     LOGIN,
     AUTHENTICATED
 }

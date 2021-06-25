@@ -39,6 +39,12 @@ class UITriggerCommand(private val globalManager: GlobalManager): ReactantComman
                 player.sendMessage(globalManager.message.system("您的物品暂时不需要修理"))
             }
             "auction" -> globalManager.inventory.displayAuction(player)
+            else -> {
+                if (uiName.startsWith("store-")) {
+                    val storeName = uiName.replace("store-", "")
+                    player.performCommand("ugui open $storeName")
+                }
+            }
         }
     }
 }

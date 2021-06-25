@@ -1,5 +1,6 @@
 package com.ec.minecraft.command.admin
 
+import com.ec.config.LocationConfig
 import com.ec.manager.GlobalManager
 import dev.reactant.reactant.extra.command.ReactantCommand
 import org.bukkit.entity.Player
@@ -27,7 +28,8 @@ internal class TeleportSetCommand(private val globalManager: GlobalManager): Rea
         }
 
         val player = sender as Player
-        globalManager.serverConfig.teleports[name] = player.location
+        globalManager.serverConfig.teleports[name] = LocationConfig(player.location)
+        globalManager.saveServerConfig()
     }
 
 }

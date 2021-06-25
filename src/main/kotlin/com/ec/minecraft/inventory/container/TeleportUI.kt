@@ -65,15 +65,15 @@ class TeleportUI: PaginationUI<Unit>("teleport") {
                 ),
                 PaginationItem(
                     item = globalManager.component.item(Material.GRASS_BLOCK) {
-                        it.setDisplayName("&5&l传送到 &a&l生存世界".colorize())
+                        it.setDisplayName("&5&l传送到 &a&l地皮世界".colorize())
                         it.lore = arrayListOf(
                             "&5- &f玩家生存",
-                            "&5- &f领地建筑",
+                            "&5- &f地皮建筑",
                         ).colorize()
                     },
                     click = {
                         player.closeInventory()
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "res rt ${player.name} world")
+                        teleportTo(it.whoClicked as Player, "plot-spawn")
                     }
                 ),
                 PaginationItem(
@@ -87,7 +87,7 @@ class TeleportUI: PaginationUI<Unit>("teleport") {
                     },
                     click = {
                         player.closeInventory()
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "res rt ${player.name} survival")
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rtp ${player.name} world")
                     }
                 ),
             ),

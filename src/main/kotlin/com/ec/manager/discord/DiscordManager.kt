@@ -11,7 +11,7 @@ import com.ec.database.model.point.PointInfo
 import com.ec.manager.GlobalManager
 import com.ec.logger.Logger
 import com.ec.model.ObservableObject
-import com.ec.model.player.ECPlayerState
+import com.ec.model.player.ECPlayerAuthState
 import com.ec.util.RandomUtil
 import com.ec.util.StringUtil.colorize
 import com.ec.util.StringUtil.generateUniqueID
@@ -80,7 +80,7 @@ class DiscordManager: LifeCycleHook {
                 .doOnError(Logger.trackError("DiscordManager.AsyncPlayerChatEvent", "error occurs in event subscriber"))
                 .subscribe {
                     val ecPlayer = globalManager.players.getByPlayer(it.player)
-                    if (ecPlayer.state != ECPlayerState.AUTHENTICATED) {
+                    if (ecPlayer.state != ECPlayerAuthState.AUTHENTICATED) {
                         it.isCancelled = true
                         return@subscribe
                     }
@@ -137,13 +137,6 @@ class DiscordManager: LifeCycleHook {
             guild.addRoleToMember(it.member!!.idLong, newbieRole).complete()
         }
 
-        jda.getTextChannelById(globalManager.serverConfig.discord.commandChannel)!!
-            .onMessage()
-            .doOnError(Logger.trackError("DiscordManager.COMMAND_CHANNEL", "error occurs in discord event"))
-            .subscribe {
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), it.message.contentRaw)
-            }
-
         jda.getTextChannelById(globalManager.serverConfig.discord.registerChannel)!!
             .onMessage()
             .doOnError(Logger.trackError("DiscordManager.REGISTER_CHANNEL", "error occurs in discord event"))
@@ -176,7 +169,9 @@ class DiscordManager: LifeCycleHook {
                         data[permissions] = mutableListOf()
                         data[blockedTeleport] = mutableListOf()
                         data[ignoredPlayers] = mutableListOf()
-
+                        data[skinLimit] = 1
+                        data[plotLimit] = 1
+                        data[auctionLimit] = 1
                     }
                 }
 

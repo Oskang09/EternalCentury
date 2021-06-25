@@ -252,7 +252,7 @@ class VoteUI: UIProvider<VoteUI.VoteUIProps>("vote") {
                             player.name,
                             listOf(
                                 globalManager.items.getItemByKey("enchantment-crate-1"),
-                                ItemStack(globalManager.items.getRandomEggMaterial(), 1),
+                                globalManager.items.getRandomEgg(),
                             )
                         )
                         globalManager.economy.depositPlayer(player, 500.0)
