@@ -3,7 +3,10 @@ package com.ec.manager
 import com.ec.config.StateConfig
 import com.ec.logger.Logger
 import com.ec.model.ObservableMap
+import com.ec.util.InstantUtil.toMalaysiaSystemDate
+import com.ec.util.ItemUtil.toBas64
 import com.ec.util.StringUtil.generateUniqueID
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.dependency.injection.Inject
 import dev.reactant.reactant.extra.config.type.MultiConfigs
@@ -16,6 +19,9 @@ import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 @Component
 class StateManager(
@@ -45,7 +51,18 @@ class StateManager(
                     teleportPlayers.remove(event.player.name)
                     teleportPlayers.values.removeIf { it == event.player.name }
 
-                    states.remove(player.name)?.save()
+                    val state = states.remove(player.name)!!
+
+
+                    val today = Instant.now().epochSecond.toMalaysiaSystemDate()
+                    state.content.inventory[today] = listOfNotNull(
+                        *player.inventory.contents,
+                        *player.inventory.armorContents
+                    ).map { it.toBas64() }
+                    while (state.content.inventory.size >= 8 ) {
+                        state.content.inventory.remove(state.content.inventory.keys.minOrNull()!!)
+                    }
+                    state.save().subscribe()
                 }
 
             PlayerJoinEvent::class
@@ -104,7 +121,10 @@ class StateManager(
 
     fun delayedTask(seconds: Long, action: () -> Unit): String {
         val key = "".generateUniqueID()
-        val disposer = globalManager.schedulers.timer(tickPerSecond * seconds).subscribe(action)
+        val disposer = globalManager.schedulers.timer(tickPerSecond * seconds).subscribe {
+            taskMapper.remove(key)
+            action()
+        }
         taskMapper[key] = disposer
         return key
     }

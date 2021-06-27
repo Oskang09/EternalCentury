@@ -11,7 +11,7 @@ import org.bukkit.entity.Player
 class PointModule: ModuleAPI() {
 
     override fun getIdentifier(): String {
-        return "ec-point"
+        return "point"
     }
 
     override fun getName(): String {
@@ -37,6 +37,14 @@ class PointModule: ModuleAPI() {
         val globalManager: GlobalManager,
         val name: String, val value: Double
     ): Module() {
+
+        /*
+            {
+                "module": "point",
+                "name": "point-name",
+                "value": 0.0
+            }
+        */
 
         override fun action(player: Player) {
             when (type) {

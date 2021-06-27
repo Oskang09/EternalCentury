@@ -47,6 +47,13 @@ class VaultModule: ModuleAPI() {
         private val globalManager: GlobalManager
     ): Module() {
 
+        /*
+            {
+                "module": "vault",
+                "money": 30.0
+            }
+        */
+
         override fun check(player: Player): Boolean {
             if (type == ModuleType.REWARD) {
                 return true;

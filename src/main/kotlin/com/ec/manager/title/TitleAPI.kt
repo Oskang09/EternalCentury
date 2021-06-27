@@ -13,7 +13,7 @@ abstract class TitleAPI(val id: String, val position: Int) {
     }
 
     abstract fun getItemStack(stack: ItemStack): ItemStack;
-    abstract fun getDisplay(player: Player): String;
+    abstract fun getDisplay(): String;
     abstract fun unlockCondition(ecPlayer: ECPlayer): Boolean;
     abstract fun afterUnlock(ecPlayer: ECPlayer)
 }

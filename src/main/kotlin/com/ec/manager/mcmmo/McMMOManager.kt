@@ -7,6 +7,7 @@ import com.gmail.nossr50.api.ExperienceAPI
 import com.gmail.nossr50.datatypes.player.McMMOPlayer
 import com.gmail.nossr50.util.player.UserManager
 import dev.reactant.reactant.core.component.Component
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 
 @Component
@@ -53,23 +54,43 @@ class McMMOManager {
         }
 
         val party = mcmmoPlayer.party
-        val nearbyMembers = party.getNearMembers(mcmmoPlayer)
-        if (nearbyMembers.size != party.onlineMembers.size) {
-            val messages = arrayListOf(globalManager.message.system("&f&l玩家 ${starter.displayName} &f&l发起了挑战 - $challenge"))
-            messages.addAll(party.onlineMembers.mapIndexed { count, member ->
-                return@mapIndexed if (!nearbyMembers.contains(member)) {
-                    "&f${count+1}. &c&l${Emoji.CROSS.text} &e&l玩家 ${member.displayName} 还没集合！"
+        val nearbyMembers = party.getNearMembers(mcmmoPlayer).map { it.name }
+        if (nearbyMembers.size != party.members.size - 1) {
+            val messages = arrayListOf("&f&l玩家 ${starter.name} &f&l发起了挑战 - $challenge")
+            messages.addAll(party.members.map { (_, member) ->
+                return@map if (member != starter.name && !nearbyMembers.contains(member)) {
+                    "&c&l${Emoji.CROSS.text} &e&l玩家 $member 还没集合！"
                 } else {
-                    "&f${count+1}. &e&l玩家 ${member.displayName} 准备就绪！"
+                    "&a&l${Emoji.CHECK.text} &e&l玩家 $member 准备就绪！"
                 }
             })
 
             party.onlineMembers.forEach {
-                it.sendMessage(messages.colorize().toTypedArray())
+                it.sendMessage(
+                    messages.map { msg -> globalManager.message.system(msg) }
+                        .colorize()
+                        .toTypedArray()
+                )
             }
             return false
         }
         return true
+    }
+
+    fun partyCommands(starter: Player, commands: List<String>) {
+        val mcmmoPlayer = UserManager.getPlayer(starter)
+        if (!mcmmoPlayer.inParty()) {
+            starter.sendMessage(globalManager.message.system("您目前不在任何队伍。"))
+            return
+        }
+
+        val party = mcmmoPlayer.party
+        val onlineMembers = party.onlineMembers
+        commands.forEach { cmd ->
+            onlineMembers.forEach {
+                it.performCommand(cmd)
+            }
+        }
     }
 
     fun partyTeleport(starter: Player, challenge: String, to: String) {

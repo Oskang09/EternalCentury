@@ -109,15 +109,15 @@ class DiscordManager: LifeCycleHook {
 
         val embed = EmbedBuilder();
         embed.setColor(Color.GREEN)
-        embed.setThumbnail("https://ngrok.oskadev.com/file/mc-logo")
-        embed.setAuthor("永恒新世纪 Eternal Century ", "https://minecraft.oskadev.com", "https://ngrok.oskadev.com/file/mc-logo")
+        embed.setThumbnail("https://firebasestorage.googleapis.com/v0/b/eternal-century.appspot.com/o/logo.jpg?alt=media")
+        embed.setAuthor("永恒新世纪 Eternal Century ", "https://minecraft.oskadev.com", "https://firebasestorage.googleapis.com/v0/b/eternal-century.appspot.com/o/logo.jpg?alt=media")
         embed.setTitle("伺服器状态 - 在线 ( Online )")
         embed.setDescription("新来的玩家可以到 \'伺服规则\' 频道，通过随便一个Reaction同意并接受规则后才能进行注册。")
         embed.addField("地区配置", "", true)
         embed.addField("人数限制", "50", true)
         embed.addField("目前版本", ECCore.VERSION, true)
         embed.addField("伺服DC", "https://discord.gg/7rfSfwQBct", true)
-        embed.addField("伺服IP", "survival.oskadev.com", true)
+        embed.addField("伺服IP", "eternalcentury.oskadev.com", true)
         embed.setFooter("伺服器咨询")
         embed.setTimestamp(Instant.now())
 
@@ -185,15 +185,15 @@ class DiscordManager: LifeCycleHook {
     override fun onDisable() {
         val embed = EmbedBuilder();
         embed.setColor(Color.RED)
-        embed.setThumbnail("https://ngrok.oskadev.com/file/mc-logo")
-        embed.setAuthor("永恒新世纪 Eternal Century ", "https://minecraft.oskadev.com", "https://ngrok.oskadev.com/file/mc-logo")
+        embed.setThumbnail("https://firebasestorage.googleapis.com/v0/b/eternal-century.appspot.com/o/logo.jpg?alt=media")
+        embed.setAuthor("永恒新世纪 Eternal Century ", "https://minecraft.oskadev.com", "https://firebasestorage.googleapis.com/v0/b/eternal-century.appspot.com/o/logo.jpg?alt=media")
         embed.setTitle("伺服器状态 - 离线 ( Offline )")
         embed.setDescription("伺服器离线中，请等待伺服器上线后再申请账号。")
         embed.addField("地区配置", "", true)
         embed.addField("人数限制", "50", true)
         embed.addField("目前版本", ECCore.VERSION, true)
         embed.addField("伺服DC", "https://discord.gg/7rfSfwQBct", true)
-        embed.addField("伺服IP", "survival.oskadev.com", true)
+        embed.addField("伺服IP", "eternalcentury.oskadev.com", true)
         embed.setFooter("伺服器咨询")
         embed.setTimestamp(Instant.now())
 

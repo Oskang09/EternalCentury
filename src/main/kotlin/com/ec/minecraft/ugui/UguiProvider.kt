@@ -26,16 +26,12 @@ class UguiProvider(private val globalManager: GlobalManager): ItemProvider() {
     }
 
     override fun get(config: Map<*, *>): ItemStack {
-        val item = when (config["type"] ?: "item") {
-            "item" -> {
-                val id = config["id"] as String
-                globalManager.items.getItemByKey(id)
-            }
-            "enchantment" -> {
-                val enchantments = config["enchantments"] as Map<String, Int>
-                globalManager.enchantments.getEnchantedBookByMap(enchantments)
-            }
-            else -> ItemStack(Material.AIR)
+        val id = config["id"] as String
+        val item = if (id =="@enchantment_book") {
+            val enchantments = config["enchantments"] as Map<String, Int>
+            globalManager.enchantments.getEnchantedBookByMap(enchantments)
+        } else {
+            globalManager.items.getItemByKey(id)
         }
 
         val extras = config["lore"] as List<String>?

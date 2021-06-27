@@ -13,7 +13,7 @@ class RewardModule: ModuleAPI() {
     private val mapper = jacksonObjectMapper()
 
     override fun getIdentifier(): String {
-        return "ec-reward"
+        return "reward"
     }
 
     override fun getName(): String {
@@ -25,7 +25,7 @@ class RewardModule: ModuleAPI() {
     }
 
     override fun getModule(type: ModuleType, config: Map<*, *>): Module {
-        val json = mapper.writeValueAsString(config)
+        val json = mapper.writeValueAsString(config["reward"] as Map<*, *>)
         return ActionModule(type, globalManager, mapper.readValue(json, Reward::class.java))
     }
 
@@ -34,6 +34,26 @@ class RewardModule: ModuleAPI() {
         val globalManager: GlobalManager,
         val config: Reward,
     ): Module() {
+
+        /*
+            {
+                "module": "reward",
+                "reward": {
+                    "type": "item" | "enchantment" | "command",
+                    # choose between `item` and `itemId`
+                    "item" : {
+                        "material": "",
+                        "name": "",
+                        "lore": [],
+                        "amount": 1,
+                        "enchantments": {}
+                    },
+                    "itemId": "",
+                    "enchantments": {},
+                    "commands": []
+                }
+            }
+        */
 
         override fun action(player: Player) {
             when (type) {

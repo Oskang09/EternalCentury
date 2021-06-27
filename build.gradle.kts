@@ -25,7 +25,7 @@ tasks.withType<KotlinCompile> {
 
 repositories {
     mavenCentral()
-    maven { url = URI.create("https://hub.spigotmc.org/nexus/content/repositories/snapshots") }
+    maven { url = URI.create("https://1hub.spigotmc.org/nexus/content/repositories/snapshots") }
     maven { url = URI.create("https://oss.sonatype.org/content/repositories/snapshots/") }
     maven { url = URI.create("https://repo.codemc.org/repository/maven-public/") }
     maven { url = URI.create("https://repo.codemc.io/repository/maven-snapshots/") }

@@ -8,8 +8,9 @@ import org.bukkit.entity.Player
 import java.time.Instant
 
 class CooldownModule: ModuleAPI() {
+
     override fun getIdentifier(): String {
-        return "ec-cooldown"
+        return "cooldown"
     }
 
     override fun getName(): String {
@@ -31,6 +32,14 @@ class CooldownModule: ModuleAPI() {
         private val second: Int,
         private val globalManager: GlobalManager
     ): Module() {
+
+        /*
+            {
+                "module": "cooldown",
+                "id": "any unique / shared id",
+                "second": 60,
+            }
+        */
 
         override fun action(player: Player) {
             globalManager.states.updatePlayerState(player) {

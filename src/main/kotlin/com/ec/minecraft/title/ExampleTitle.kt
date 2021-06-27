@@ -26,7 +26,7 @@ class ExampleTitle: TitleAPI("some_id", 0) {
         return stack
     }
 
-    override fun getDisplay(player: Player): String {
+    override fun getDisplay(): String {
         return ""
     }
 

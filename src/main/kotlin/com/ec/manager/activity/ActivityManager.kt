@@ -25,37 +25,34 @@ class ActivityManager {
     }
 
     private fun activitySchedule() {
-        val current = ZonedDateTime.now(ZoneId.of("Asia/Kuala_Lumpur"))
-        val event = getUpcomingActivity()
-        when (event == null) {
-            true -> {
-                val nextDay = ZonedDateTime.now(ZoneId.of("Asia/Kuala_Lumpur")).plusDays(1)
-                val seconds = ChronoUnit.SECONDS.between(current, nextDay)
-                globalManager.states.delayedTask(seconds) {
-                    activitySchedule()
-                }
-            }
-            false -> {
-                val seconds = ChronoUnit.SECONDS.between(current, event.startInstant())
-                globalManager.states.delayedTask(seconds) {
-                    event.onStart()
-                    globalManager.states.delayedTask(event.duration.toSeconds()) {
-                        event.onEnd()
-                    }
+        val today = ZonedDateTime.now(ZoneId.of("Asia/Kuala_Lumpur"))
 
-                    activitySchedule()
+        // schedule tomorrow task
+        val tomorrow = today.plusDays(1)
+        val tomorrowSeconds = ChronoUnit.SECONDS.between(today, tomorrow)
+        globalManager.states.delayedTask(tomorrowSeconds) {
+            activitySchedule()
+        }
+
+        // schedule today upcoming events
+        getUpcomingActivities().forEach {
+            val seconds = ChronoUnit.SECONDS.between(today, it.startInstant())
+            globalManager.states.delayedTask(seconds) {
+                it.onStart()
+                globalManager.states.delayedTask(it.duration.toSeconds()) {
+                    it.onEnd()
                 }
             }
         }
     }
 
-    fun getUpcomingActivity(): ActivityAPI? {
-        var today = ZonedDateTime.now(ZoneId.of("Asia/Kuala_Lumpur"))
+    fun getUpcomingActivities(): List<ActivityAPI> {
+        var now = ZonedDateTime.now(ZoneId.of("Asia/Kuala_Lumpur"))
         return activities.values
-            .filter { it.weekdays.contains(today.dayOfWeek) }
-            .filter { it.startInstant() > today }
+            .filter { it.weekdays.contains(now.dayOfWeek) }
+            .filter { it.startInstant() >= now }
             .sortedBy { it.startInstant() }
-            .singleOrNull()
+            .toList()
     }
 
     fun getTodayActivities(): List<ActivityAPI> {

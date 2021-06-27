@@ -1,5 +1,7 @@
 package com.ec.config
 
+import com.ec.config.wrapper.LocationConfig
+
 data class ServerConfig(
     val repairNpcId: Int = 0,
     val repairPrice: Float = 1F,

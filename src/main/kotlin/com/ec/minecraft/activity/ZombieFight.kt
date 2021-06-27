@@ -1,9 +1,7 @@
 package com.ec.minecraft.activity
 
-import com.ec.config.ItemConfig
 import com.ec.database.Players
 import com.ec.database.ZombieFights
-import com.ec.database.model.Reward
 import com.ec.manager.GlobalManager
 import com.ec.manager.activity.ActivityAPI
 import com.ec.util.ChanceUtil
@@ -23,6 +21,9 @@ import org.bukkit.entity.*
 import org.bukkit.event.EventPriority
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.inventory.ItemStack
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -249,5 +250,14 @@ class ZombieFight: ActivityAPI("zombie-fight") {
             }
             damages.clear()
         }
+    }
+
+    override fun onQuit(event: PlayerQuitEvent) {
+    }
+
+    override fun onDeath(event: PlayerDeathEvent) {
+    }
+
+    override fun onRespawn(event: PlayerRespawnEvent) {
     }
 }

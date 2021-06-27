@@ -1,6 +1,6 @@
 package com.ec.minecraft.command.admin
 
-import com.ec.config.LocationConfig
+import com.ec.config.wrapper.LocationConfig
 import com.ec.manager.GlobalManager
 import dev.reactant.reactant.extra.command.ReactantCommand
 import org.bukkit.entity.Player

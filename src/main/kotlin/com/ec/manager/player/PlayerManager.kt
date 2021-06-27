@@ -3,23 +3,29 @@ package com.ec.manager.player
 import com.ec.database.Announcements
 import com.ec.database.Mails
 import com.ec.database.Players
-import com.ec.manager.GlobalManager
 import com.ec.logger.Logger
+import com.ec.manager.GlobalManager
 import com.ec.model.player.ECPlayer
 import com.ec.model.player.ECPlayerAuthState
 import com.ec.model.player.ECPlayerGameState
 import com.ec.util.StringUtil.colorize
 import com.ec.util.StringUtil.generateUniqueID
 import dev.reactant.reactant.core.component.Component
+import me.oska.config.shop.ItemConfig
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.block.SignChangeEvent
+import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.*
-import org.jetbrains.exposed.sql.*
+import org.bukkit.scoreboard.Team
+import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 import java.time.Instant
 import java.util.*
 
@@ -31,7 +37,22 @@ class PlayerManager {
     fun onInitialize(globalManager: GlobalManager) {
         this.globalManager = globalManager
 
-         globalManager.events {
+        ItemConfig
+        globalManager.events {
+
+             PlayerDeathEvent::class
+                 .observable(true, EventPriority.HIGHEST)
+                 .filter { globalManager.players.getByPlayer(it.entity).gameState == ECPlayerGameState.FREE }
+                 .subscribe {
+                     it.deathMessage = null
+                 }
+
+             PlayerRespawnEvent::class
+                 .observable(true, EventPriority.HIGHEST)
+                 .filter { globalManager.players.getByPlayer(it.player).gameState == ECPlayerGameState.FREE }
+                 .subscribe {
+                     it.respawnLocation = globalManager.serverConfig.teleports["old-spawn"]!!.location
+                 }
 
              AsyncPlayerChatEvent::class
                  .observable(false, EventPriority.LOWEST)
@@ -49,12 +70,6 @@ class PlayerManager {
                              it.setLine(index, line.colorize())
                          }
                      }
-
-             PlayerRespawnEvent::class
-                 .observable(true, EventPriority.HIGHEST)
-                 .subscribe {
-                     it.respawnLocation = globalManager.serverConfig.teleports["old-spawn"]!!.location
-                 }
 
              PlayerSwapHandItemsEvent::class
                  .observable(true, EventPriority.HIGHEST)
@@ -141,6 +156,9 @@ class PlayerManager {
                 .doOnError(Logger.trackError("PlayerManager.PlayerJoinEvent", "error occurs in event subscriber"))
                 .subscribe { event ->
                     event.joinMessage = null
+                    if (!event.player.hasPlayedBefore()) {
+                        event.player.teleport(globalManager.serverConfig.teleports["old-spawn"]!!.location)
+                    }
 
                     val player = event.player
                     val ecPlayer = ECPlayer(event.player)
@@ -177,10 +195,10 @@ class PlayerManager {
                     globalManager.runOffMainThread {
                         val title = globalManager.titles.getPlayerActiveTitle(player)
                         if (title != null) {
-                            val result = title.getDisplay(player)
+                            val result = title.getDisplay()
                             globalManager.runInMainThread {
-                                event.player.setDisplayName(result)
-                                event.player.setPlayerListName(result)
+                                player.setDisplayName(result + " " + player.name)
+                                player.setPlayerListName(result + " " + player.name)
                             }
                         } else {
                             globalManager.runInMainThread {

@@ -42,5 +42,6 @@ enum class Emoji(val text: String) {
     FEMALE_TEXT("㊛"),
     MALE_TEXT("㊚"),
     CROSS("✖"),
+    CHECK("✔"),
     ARROW("➹")
 }

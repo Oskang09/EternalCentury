@@ -42,9 +42,9 @@ class TitleUI: PaginationUI<Unit>("title") {
                     }
 
                     return@map PaginationItem(display) { _ ->
-                        val titleDisplay = title.getDisplay(player)
-                        player.setDisplayName(titleDisplay)
-                        player.setPlayerListName(titleDisplay)
+                        val titleDisplay = title.getDisplay()
+                        player.setDisplayName(titleDisplay + " " + player.name)
+                        player.setPlayerListName(titleDisplay + " " + player.name)
 
                         ecPlayer.ensureUpdate("update title to ${title.id}") {
                             Players.update({ Players.id eq ecPlayer.database[Players.id]}) {

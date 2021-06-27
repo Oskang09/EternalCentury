@@ -52,11 +52,11 @@ class PaymentUI: UIProvider<PaymentUI.PaymentUIProps>("payment") {
     override fun props(player: HumanEntity): PaymentUIProps {
         return PaymentUIProps(
             topupMapper = mutableMapOf(
-                100 to 5,
-                500 to 40,
-                1000 to 100,
-                3000 to 320,
-                5000 to 550,
+                170 to 5,
+                600 to 40,
+                1100 to 100,
+                3300 to 320,
+                5250 to 550,
                 10000 to 1400,
                 20000 to 3000
             ),
@@ -64,7 +64,7 @@ class PaymentUI: UIProvider<PaymentUI.PaymentUIProps>("payment") {
                 globalManager.component.item(Material.GRASS_BLOCK) {
                      it.setDisplayName("&f[&e赞助&f] &f草地点卷".colorize())
                      it.lore = arrayListOf(
-                         "&7需付费 &f- &eMYR 1",
+                         "&7需付费 &f- &eMYR 1.70",
                          "&7点数获得 &f- &e5",
                          "",
                          "&f&l付费前必须知道",
@@ -77,7 +77,7 @@ class PaymentUI: UIProvider<PaymentUI.PaymentUIProps>("payment") {
                 globalManager.component.item(Material.STONE) {
                     it.setDisplayName("&f[&e赞助&f] &f石头点卷".colorize())
                     it.lore = arrayListOf(
-                        "&7需付费 &f- &eMYR 5",
+                        "&7需付费 &f- &eMYR 6.00",
                         "&7获得点数 &f- &e40",
                         "",
                         "&f&l付费前必须知道",
@@ -90,7 +90,7 @@ class PaymentUI: UIProvider<PaymentUI.PaymentUIProps>("payment") {
                 globalManager.component.item(Material.IRON_INGOT) {
                     it.setDisplayName("&f[&e赞助&f] &f铁块点卷".colorize())
                     it.lore = arrayListOf(
-                        "&7需付费 &f- &eMYR 10",
+                        "&7需付费 &f- &eMYR 11",
                         "&7点数获得 &f- &e100",
                         "",
                         "&f&l付费前必须知道",
@@ -103,7 +103,7 @@ class PaymentUI: UIProvider<PaymentUI.PaymentUIProps>("payment") {
                 globalManager.component.item(Material.GOLD_INGOT) {
                     it.setDisplayName("&f[&e赞助&f] &f金块点卷".colorize())
                     it.lore = arrayListOf(
-                        "&7需付费 &f- &eMYR 30",
+                        "&7需付费 &f- &eMYR 33",
                         "&7点数获得 &f- &e320",
                         "",
                         "&f&l付费前必须知道",
@@ -116,7 +116,7 @@ class PaymentUI: UIProvider<PaymentUI.PaymentUIProps>("payment") {
                 globalManager.component.item(Material.DIAMOND) {
                     it.setDisplayName("&f[&e赞助&f] &f钻石点卷".colorize())
                     it.lore = arrayListOf(
-                        "&7需付费 &f- &eMYR 50",
+                        "&7需付费 &f- &eMYR 52.50",
                         "&7点数获得 &f- &e550",
                         "",
                         "&f&l付费前必须知道",

@@ -15,7 +15,7 @@ class CommandModule: ModuleAPI() {
     }
 
     override fun getIdentifier(): String {
-        return "ec-command";
+        return "command";
     }
 
     override fun supportParallel(): Boolean {
@@ -40,6 +40,14 @@ class CommandModule: ModuleAPI() {
         private val executeBy: String,
         private val commands: List<String>,
     ): Module() {
+
+        /*
+            {
+                "module": "command",
+                "commands": [],
+                "executeBy": "SERVER" | "PLAYER",
+            }
+        */
 
         private fun getCommands(player: Player): List<String> {
             return commands.map {

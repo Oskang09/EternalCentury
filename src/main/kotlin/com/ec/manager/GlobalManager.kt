@@ -21,6 +21,7 @@ import com.ec.manager.player.PlayerManager
 import com.ec.manager.point.PointManager
 import com.ec.manager.title.TitleManager
 import com.ec.logger.Logger
+import com.ec.manager.packet.PacketManager
 import com.ec.service.EconomyService
 import com.ec.service.MessageService
 import com.ec.service.PermissionService
@@ -67,6 +68,7 @@ class GlobalManager(
     val crates: CrateManager,
     val mcmmo: McMMOManager,
     val activity: ActivityManager,
+    val packet: PacketManager,
 
     // Services
     var economy: EconomyService,
@@ -124,7 +126,7 @@ class GlobalManager(
             when (cfg.type.lowercase()) {
                 "item" -> itemRewards.add(
                     if (cfg.itemId != null) items.getItemByKey(cfg.itemId)
-                    else items.getItemByConfig(cfg.item!!)
+                    else items.getItem(cfg.item!!)
                 )
                 "enchantment" ->
                     itemRewards.add(enchantments.getEnchantedBookByMap(cfg.enchantments!!))
@@ -195,6 +197,8 @@ class GlobalManager(
         crates.onInitialize(this)
         states.onInitialize(this)
         activity.onInitialize(this)
+        mcmmo.onInitialize(this)
+        packet.onInitialize(this)
         skins = SkinsRestorerAPI.getApi()
 
 

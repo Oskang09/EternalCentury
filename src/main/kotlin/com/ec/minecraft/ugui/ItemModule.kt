@@ -39,6 +39,24 @@ class ItemModule : ModuleAPI() {
         private val globalManager: GlobalManager
     ): Module() {
 
+        /*
+            {
+                "module": "item",
+                - "item": {
+                    "type": "minecraft",
+                    "material": "",
+                    "display": "",
+                    "lore": "",
+                    "amount": 0
+                }
+                - "item": {
+                    "type": "ec-item",
+                    "id": "", // ec-item only
+                    "lore": "",
+                }
+            }
+        */
+
         override fun check(player: Player): Boolean {
             if (type == ModuleType.REQUIREMENT) {
                 return player.inventory.containsAtLeast(itemStack.clone(), itemStack.amount);
