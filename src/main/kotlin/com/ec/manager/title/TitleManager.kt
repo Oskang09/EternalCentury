@@ -5,6 +5,7 @@ import com.ec.database.Titles
 import com.ec.manager.GlobalManager
 import com.ec.util.StringUtil.generateUniqueID
 import dev.reactant.reactant.core.component.Component
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.jetbrains.exposed.sql.insert
 import java.time.Instant
@@ -32,7 +33,9 @@ class TitleManager {
         val ecPlayer = globalManager.players.getByPlayer(player)
         ecPlayer.ensureUpdate("check player title availability", isAsync = true) {
             val playerTitles = ecPlayer.getTitles()
-            titles.keys.intersect(playerTitles).forEach { titleKey ->
+            val currentTitles = titles.keys.toMutableList()
+            currentTitles.removeAll(playerTitles)
+            currentTitles.forEach { titleKey ->
                 val title = titles[titleKey]!!
                 if (title.unlockCondition(ecPlayer)) {
                     Titles.insert {

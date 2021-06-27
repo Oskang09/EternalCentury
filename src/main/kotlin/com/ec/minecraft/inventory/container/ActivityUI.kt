@@ -46,7 +46,9 @@ class ActivityUI: PaginationUI<Unit>("activity") {
             info = globalManager.component.playerHead(player as Player) {
                 it.setDisplayName("&b[&5系统&b] &6活动咨询".colorize())
             },
-            items = display.map { PaginationItem(it) },
+            items = {
+                display.map { PaginationItem(it) }
+            },
         )
     }
 }

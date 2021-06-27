@@ -63,7 +63,7 @@ class AdminEnchantmentUI: PaginationUI<Unit>("admin-enchantment") {
                     "&7总附魔数 in.等级 &f- &a${items.size}"
                 ).colorize()
             },
-            items
+            { items }
         )
     }
 }

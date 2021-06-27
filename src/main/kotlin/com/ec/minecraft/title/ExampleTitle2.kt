@@ -1,15 +1,13 @@
 package com.ec.minecraft.title
 
-import com.ec.manager.GlobalManager
 import com.ec.manager.title.TitleAPI
 import com.ec.model.player.ECPlayer
 import com.ec.util.StringUtil.colorize
 import dev.reactant.reactant.extensions.itemMeta
-import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 
-class ExampleTitle: TitleAPI("test", 0) {
+class ExampleTitle2: TitleAPI("test2", 1) {
 
     override fun getItemStack(stack: ItemStack): ItemStack {
         stack.itemMeta<ItemMeta> {
@@ -24,7 +22,7 @@ class ExampleTitle: TitleAPI("test", 0) {
     }
 
     override fun getDisplay(): String {
-        return "&f[&e特殊&f]".colorize()
+        return "&f[&e特殊2&f]".colorize()
     }
 
     override fun unlockCondition(ecPlayer: ECPlayer): Boolean {
@@ -34,5 +32,4 @@ class ExampleTitle: TitleAPI("test", 0) {
     override fun afterUnlock(ecPlayer: ECPlayer) {
 
     }
-
 }

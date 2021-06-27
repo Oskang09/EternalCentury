@@ -57,7 +57,7 @@ class ItemUI: PaginationUI<ItemUI.InputProps>("item-filter") {
             info = globalManager.component.item(Material.ITEM_FRAME) {
                 it.setDisplayName("&b[&5系统&b] &6分类选项".colorize())
             },
-            display
+            { display }
         )
     }
 }

@@ -197,13 +197,29 @@ class PlayerManager {
                         if (title != null) {
                             val result = title.getDisplay()
                             globalManager.runInMainThread {
-                                player.setDisplayName(result + " " + player.name)
-                                player.setPlayerListName(result + " " + player.name)
+                                event.player.setDisplayName(result + " " + player.name)
+                                event.player.setPlayerListName(result + " " + player.name)
+
+                                val nameKey = player.name
+                                val board = player.scoreboard
+                                val team = board.getTeam(nameKey) ?: board.registerNewTeam(nameKey)
+                                team.prefix = "$result "
+                                team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS)
+                                team.addEntry(player.name)
+                                player.scoreboard = board
                             }
                         } else {
                             globalManager.runInMainThread {
                                 event.player.setDisplayName(event.player.name)
                                 event.player.setPlayerListName(event.player.name)
+
+                                val nameKey = player.name
+                                val board = player.scoreboard
+                                val team = board.getTeam(nameKey) ?: board.registerNewTeam(nameKey)
+                                team.prefix = ""
+                                team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS)
+                                team.addEntry(player.name)
+                                player.scoreboard = board
                             }
                         }
                     }
@@ -241,6 +257,8 @@ class PlayerManager {
                     val player = event.player
                     Logger.withTrackerPlayerEvent(player, event, "PlayerManager.PlayerQuitEvent" , "player ${player.uniqueId} error occurs when quit") {
                         val ecPlayer = players.remove(player.uniqueId)
+
+                        player.scoreboard.getTeam(player.name)?.unregister()
                         ecPlayer!!.ensureUpdate("saving player", isAsync = true) {
                             Players.update({ Players.playerName eq player.name }) {
                                 it[playerName] = player.name

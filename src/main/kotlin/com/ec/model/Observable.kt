@@ -35,7 +35,7 @@ open class Observable<T> where T: Any {
             consumer.accept(it)
         }
 
-        subscriberOnce.forEach { consumer ->
+        subscriberOnce.toMutableList().forEach { consumer ->
             consumer.accept(it)
 
             subscriberOnce.remove(consumer)

@@ -65,7 +65,7 @@ class SkinUI: PaginationUI<Unit>("skin") {
                     "&7可拥有造型数 &f-  &a${skinLimit}"
                 ).colorize()
             },
-            views,
+            { views },
             extras = listOf(
                 if (skinLimit == availableSkins.size - 1) null else div(DivProps(
                     style = styleOf {

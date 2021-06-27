@@ -24,9 +24,11 @@ class PointUI: PaginationUI<Unit>("point") {
                 it.setDisplayName("&b[&5系统&b] &6点数咨询".colorize())
                 it.lore = arrayListOf("&7点数数量 &f- &a${allPoints.size}").colorize()
             },
-            items = allPoints.map { (name, point) ->
-                val playerPoint = globalManager.points.getPointByNameFromPlayer(name, player as Player)
-                return@map PaginationItem(item = point.getItemStack(playerPoint))
+            items = {
+                allPoints.map { (name, point) ->
+                    val playerPoint = globalManager.points.getPointByNameFromPlayer(name, player as Player)
+                    return@map PaginationItem(item = point.getItemStack(playerPoint))
+                }
             }
         )
     }

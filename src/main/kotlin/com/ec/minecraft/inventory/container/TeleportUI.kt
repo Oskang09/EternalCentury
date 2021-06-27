@@ -31,66 +31,68 @@ class TeleportUI: PaginationUI<Unit>("teleport") {
                 it.setDisplayName("&b[&5系统&b] &6传送咨询".colorize())
                 it.lore = arrayListOf("&7传送点数量 &f-  &a3").colorize()
             },
-            listOf(
-                PaginationItem(
-                    item = globalManager.component.item(Material.OAK_WOOD) {
-                       it.setDisplayName("&5&l传送到 &a&l中世纪村庄".colorize())
-                        it.lore = arrayListOf(
-                            "&5- &f地狱入口",
-                            "&5- &f末地入口",
-                            "&5- &f铁匠师傅",
-                            "&5- &f打工人商店",
-                            "&5- &f防疫大使"
-                        ).colorize()
-                    },
-                    click = {
-                        player.closeInventory()
-                        teleportTo(it.whoClicked as Player, "old-spawn")
-                    }
-                ),
-                PaginationItem(
-                    item = globalManager.component.item(Material.QUARTZ_BLOCK) {
-                        it.setDisplayName("&5&l传送到 &a&l新世纪城镇".colorize())
-                        it.lore = arrayListOf(
-                            "&5- &f玩家商店",
-                            "&5- &f狩猎贩卖",
-                            "&5- &f产物鉴定",
-                            "&5- &f防疫大使"
-                        ).colorize()
-                    },
-                    click = {
-                        player.closeInventory()
-                        teleportTo(it.whoClicked as Player, "modern-spawn")
-                    }
-                ),
-                PaginationItem(
-                    item = globalManager.component.item(Material.GRASS_BLOCK) {
-                        it.setDisplayName("&5&l传送到 &a&l地皮世界".colorize())
-                        it.lore = arrayListOf(
-                            "&5- &f玩家生存",
-                            "&5- &f地皮建筑",
-                        ).colorize()
-                    },
-                    click = {
-                        player.closeInventory()
-                        teleportTo(it.whoClicked as Player, "plot-spawn")
-                    }
-                ),
-                PaginationItem(
-                    item = globalManager.component.item(Material.DIAMOND_PICKAXE) {
-                        it.setDisplayName("&5&l传送到 &a&l资源世界".colorize())
-                        it.lore = arrayListOf(
-                            "&5- &f资源采集",
-                            "&5- &f随机传送",
-                            "&5- &f定期洗白"
-                        ).colorize()
-                    },
-                    click = {
-                        player.closeInventory()
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rtp ${player.name} world")
-                    }
-                ),
-            ),
+            {
+                listOf(
+                    PaginationItem(
+                        item = globalManager.component.item(Material.OAK_WOOD) {
+                            it.setDisplayName("&5&l传送到 &a&l中世纪村庄".colorize())
+                            it.lore = arrayListOf(
+                                "&5- &f地狱入口",
+                                "&5- &f末地入口",
+                                "&5- &f铁匠师傅",
+                                "&5- &f打工人商店",
+                                "&5- &f防疫大使"
+                            ).colorize()
+                        },
+                        click = {
+                            player.closeInventory()
+                            teleportTo(it.whoClicked as Player, "old-spawn")
+                        }
+                    ),
+                    PaginationItem(
+                        item = globalManager.component.item(Material.QUARTZ_BLOCK) {
+                            it.setDisplayName("&5&l传送到 &a&l新世纪城镇".colorize())
+                            it.lore = arrayListOf(
+                                "&5- &f玩家商店",
+                                "&5- &f狩猎贩卖",
+                                "&5- &f产物鉴定",
+                                "&5- &f防疫大使"
+                            ).colorize()
+                        },
+                        click = {
+                            player.closeInventory()
+                            teleportTo(it.whoClicked as Player, "modern-spawn")
+                        }
+                    ),
+                    PaginationItem(
+                        item = globalManager.component.item(Material.GRASS_BLOCK) {
+                            it.setDisplayName("&5&l传送到 &a&l地皮世界".colorize())
+                            it.lore = arrayListOf(
+                                "&5- &f玩家生存",
+                                "&5- &f地皮建筑",
+                            ).colorize()
+                        },
+                        click = {
+                            player.closeInventory()
+                            teleportTo(it.whoClicked as Player, "plot-spawn")
+                        }
+                    ),
+                    PaginationItem(
+                        item = globalManager.component.item(Material.DIAMOND_PICKAXE) {
+                            it.setDisplayName("&5&l传送到 &a&l资源世界".colorize())
+                            it.lore = arrayListOf(
+                                "&5- &f资源采集",
+                                "&5- &f随机传送",
+                                "&5- &f定期洗白"
+                            ).colorize()
+                        },
+                        click = {
+                            player.closeInventory()
+                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rtp ${player.name} world")
+                        }
+                    ),
+                )
+            }
         )
     }
 }

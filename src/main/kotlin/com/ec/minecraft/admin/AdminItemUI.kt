@@ -39,7 +39,7 @@ class AdminItemUI: PaginationUI<Unit>("admin-item") {
                     "&7总物品数 &f- &a${items.size}",
                 ).colorize()
             },
-            views,
+            { views }
         )
     }
 
