@@ -7,6 +7,9 @@ import dev.reactant.reactant.core.component.Component
 import net.milkbowl.vault.permission.Permission
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
+import org.bukkit.event.EventPriority
+import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.permissions.PermissionAttachment
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import java.util.*
@@ -37,9 +40,18 @@ class PermissionService: Permission() {
     )
 
     private lateinit var globalManager: GlobalManager
+    private val permissionAttachment: MutableMap<String, PermissionAttachment> = mutableMapOf()
 
     fun onInitialize(globalManager: GlobalManager) {
         this.globalManager = globalManager
+
+        globalManager.events {
+            PlayerQuitEvent::class
+                .observable(true, EventPriority.HIGHEST)
+                .subscribe {
+                    permissionAttachment.remove(it.player.uniqueId.toString())
+                }
+        }
     }
 
     fun injectPermission(player: Player) {
@@ -47,10 +59,18 @@ class PermissionService: Permission() {
         val permissions = ecPlayer.database[Players.permissions]
         permissions.addAll(playersDefaultPermissions)
 
+        val attachment = permissionAttachment[player.uniqueId.toString()]
+        if (attachment != null) {
+            player.removeAttachment(attachment)
+        }
+
+        val newAttachment = player.addAttachment(ECCore.instance)
+        permissionAttachment[player.uniqueId.toString()] = newAttachment
+
         val plotLimit = ecPlayer.database[Players.plotLimit]
         permissions.add("plots.plot.$plotLimit")
         permissions.forEach {
-            player.addAttachment(ECCore.instance, it, true)
+            newAttachment.setPermission(it, true)
         }
 
         player.recalculatePermissions()

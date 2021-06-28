@@ -3,7 +3,7 @@ package com.ec.minecraft.point
 import com.ec.database.model.point.PointDetail
 import com.ec.manager.GlobalManager
 import com.ec.manager.point.PointAPI
-import com.ec.util.StringUtil.colorize
+import com.ec.util.StringUtil.toComponent
 import com.gmail.nossr50.events.experience.McMMOPlayerLevelUpEvent
 import dev.reactant.reactant.extensions.itemMeta
 import org.bukkit.Material
@@ -20,8 +20,8 @@ class McmmoPoint: PointAPI("mcmmo") {
     override fun getItemStack(point: PointDetail): ItemStack {
         val stack = ItemStack(Material.BOOK)
         stack.itemMeta<ItemMeta> {
-            setDisplayName("&aMMO点数".colorize())
-            lore = arrayListOf(
+            displayName("&aMMO点数".toComponent())
+            lore(arrayListOf(
                 "&7&l --- &f&l点数介绍 &7&l--- ",
                 "&f此点数为玩家MCMMO的总等级，就算季节刷新他都会永远保存",
                 "&f玩家在每次升级的时候都会获得一点，所以一点也代表一个等级",
@@ -29,7 +29,7 @@ class McmmoPoint: PointAPI("mcmmo") {
                 "&f所有点数 - &e${point.total}",
                 "&f剩余点数 - &e${point.balance}",
                 "&f点数阶级 - &e${point.grade}"
-            ).colorize()
+            ).toComponent())
         }
         return stack
     }

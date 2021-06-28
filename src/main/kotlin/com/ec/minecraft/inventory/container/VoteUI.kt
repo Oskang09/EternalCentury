@@ -6,8 +6,8 @@ import com.ec.database.Votes
 import com.ec.manager.inventory.UIBase
 import com.ec.manager.inventory.UIProvider
 import com.ec.model.player.ECPlayer
-import com.ec.util.StringUtil.colorize
 import com.ec.util.StringUtil.generateUniqueID
+import com.ec.util.StringUtil.toComponent
 import dev.reactant.resquare.dom.Node
 import dev.reactant.resquare.dom.childrenOf
 import dev.reactant.resquare.dom.declareComponent
@@ -101,7 +101,7 @@ class VoteUI: UIProvider<VoteUI.VoteUIProps>("vote") {
 
     override fun info(props: VoteUIProps): UIBase {
         return UIBase(
-            title = ("&b[&5系统&b] &f每日签到").colorize(),
+            title = ("&b[&5系统&b] &f每日签到"),
             rows = 6,
             cols = 9
         )
@@ -186,7 +186,7 @@ class VoteUI: UIProvider<VoteUI.VoteUIProps>("vote") {
             renderSign.add(div(DivProps(
                 style = styles.item,
                 item = globalManager.component.item(if (isSigned) Material.LIME_WOOL else Material.RED_WOOL) { meta ->
-                    meta.setDisplayName("&b[&5$previewText&b] &l${props.currentYear}-${props.currentMonth}-${day}".colorize())
+                    meta.displayName("&b[&5$previewText&b] &l${props.currentYear}-${props.currentMonth}-${day}".toComponent())
                     val lores = arrayListOf(
                         "&7 - &e100 金钱",
                         "&7 - &e一个附魔之瓶"
@@ -198,7 +198,7 @@ class VoteUI: UIProvider<VoteUI.VoteUIProps>("vote") {
                         lores.add(cfg.display)
                     }
 
-                    meta.lore = lores.colorize()
+                    meta.lore(lores.toComponent())
                 },
             )))
         }
@@ -267,7 +267,7 @@ class VoteUI: UIProvider<VoteUI.VoteUIProps>("vote") {
                 style = styles.item,
                 onClick = eventHandler,
                 item = globalManager.component.item(Material.CHEST) { meta ->
-                    meta.setDisplayName("&b[&5$previewText&b] &f&l连续签到奖励 $rewardIndex".colorize())
+                    meta.displayName("&b[&5$previewText&b] &f&l连续签到奖励 $rewardIndex".toComponent())
                     val lores = arrayListOf(
                         "&7 - &e500 金钱",
                         "&7 - &e随机一个生物蛋",
@@ -280,7 +280,7 @@ class VoteUI: UIProvider<VoteUI.VoteUIProps>("vote") {
                         lores.add(cfg.display)
                     }
 
-                    meta.lore = lores.colorize()
+                    meta.lore(lores.toComponent())
                 },
             )))
         }
@@ -328,11 +328,11 @@ class VoteUI: UIProvider<VoteUI.VoteUIProps>("vote") {
                         div(DivProps(
                             style = styles.leftBarItem,
                             item =  globalManager.component.playerHead(props.player.player) {
-                                it.setDisplayName("&b[&5系统&b] &6每日签到".colorize())
-                                it.lore = arrayListOf(
+                                it.displayName("&b[&5系统&b] &6每日签到".toComponent())
+                                it.lore(arrayListOf(
                                     "&7已签到数 &f- &a${signedDays.size}",
                                     "&7总签到数 &f-  &a${props.numOfDays}"
-                                ).colorize()
+                                ).toComponent())
                             },
                         )),
                         div(DivProps(
@@ -348,7 +348,7 @@ class VoteUI: UIProvider<VoteUI.VoteUIProps>("vote") {
                                 if (isTodaySigned) {
                                     previewText = "已完成"
                                 }
-                                it.setDisplayName("&b[&5$previewText&b] &6今日签到".colorize())
+                                it.displayName("&b[&5$previewText&b] &6今日签到".toComponent())
                             },
                             onClick = todayEventHandler
                         )),

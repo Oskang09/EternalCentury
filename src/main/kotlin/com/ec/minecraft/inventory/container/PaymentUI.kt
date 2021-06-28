@@ -2,7 +2,7 @@ package com.ec.minecraft.inventory.container
 
 import com.ec.manager.inventory.UIBase
 import com.ec.manager.inventory.UIProvider
-import com.ec.util.StringUtil.colorize
+import com.ec.util.StringUtil.toComponent
 import dev.reactant.resquare.dom.childrenOf
 import dev.reactant.resquare.dom.declareComponent
 import dev.reactant.resquare.dom.unaryPlus
@@ -45,7 +45,7 @@ class PaymentUI: UIProvider<PaymentUI.PaymentUIProps>("payment") {
         return UIBase(
             rows = 3,
             cols = 9,
-            title = "&b[&5系统&b] &6伺服赞助".colorize()
+            title = "&b[&5系统&b] &6伺服赞助"
         )
     }
 
@@ -62,8 +62,8 @@ class PaymentUI: UIProvider<PaymentUI.PaymentUIProps>("payment") {
             ),
             displayMapper = listOf(
                 globalManager.component.item(Material.GRASS_BLOCK) {
-                     it.setDisplayName("&f[&e赞助&f] &f草地点卷".colorize())
-                     it.lore = arrayListOf(
+                     it.displayName("&f[&e赞助&f] &f草地点卷".toComponent())
+                     it.lore(arrayListOf(
                          "&7需付费 &f- &eMYR 1.70",
                          "&7点数获得 &f- &e5",
                          "",
@@ -72,11 +72,11 @@ class PaymentUI: UIProvider<PaymentUI.PaymentUIProps>("payment") {
                          "&f2. 只有适当的理由才能进行退款",
                          "&f3. 超过一定的时间是无法退款的",
                          "&f4. 理由充分服主有权利手动退款"
-                     ).colorize()
+                     ).toComponent())
                 },
                 globalManager.component.item(Material.STONE) {
-                    it.setDisplayName("&f[&e赞助&f] &f石头点卷".colorize())
-                    it.lore = arrayListOf(
+                    it.displayName("&f[&e赞助&f] &f石头点卷".toComponent())
+                    it.lore(arrayListOf(
                         "&7需付费 &f- &eMYR 6.00",
                         "&7获得点数 &f- &e40",
                         "",
@@ -85,11 +85,11 @@ class PaymentUI: UIProvider<PaymentUI.PaymentUIProps>("payment") {
                         "&f2. 只有适当的理由才能进行退款",
                         "&f3. 超过一定的时间是无法退款的",
                         "&f4. 理由充分服主有权利手动退款"
-                    ).colorize()
+                    ).toComponent())
                 },
                 globalManager.component.item(Material.IRON_INGOT) {
-                    it.setDisplayName("&f[&e赞助&f] &f铁块点卷".colorize())
-                    it.lore = arrayListOf(
+                    it.displayName("&f[&e赞助&f] &f铁块点卷".toComponent())
+                    it.lore(arrayListOf(
                         "&7需付费 &f- &eMYR 11",
                         "&7点数获得 &f- &e100",
                         "",
@@ -98,11 +98,11 @@ class PaymentUI: UIProvider<PaymentUI.PaymentUIProps>("payment") {
                         "&f2. 只有适当的理由才能进行退款",
                         "&f3. 超过一定的时间是无法退款的",
                         "&f4. 理由充分服主有权利手动退款"
-                    ).colorize()
+                    ).toComponent())
                 },
                 globalManager.component.item(Material.GOLD_INGOT) {
-                    it.setDisplayName("&f[&e赞助&f] &f金块点卷".colorize())
-                    it.lore = arrayListOf(
+                    it.displayName("&f[&e赞助&f] &f金块点卷".toComponent())
+                    it.lore(arrayListOf(
                         "&7需付费 &f- &eMYR 33",
                         "&7点数获得 &f- &e320",
                         "",
@@ -111,11 +111,11 @@ class PaymentUI: UIProvider<PaymentUI.PaymentUIProps>("payment") {
                         "&f2. 只有适当的理由才能进行退款",
                         "&f3. 超过一定的时间是无法退款的",
                         "&f4. 理由充分服主有权利手动退款"
-                    ).colorize()
+                    ).toComponent())
                 },
                 globalManager.component.item(Material.DIAMOND) {
-                    it.setDisplayName("&f[&e赞助&f] &f钻石点卷".colorize())
-                    it.lore = arrayListOf(
+                    it.displayName("&f[&e赞助&f] &f钻石点卷".toComponent())
+                    it.lore(arrayListOf(
                         "&7需付费 &f- &eMYR 52.50",
                         "&7点数获得 &f- &e550",
                         "",
@@ -124,11 +124,11 @@ class PaymentUI: UIProvider<PaymentUI.PaymentUIProps>("payment") {
                         "&f2. 只有适当的理由才能进行退款",
                         "&f3. 超过一定的时间是无法退款的",
                         "&f4. 理由充分服主有权利手动退款"
-                    ).colorize()
+                    ).toComponent())
                 },
                 globalManager.component.item(Material.EMERALD) {
-                    it.setDisplayName("&f[&e赞助&f] &f翡翠点卷".colorize())
-                    it.lore = arrayListOf(
+                    it.displayName("&f[&e赞助&f] &f翡翠点卷".toComponent())
+                    it.lore(arrayListOf(
                         "&7需付费 &f- &eMYR 100",
                         "&7点数获得 &f- &e1400",
                         "",
@@ -137,11 +137,11 @@ class PaymentUI: UIProvider<PaymentUI.PaymentUIProps>("payment") {
                         "&f2. 只有适当的理由才能进行退款",
                         "&f3. 超过一定的时间是无法退款的",
                         "&f4. 理由充分服主有权利手动退款"
-                    ).colorize()
+                    ).toComponent())
                 },
                 globalManager.component.item(Material.NETHERITE_INGOT) {
-                    it.setDisplayName("&f[&e赞助&f] &f地狱点卷".colorize())
-                    it.lore = arrayListOf(
+                    it.displayName("&f[&e赞助&f] &f地狱点卷".toComponent())
+                    it.lore(arrayListOf(
                         "&7需付费 &f- &eMYR 200",
                         "&7点数获得 &f- &e3000",
                         "",
@@ -150,7 +150,7 @@ class PaymentUI: UIProvider<PaymentUI.PaymentUIProps>("payment") {
                         "&f2. 只有适当的理由才能进行退款",
                         "&f3. 超过一定的时间是无法退款的",
                         "&f4. 理由充分服主有权利手动退款"
-                    ).colorize()
+                    ).toComponent())
                 },
             )
         )

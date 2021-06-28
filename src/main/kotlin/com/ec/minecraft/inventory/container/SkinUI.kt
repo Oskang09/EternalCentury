@@ -6,7 +6,7 @@ import com.ec.manager.inventory.component.PaginationItem
 import com.ec.manager.inventory.component.PaginationUI
 import com.ec.manager.inventory.component.PaginationUIProps
 import com.ec.util.InputUtil
-import com.ec.util.StringUtil.colorize
+import com.ec.util.StringUtil.toComponent
 import dev.reactant.reactant.extensions.itemMeta
 import dev.reactant.resquare.elements.DivProps
 import dev.reactant.resquare.elements.div
@@ -23,7 +23,7 @@ class SkinUI: PaginationUI<Unit>("skin") {
 
     override fun info(props: PaginationUIProps): UIBase {
         return UIBase(
-            title = "&b[&5系统&b] &6玩家造型".colorize(),
+            title = "&b[&5系统&b] &6玩家造型",
         )
     }
 
@@ -42,7 +42,7 @@ class SkinUI: PaginationUI<Unit>("skin") {
             }
 
             item.itemMeta<ItemMeta> {
-                setDisplayName("&f[&5造型&f] &f$skinName".colorize())
+                displayName("&f[&5造型&f] &f$skinName".toComponent())
             }
 
             return@map PaginationItem(item) {
@@ -59,11 +59,11 @@ class SkinUI: PaginationUI<Unit>("skin") {
 
         return PaginationUIProps(
             info = globalManager.component.playerHead(player) {
-                it.setDisplayName("&b[&5系统&b] &6玩家造型".colorize())
-                it.lore = arrayListOf(
+                it.displayName("&b[&5系统&b] &6玩家造型".toComponent())
+                it.lore(arrayListOf(
                     "&7已拥有造型数 &f- &a${availableSkins.size - 1}",
                     "&7可拥有造型数 &f-  &a${skinLimit}"
-                ).colorize()
+                ).toComponent())
             },
             { views },
             extras = listOf(
@@ -73,11 +73,11 @@ class SkinUI: PaginationUI<Unit>("skin") {
                         height = 1.px
                     },
                     item = globalManager.component.item(Material.PLAYER_HEAD) {
-                        it.setDisplayName("&b[&5系统&b] &6添加新造型".colorize())
-                        it.lore = arrayListOf(
+                        it.displayName("&b[&5系统&b] &6添加新造型".toComponent())
+                        it.lore(arrayListOf(
                             "&f1. 请确认名字正确后才添加",
                             "&f2. 添加错误将无法更改",
-                        ).colorize()
+                        ).toComponent())
                     },
                     onClick = { _ ->
                         InputUtil.requestString(

@@ -19,7 +19,7 @@ internal class MaintenanceCommand(private val globalManager: GlobalManager): Rea
         if (globalManager.serverConfig.maintenance) {
             Bukkit.getOnlinePlayers().forEach {
                 if (!globalManager.serverConfig.adminPlayers.contains(it.name)) {
-                    it.player?.kickPlayer(globalManager.message.system("伺服器关闭，维修中。"))
+                    it.player?.kick(globalManager.message.system("伺服器关闭，维修中。"))
                 }
             }
         }

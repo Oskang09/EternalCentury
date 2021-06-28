@@ -1,17 +1,14 @@
 package com.ec.logger
 
 import com.ec.database.Issues
-import com.ec.database.Players
-import com.ec.database.types.array
-import com.ec.util.StringUtil.colorize
 import com.ec.util.StringUtil.generateUniqueID
+import com.ec.util.StringUtil.toComponent
 import org.bukkit.entity.Player
 import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.text.SimpleDateFormat
-import java.time.Instant
 import java.util.*
 
 object Logger {
@@ -24,7 +21,7 @@ object Logger {
             if (event is Cancellable) {
                 event.isCancelled = true
             }
-            player.sendMessage("&b[&5系统&b] &f在运行时出现错误，请向管理员汇报 &f&l${trackId}&f。".colorize())
+            player.sendMessage("&b[&5系统&b] &f在运行时出现错误，请向管理员汇报 &f&l${trackId}&f。".toComponent())
         }
         return trackId
     }
@@ -32,7 +29,7 @@ object Logger {
     fun withTrackerPlayer(player: Player?, title: String, message: String, action: LogTracker): String? {
         val trackId = withTracker(title, message, action)
         if (player != null && trackId != null) {
-            player.sendMessage("&b[&5系统&b] &f在运行时出现错误，请向管理员汇报 &f&l${trackId}&f。".colorize())
+            player.sendMessage("&b[&5系统&b] &f在运行时出现错误，请向管理员汇报 &f&l${trackId}&f。".toComponent())
         }
         return trackId
      }

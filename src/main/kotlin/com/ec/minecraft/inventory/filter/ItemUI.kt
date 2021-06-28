@@ -4,7 +4,7 @@ import com.ec.manager.inventory.UIBase
 import com.ec.manager.inventory.component.PaginationItem
 import com.ec.manager.inventory.component.PaginationUI
 import com.ec.manager.inventory.component.PaginationUIProps
-import com.ec.util.StringUtil.colorize
+import com.ec.util.StringUtil.toComponent
 import org.bukkit.Material
 import org.bukkit.entity.HumanEntity
 import org.bukkit.inventory.ItemStack
@@ -19,7 +19,7 @@ class ItemUI: PaginationUI<ItemUI.InputProps>("item-filter") {
 
     override fun info(props: PaginationUIProps): UIBase {
         return UIBase(
-            title = "&b[&5系统&b] &6分类选项".colorize()
+            title = "&b[&5系统&b] &6分类选项"
         )
     }
 
@@ -55,7 +55,7 @@ class ItemUI: PaginationUI<ItemUI.InputProps>("item-filter") {
 
         return PaginationUIProps(
             info = globalManager.component.item(Material.ITEM_FRAME) {
-                it.setDisplayName("&b[&5系统&b] &6分类选项".colorize())
+                it.displayName("&b[&5系统&b] &6分类选项".toComponent())
             },
             { display }
         )

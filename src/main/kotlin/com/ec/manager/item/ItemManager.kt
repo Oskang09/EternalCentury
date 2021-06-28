@@ -5,7 +5,7 @@ import com.ec.database.model.Item
 import com.ec.database.model.Reward
 import com.ec.model.ItemNBT
 import com.ec.manager.GlobalManager
-import com.ec.util.StringUtil.colorize
+import com.ec.util.StringUtil.toComponent
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import de.tr7zw.nbtapi.NBTItem
@@ -202,9 +202,9 @@ class ItemManager(
 
         val nbt = ItemNBT()
         item.itemMeta<ItemMeta> {
-            val newLores = lore ?: mutableListOf()
+            val newLores = lore() ?: mutableListOf()
 
-            newLores.addAll(data.lore)
+            newLores.addAll(data.lore.toComponent())
 
             data.enchantments.forEach {
                 val enchantment = globalManager.enchantments.getEnchantmentById(it.key)
@@ -219,10 +219,10 @@ class ItemManager(
             }
 
             if (data.name != "") {
-                setDisplayName(data.name.colorize())
+                displayName(data.name.toComponent())
             }
 
-            lore = newLores.colorize()
+            lore(newLores)
             addItemFlags(ItemFlag.HIDE_ENCHANTS)
         }
 
@@ -236,9 +236,9 @@ class ItemManager(
 
         val nbt = ItemNBT()
         item.itemMeta<ItemMeta> {
-            val newLores = lore ?: mutableListOf()
+            val newLores = lore() ?: mutableListOf()
 
-            newLores.addAll(data.lore)
+            newLores.addAll(data.lore.toComponent())
 
             data.enchantments.forEach {
                 val enchantment = globalManager.enchantments.getEnchantmentById(it.key)
@@ -253,10 +253,10 @@ class ItemManager(
             }
 
             if (data.name != "") {
-                setDisplayName(data.name.colorize())
+                displayName(data.name.toComponent())
             }
 
-            lore = newLores.colorize()
+            lore(newLores)
             addItemFlags(ItemFlag.HIDE_ENCHANTS)
         }
 

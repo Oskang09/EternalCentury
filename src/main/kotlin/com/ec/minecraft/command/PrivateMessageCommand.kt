@@ -41,7 +41,7 @@ internal class PrivateMessageCommand(private val globalManager: GlobalManager): 
         }
 
         val ecPlayer = globalManager.players.getByPlayer(target)
-        if (ecPlayer.database[Players.blockedTeleport].contains(player.name)) {
+        if (ecPlayer.database[Players.blockedTeleport].contains(player.uniqueId.toString())) {
             player.sendMessage(globalManager.message.system("该玩家已经把你加入了聊天室黑名单。"))
             return
         }

@@ -3,7 +3,6 @@ package com.ec.minecraft.inventory
 import com.ec.manager.inventory.UIBase
 import com.ec.manager.inventory.UIProvider
 import com.ec.util.DoubleUtil.roundTo
-import com.ec.util.StringUtil.colorize
 import dev.reactant.resquare.dom.childrenOf
 import dev.reactant.resquare.dom.declareComponent
 import dev.reactant.resquare.elements.DivProps
@@ -35,7 +34,7 @@ class RepairUI: UIProvider<RepairUI.RepairUIProps>("repair") {
 
     override fun info(props: RepairUIProps): UIBase {
         return UIBase(
-            title = ("&b[&5系统&b] &f修理花费 &e- &6&l" + (props.price.roundTo(2))).colorize(),
+            title = ("&b[&5系统&b] &f修理花费 &e- &6&l" + (props.price.roundTo(2))),
             rows = 1,
             cols = 9
         )

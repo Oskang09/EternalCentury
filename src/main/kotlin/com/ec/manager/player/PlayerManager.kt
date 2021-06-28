@@ -8,9 +8,10 @@ import com.ec.manager.GlobalManager
 import com.ec.model.player.ECPlayer
 import com.ec.model.player.ECPlayerAuthState
 import com.ec.model.player.ECPlayerGameState
-import com.ec.util.StringUtil.colorize
 import com.ec.util.StringUtil.generateUniqueID
+import com.ec.util.StringUtil.toComponent
 import dev.reactant.reactant.core.component.Component
+import io.papermc.paper.event.player.AsyncChatEvent
 import me.oska.config.shop.ItemConfig
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
@@ -44,7 +45,7 @@ class PlayerManager {
                  .observable(true, EventPriority.HIGHEST)
                  .filter { globalManager.players.getByPlayer(it.entity).gameState == ECPlayerGameState.FREE }
                  .subscribe {
-                     it.deathMessage = null
+                     it.deathMessage(null)
                  }
 
              PlayerRespawnEvent::class
@@ -54,20 +55,20 @@ class PlayerManager {
                      it.respawnLocation = globalManager.serverConfig.teleports["old-spawn"]!!.location
                  }
 
-             AsyncPlayerChatEvent::class
-                 .observable(false, EventPriority.LOWEST)
-                 .subscribe {
-                     if (it.player.hasPermission("ec.colorchat")) {
-                         it.message = it.message.colorize()
-                     }
-                 }
+            AsyncChatEvent::class
+                .observable(false, EventPriority.LOWEST)
+                .subscribe {
+                    if (!it.player.hasPermission("ec.colorchat")) {
+                        it.message(it.originalMessage())
+                    }
+                }
 
              SignChangeEvent::class
                  .observable(false, EventPriority.LOWEST)
                  .subscribe {
                      if (it.player.hasPermission("ec.colorsign"))
-                         it.lines.forEachIndexed { index, line ->
-                             it.setLine(index, line.colorize())
+                         it.lines().forEachIndexed { index, line ->
+                             it.line(index, globalManager.message.userComponent(line))
                          }
                      }
 
@@ -128,7 +129,7 @@ class PlayerManager {
                      val previous = it.from
                      val to = it.to
                      val player = it.player
-                     if (previous.z != to?.z && previous.x != to?.x) {
+                     if (previous.z != to.z && previous.x != to.x) {
                          player.teleport(it.from)
                      }
                  }
@@ -155,7 +156,8 @@ class PlayerManager {
                 .observable(EventPriority.HIGHEST)
                 .doOnError(Logger.trackError("PlayerManager.PlayerJoinEvent", "error occurs in event subscriber"))
                 .subscribe { event ->
-                    event.joinMessage = null
+                    event.joinMessage(null)
+
                     if (!event.player.hasPlayedBefore()) {
                         event.player.teleport(globalManager.serverConfig.teleports["old-spawn"]!!.location)
                     }
@@ -197,26 +199,26 @@ class PlayerManager {
                         if (title != null) {
                             val result = title.getDisplay()
                             globalManager.runInMainThread {
-                                event.player.setDisplayName(result + " " + player.name)
-                                event.player.setPlayerListName(result + " " + player.name)
+                                event.player.displayName((result + " " + player.name).toComponent())
+                                event.player.playerListName((result + " " + player.name).toComponent())
 
                                 val nameKey = player.name
                                 val board = player.scoreboard
                                 val team = board.getTeam(nameKey) ?: board.registerNewTeam(nameKey)
-                                team.prefix = "$result "
+                                team.prefix("$result ".toComponent())
                                 team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS)
                                 team.addEntry(player.name)
                                 player.scoreboard = board
                             }
                         } else {
                             globalManager.runInMainThread {
-                                event.player.setDisplayName(event.player.name)
-                                event.player.setPlayerListName(event.player.name)
+                                event.player.displayName(event.player.name.toComponent())
+                                event.player.displayName(event.player.name.toComponent())
 
                                 val nameKey = player.name
                                 val board = player.scoreboard
                                 val team = board.getTeam(nameKey) ?: board.registerNewTeam(nameKey)
-                                team.prefix = ""
+                                team.prefix("".toComponent())
                                 team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS)
                                 team.addEntry(player.name)
                                 player.scoreboard = board
@@ -235,13 +237,13 @@ class PlayerManager {
                                     }
                                 } else {
                                     globalManager.runInMainThread {
-                                        event.player.kickPlayer(globalManager.message.system("Discord 登入验证失败！"))
+                                        event.player.kick(globalManager.message.system("Discord 登入验证失败！"))
                                     }
                                 }
                             }
                             if (!isSent) {
                                 globalManager.runInMainThread {
-                                    event.player.kickPlayer(globalManager.message.system("Discord $discordTag 用户不存在！"))
+                                    event.player.kick(globalManager.message.system("Discord $discordTag 用户不存在！"))
                                 }
                             }
                         }
@@ -252,7 +254,7 @@ class PlayerManager {
                 .observable(EventPriority.HIGHEST)
                 .doOnError(Logger.trackError("PlayerManager.PlayerQuitEvent", "error occurs in event subscriber"))
                 .subscribe { event ->
-                    event.quitMessage = null
+                    event.quitMessage(null)
 
                     val player = event.player
                     Logger.withTrackerPlayerEvent(player, event, "PlayerManager.PlayerQuitEvent" , "player ${player.uniqueId} error occurs when quit") {

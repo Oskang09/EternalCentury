@@ -2,7 +2,7 @@ package com.ec.minecraft.activity
 
 import com.ec.manager.GlobalManager
 import com.ec.manager.activity.ActivityAPI
-import com.ec.util.StringUtil.colorize
+import com.ec.util.StringUtil.toComponent
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.event.entity.PlayerDeathEvent
@@ -24,12 +24,12 @@ class NetherDG: ActivityAPI("nether-dg") {
         super.initialize(globalManager)
 
         display = globalManager.component.item(Material.NETHER_STAR) { meta ->
-            meta.setDisplayName("&f[&e活动&f] &a地狱旅途".colorize())
-            meta.lore = arrayListOf(
+            meta.displayName("&f[&e活动&f] &a地狱旅途".toComponent())
+            meta.lore(arrayListOf(
                 "&7&l --- &f&l活动内容 &7&l--- ",
                 "&f开放地狱世界，玩家可以组队进入地狱旅途",
                 "&f玩家可以到地狱使者NPC，付费并进入地狱",
-            ).colorize()
+            ).toComponent())
         }
     }
 

@@ -4,7 +4,7 @@ import com.ec.manager.inventory.UIBase
 import com.ec.manager.inventory.component.PaginationItem
 import com.ec.manager.inventory.component.PaginationUI
 import com.ec.manager.inventory.component.PaginationUIProps
-import com.ec.util.StringUtil.colorize
+import com.ec.util.StringUtil.toComponent
 import org.bukkit.Material
 import org.bukkit.entity.HumanEntity
 
@@ -14,7 +14,7 @@ class AdminItemUI: PaginationUI<Unit>("admin-item") {
         return UIBase(
             rows = 6,
             cols = 9,
-            title = "&b[&5系统&b] &6物品列表".colorize()
+            title = "&b[&5系统&b] &6物品列表"
         )
     }
 
@@ -34,10 +34,10 @@ class AdminItemUI: PaginationUI<Unit>("admin-item") {
         }
         return PaginationUIProps(
             globalManager.component.item(Material.ITEM_FRAME) {
-                it.setDisplayName("&b[&5系统&b] &6附魔咨询".colorize())
-                it.lore = arrayListOf(
+                it.displayName("&b[&5系统&b] &6附魔咨询".toComponent())
+                it.lore(arrayListOf(
                     "&7总物品数 &f- &a${items.size}",
-                ).colorize()
+                ).toComponent())
             },
             { views }
         )

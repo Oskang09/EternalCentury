@@ -2,7 +2,7 @@ package com.ec.minecraft.inventory
 
 import com.ec.manager.inventory.UIBase
 import com.ec.manager.inventory.UIProvider
-import com.ec.util.StringUtil.colorize
+import com.ec.util.StringUtil.toComponent
 import dev.reactant.reactant.extensions.itemMeta
 import dev.reactant.resquare.dom.childrenOf
 import dev.reactant.resquare.dom.declareComponent
@@ -51,7 +51,7 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
         return UIBase(
             rows = 4,
             cols = 9,
-            title = "&b[&5系统&b] &6玩家主页".colorize()
+            title = "&b[&5系统&b] &6玩家主页"
         )
     }
 
@@ -59,67 +59,67 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
         val display = mutableListOf(
             PlayerUIPropsData(
                 material = Material.NAME_TAG,
-                display = "&f&l前往 &b[&5系统&b] &6称号列表".colorize(),
+                display = "&f&l前往 &b[&5系统&b] &6称号列表",
                 routeTo = "title"
             ),
             PlayerUIPropsData(
                 material = Material.BOOK,
-                display = "&f&l前往 &b[&5系统&b] &6每日签到".colorize(),
+                display = "&f&l前往 &b[&5系统&b] &6每日签到",
                 routeTo = "vote"
             ),
             PlayerUIPropsData(
                 material = Material.DIAMOND,
-                display = "&f&l前往 &b[&5系统&b] &6点数咨询".colorize(),
+                display = "&f&l前往 &b[&5系统&b] &6点数咨询",
                 routeTo = "point"
             ),
             PlayerUIPropsData(
                 material = Material.END_PORTAL_FRAME,
-                display = "&f&l前往 &b[&5系统&b] &6伺服传送".colorize(),
+                display = "&f&l前往 &b[&5系统&b] &6伺服传送",
                 routeTo = "teleport"
             ),
             PlayerUIPropsData(
                 material = Material.MINECART,
-                display = "&f&l前往 &b[&5系统&b] &6邮件快递".colorize(),
+                display = "&f&l前往 &b[&5系统&b] &6邮件快递",
                 routeTo = "mail"
             ),
             PlayerUIPropsData(
                 material = Material.GOLDEN_APPLE,
-                display = "&f&l前往 &b[&5系统&b] &6伺服赞助".colorize(),
+                display = "&f&l前往 &b[&5系统&b] &6伺服赞助",
                 routeTo = "payment"
             ),
             PlayerUIPropsData(
                 material = Material.PLAYER_HEAD,
-                display = "&f&l前往 &b[&5系统&b] &6玩家造型".colorize(),
+                display = "&f&l前往 &b[&5系统&b] &6玩家造型",
                 routeTo = "skin"
             ),
             PlayerUIPropsData(
                 material = Material.BLAZE_POWDER,
-                display = "&f&l前往 &b[&5系统&b] &6粒子特效".colorize(),
+                display = "&f&l前往 &b[&5系统&b] &6粒子特效",
                 routeTo = "command:pp gui"
             ),
             PlayerUIPropsData(
                 material = Material.NETHER_STAR,
-                display = "&f&l前往 &b[&5系统&b] &6抽奖水池".colorize(),
+                display = "&f&l前往 &b[&5系统&b] &6抽奖水池",
                 routeTo = "crate"
             ),
             PlayerUIPropsData(
                 material = Material.CHEST,
-                display = "&f&l前往 &b[&5系统&b] &6拍卖咨询".colorize(),
+                display = "&f&l前往 &b[&5系统&b] &6拍卖咨询",
                 routeTo = "player-auction"
             ),
             PlayerUIPropsData(
                 material = Material.OAK_SIGN,
-                display = "&f&l前往 &b[&5系统&b] &6活动咨询".colorize(),
+                display = "&f&l前往 &b[&5系统&b] &6活动咨询",
                 routeTo = "activity"
             ),
             PlayerUIPropsData(
                 material = Material.ENDER_CHEST,
-                display = "&f&l前往 &b[&5系统&b] &6随身末影盒".colorize(),
+                display = "&f&l前往 &b[&5系统&b] &6随身末影盒",
                 routeTo = "command:ec"
             ),
             PlayerUIPropsData(
                 material = Material.CRAFTING_TABLE,
-                display = "&f&l前往 &b[&5系统&b] &6随身工作台".colorize(),
+                display = "&f&l前往 &b[&5系统&b] &6随身工作台",
                 routeTo = "command:wb"
             )
         )
@@ -138,7 +138,7 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
                 +(props.data.map {
                     val item = ItemStack(it.material)
                     item.itemMeta<ItemMeta> {
-                        setDisplayName(it.display.colorize())
+                        displayName(it.display.toComponent())
                     }
 
                     return@map div(DivProps(

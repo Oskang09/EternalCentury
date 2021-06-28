@@ -5,7 +5,7 @@ import com.ec.model.ItemNBT
 import com.ec.manager.GlobalManager
 import com.ec.logger.Logger
 import com.ec.util.RandomUtil
-import com.ec.util.StringUtil.colorize
+import com.ec.util.StringUtil.toComponent
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.extensions.itemMeta
@@ -52,9 +52,9 @@ class EnchantmentManager {
                     val itemRight = it.inventory.getItem(1)
 
                     Logger.withTrackerPlayerEvent(player, it, "EnchantManager.PrepareAnvilEvent", "player ${player.uniqueId} error occurs when enchant") {
-                        if (it.view.title.startsWith("&f[&5系统&f]".colorize())) {
+                        if (it.view.title().contains("&f[&5系统&f]".toComponent())) {
                             it.result = globalManager.component.item(Material.PLAYER_HEAD) { meta ->
-                                meta.setDisplayName("&b[&5系统&b] &a确认 &f- &f${it.inventory.renameText}".colorize())
+                                meta.displayName("&b[&5系统&b] &a确认 &f- &f${it.inventory.renameText}".toComponent())
                             }
                             return@withTrackerPlayerEvent
                         }
@@ -75,7 +75,7 @@ class EnchantmentManager {
                             if (rename.contains("&")) {
                                 it.inventory.repairCost += 1
                                 result.itemMeta<ItemMeta> {
-                                    setDisplayName(rename.colorize())
+                                    displayName(rename.toComponent())
                                 }
                             }
                         }
@@ -121,7 +121,7 @@ class EnchantmentManager {
                                     removeEnchant(ench.key)
                                 }
 
-                                val newLores = mutableListOf<String>()
+                                val newLores = mutableListOf<net.kyori.adventure.text.Component>()
                                 enchantments.forEach { (ench, level) ->
                                     if (!ench.isSupported(result.type)) {
                                         totalLevelUpgraded -= level
@@ -135,7 +135,7 @@ class EnchantmentManager {
                                     }
                                 }
 
-                                lore = newLores.colorize()
+                                lore(newLores)
                                 addItemFlags(ItemFlag.HIDE_ENCHANTS)
                                 if (result.type == Material.ENCHANTED_BOOK) {
                                     addItemFlags(ItemFlag.HIDE_POTION_EFFECTS)
@@ -160,7 +160,7 @@ class EnchantmentManager {
 
                         val itemNbt = ItemNBT()
                         it.item.itemMeta<ItemMeta> {
-                            val newLores = mutableListOf<String>()
+                            val newLores = mutableListOf<net.kyori.adventure.text.Component>()
 
                             it.enchantsToAdd.forEach { enchant ->
                                 val ench = getEnchantmentByOrigin(enchant.key)
@@ -169,7 +169,7 @@ class EnchantmentManager {
                                 newLores.add(ench.getDisplayLore(enchant.value))
                             }
 
-                            lore = newLores.colorize()
+                            lore(newLores)
                             addItemFlags(ItemFlag.HIDE_ENCHANTS)
                             if (it.item.type == Material.BOOK) {
                                 addItemFlags(ItemFlag.HIDE_POTION_EFFECTS)
@@ -199,7 +199,7 @@ class EnchantmentManager {
         val itemNbt = ItemNBT()
         val itemEnchantments = mutableMapOf<String, Int>()
         item.itemMeta<EnchantmentStorageMeta> {
-            val newLores = lore ?: mutableListOf()
+            val newLores = lore() ?: mutableListOf()
 
             repeat(numOfEnchantments) {
                 val randomKey = enchantments.keys.random()
@@ -224,7 +224,7 @@ class EnchantmentManager {
                 itemNbt.enchantments[enchantment] = level
             }
 
-            lore = newLores.colorize()
+            lore(newLores)
             addItemFlags(*ItemFlag.values())
         }
 
@@ -236,7 +236,7 @@ class EnchantmentManager {
         val item = ItemStack(Material.ENCHANTED_BOOK)
         val itemNbt = ItemNBT()
         item.itemMeta<EnchantmentStorageMeta> {
-            val newLores = lore ?: mutableListOf()
+            val newLores = lore() ?: mutableListOf()
             enchantments.forEach { (enchantment, level) ->
                 val ench = getEnchantmentById(enchantment)
                 newLores.add(ench.getDisplayLore(level))
@@ -247,7 +247,7 @@ class EnchantmentManager {
                 itemNbt.enchantments[enchantment] = level
             }
 
-            lore = newLores.colorize()
+            lore(newLores)
             addItemFlags(*ItemFlag.values())
         }
 

@@ -25,7 +25,7 @@ tasks.withType<KotlinCompile> {
 
 repositories {
     mavenCentral()
-    maven { url = URI.create("https://1hub.spigotmc.org/nexus/content/repositories/snapshots") }
+    maven { url = URI.create("https://papermc.io/repo/repository/maven-public/")}
     maven { url = URI.create("https://oss.sonatype.org/content/repositories/snapshots/") }
     maven { url = URI.create("https://repo.codemc.org/repository/maven-public/") }
     maven { url = URI.create("https://repo.codemc.io/repository/maven-snapshots/") }
@@ -38,17 +38,18 @@ repositories {
 dependencies {
     compileOnly(kotlin("stdlib-jdk8", kotlinVersion))
     testImplementation(kotlin("test"))
+    compileOnly(fileTree("src/main/libs"))
+    implementation(fileTree("src/main/shaded"))
 
     compileOnly("dev.reactant:reactant:0.2.3")
     compileOnly("dev.reactant:resquare:0.0.1-SNAPSHOT")
-    compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.17-R0.1-SNAPSHOT")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
     compileOnly("com.github.PlaceholderAPI:PlaceholderAPI:2.10.9")
     compileOnly("com.github.Oskang09:UniversalGUI:3.0.5")
     compileOnly("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.3")
     compileOnly("net.citizensnpcs:citizensapi:2.0.27-SNAPSHOT")
     compileOnly("de.tr7zw:item-nbt-api-plugin:2.8.0")
-    compileOnly(fileTree("src/main/libs"))
 
     implementation("org.jetbrains.exposed:exposed-core:0.32.1")
     implementation("org.jetbrains.exposed:exposed-dao:0.32.1")
@@ -56,8 +57,8 @@ dependencies {
     implementation("org.xerial:sqlite-jdbc:3.30.1")
     implementation("io.javalin:javalin:3.13.7")
 
+    implementation("net.kyori:adventure-text-minimessage:4.1.0-SNAPSHOT")
     implementation("net.wesjd:anvilgui:1.5.1-SNAPSHOT")
-    implementation("de.themoep:minedown:1.7.1-SNAPSHOT")
     implementation("xyz.xenondevs:particle:1.5.1")
     implementation("net.oneandone.reflections8:reflections8:0.11.5")
 

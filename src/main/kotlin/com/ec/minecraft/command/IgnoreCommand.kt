@@ -40,11 +40,11 @@ internal class IgnoreCommand(private val globalManager: GlobalManager): Reactant
 
         val ecPlayer = globalManager.players.getByPlayer(player)
         ecPlayer.ensureUpdate("ignore command update", isAsync = true) {
-            if (ecPlayer.database[Players.ignoredPlayers].contains(target.name)) {
-                ecPlayer.database[Players.ignoredPlayers].remove(target.name)
+            if (ecPlayer.database[Players.ignoredPlayers].contains(target.uniqueId.toString())) {
+                ecPlayer.database[Players.ignoredPlayers].remove(target.uniqueId.toString())
                 player.sendMessage(globalManager.message.system("玩家 ${target.name} 可以向你发送讯息了。"))
             } else {
-                ecPlayer.database[Players.ignoredPlayers].add(target.name)
+                ecPlayer.database[Players.ignoredPlayers].add(target.uniqueId.toString())
                 player.sendMessage(globalManager.message.system("玩家 ${target.name} 将无法向您发送讯息了。"))
             }
 

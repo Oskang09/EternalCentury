@@ -1,6 +1,7 @@
 package com.ec.manager.inventory
 
 import com.ec.manager.GlobalManager
+import com.ec.util.StringUtil.toColorized
 import dev.reactant.resquare.bukkit.container.createUI
 import dev.reactant.resquare.dom.Component
 import org.bukkit.entity.HumanEntity
@@ -22,7 +23,7 @@ abstract class UIProvider<T : Any>(val id: String) {
     fun displayTo(player: HumanEntity, props: T) {
         val base = info(props)
         val container = createUI(
-            render, props, base.cols, base.rows, base.title,
+            render, props, base.cols, base.rows, base.title.toColorized(),
             multiThreadComponentRender = true,
             multiThreadStyleRender = true,
             autoDestroy = true

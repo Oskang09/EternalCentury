@@ -1,7 +1,7 @@
 package com.ec.util
 
 import com.ec.ECCore
-import com.ec.util.StringUtil.colorize
+import com.ec.util.StringUtil.toComponent
 import dev.reactant.reactant.extensions.itemMeta
 import net.wesjd.anvilgui.AnvilGUI
 import org.bukkit.Material
@@ -12,13 +12,13 @@ import org.bukkit.inventory.meta.ItemMeta
 object InputUtil {
 
     private fun extractValueFromText(text: String): String {
-        return text.replace("&b[&5系统&b] &a确认 &f- &f".colorize(), "")
+        return text.replace("&b[&5系统&b] &a确认 &f- &f", "")
     }
 
     private fun getRequestItem() : ItemStack {
         val item = ItemStack(Material.PLAYER_HEAD)
         item.itemMeta<ItemMeta> {
-            setDisplayName("")
+            displayName("".toComponent())
         }
         return item
     }
@@ -34,7 +34,7 @@ object InputUtil {
             .onClose(onCancel)
             .text("")
             .itemLeft(getRequestItem())
-            .title("&f[&5系统&f] &0${title}".colorize())
+            .title("&f[&5系统&f] &0${title}")
             .plugin(ECCore.instance)
             .open(opener)
     }
@@ -54,7 +54,7 @@ object InputUtil {
             .onClose(onCancel)
             .text("")
             .itemLeft(getRequestItem())
-            .title("&f[&5系统&f] &0${title}".colorize())
+            .title("&f[&5系统&f] &0${title}")
             .plugin(ECCore.instance)
             .open(opener)
     }
@@ -74,7 +74,7 @@ object InputUtil {
             .onClose(onCancel)
             .text("")
             .itemLeft(getRequestItem())
-            .title("&f[&5系统&f] &0${title}".colorize())
+            .title("&f[&5系统&f] &0${title}")
             .plugin(ECCore.instance)
             .open(opener)
     }

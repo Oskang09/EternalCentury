@@ -1,21 +1,29 @@
 package com.ec.util
 
-import com.ec.logger.Logger
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.minimessage.MiniMessage
 import java.text.SimpleDateFormat
 import java.util.*
 
 object StringUtil {
+    private val standardMessage = MiniMessage.builder()
+        .build()
     private val UNIQUE_ID_FORMAT: SimpleDateFormat = SimpleDateFormat("yyyyMMddHHmmssSS")
 
+    fun String.toComponent(): Component {
+        if (this == "") {
+            return Component.empty()
+        }
+        return standardMessage.parse(this.replace("&", "§"))
+    }
 
-    fun String.colorize(): String {
+    // Only used for legacy plugins
+    fun String.toColorized(): String {
         return this.replace("&", "§")
     }
 
-    fun List<String>.colorize(): List<String> {
-        return this.map {
-            return@map it.replace("&", "§")
-        }
+    fun List<String>.toComponent(): List<Component> {
+        return this.map { it.toComponent() }
     }
 
     fun String.generateUniqueID(): String {

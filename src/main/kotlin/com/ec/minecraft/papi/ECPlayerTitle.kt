@@ -1,7 +1,6 @@
 package com.ec.minecraft.papi
 
 import com.ec.manager.papi.PlaceholderAPI
-import com.ec.util.StringUtil.colorize
 import org.bukkit.entity.Player
 
 class ECPlayerTitle: PlaceholderAPI() {
@@ -14,6 +13,6 @@ class ECPlayerTitle: PlaceholderAPI() {
     }
 
     override fun onPlaceholderRequest(player: Player, text: String): String {
-        return "&e&lsome debug message".colorize()
+        return "&e&lsome debug message"
     }
 }

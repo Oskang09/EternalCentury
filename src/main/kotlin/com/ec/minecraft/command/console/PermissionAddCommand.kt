@@ -28,7 +28,7 @@ internal class PermissionAddCommand(private val globalManager: GlobalManager): R
     override fun execute() {
         requireSenderIsConsole()
 
-        globalManager.permission.playerAdd(null, Bukkit.getOfflinePlayer(playerName!!), permission)
+        globalManager.permission.playerAdd(null, Bukkit.getOfflinePlayerIfCached(playerName!!), permission)
     }
 
 }

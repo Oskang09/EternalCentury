@@ -7,28 +7,24 @@ import com.ec.logger.Logger
 import com.ec.model.Observable
 import com.ec.model.ObservableMap
 import com.ec.model.ObservableMapActionType
-import com.ec.util.StringUtil.colorize
 import com.ec.util.StringUtil.generateUniqueID
+import com.ec.util.StringUtil.toComponent
 import com.github.revenuemonster.RevenueMonsterOpenAPI
 import com.github.revenuemonster.model.Environment
 import com.github.revenuemonster.model.request.OnlinePaymentRequest
 import com.github.revenuemonster.model.request.OnlinePaymentRequestCustomer
 import com.github.revenuemonster.model.request.OnlinePaymentRequestOrder
 import com.github.revenuemonster.model.result.OnlinePaymentNotifyResponse
-import dev.reactant.reactant.core.component.Component
-import net.md_5.bungee.api.ChatMessageType
-import net.md_5.bungee.api.chat.ClickEvent
-import net.md_5.bungee.api.chat.ComponentBuilder
-import net.md_5.bungee.api.chat.HoverEvent
-import net.md_5.bungee.api.chat.TextComponent
-import net.md_5.bungee.api.chat.hover.content.Text
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.event.ClickEvent
+import net.kyori.adventure.text.event.HoverEvent
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
-@Component
+@dev.reactant.reactant.core.component.Component
 class PaymentManager {
 
     private val players: MutableList<UUID> = mutableListOf()
@@ -96,17 +92,14 @@ class PaymentManager {
     fun generatePaymentURL(player: Player, amount: Int, title: String, detail: String) {
         val mapperKey = globalManager.players.getByPlayer(player).database[Players.id]
         if (paymentMapper[mapperKey] != null) {
-            val builder = ComponentBuilder()
-            builder.append(globalManager.message.system("&f您上次的付款请求还没过期。请到"))
+            val builder = globalManager.message.system("&f您上次的付款请求还没过期。请到")
+            builder.append(
+                Component.text("&7&l[网页]")
+                    .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.OPEN_URL, paymentMapper[mapperKey]!!))
+                    .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, "点击后将前往 Revenue Monster 付款网页".toComponent()))
+            )
 
-            val message = TextComponent("&7&l[网页]".colorize())
-            message.clickEvent = ClickEvent(ClickEvent.Action.OPEN_URL, paymentMapper[mapperKey])
-            message.hoverEvent = HoverEvent(HoverEvent.Action.SHOW_TEXT, Text("点击后将前往 Revenue Monster 付款网页"))
-            builder.append(message)
-
-            builder.append("&r付款，付款好点数会自动加入您的帐号。".colorize())
-
-            player.spigot().sendMessage(ChatMessageType.CHAT, *builder.create())
+            builder.append("&r付款，付款好点数会自动加入您的帐号。".toComponent())
             return
         }
 
@@ -145,17 +138,16 @@ class PaymentManager {
                     }
                 }
 
-                val builder = ComponentBuilder()
-                builder.append(globalManager.message.system("请到"))
+                val builder = globalManager.message.system("请到")
 
-                val message = TextComponent("&7&l[网页]".colorize())
-                message.clickEvent = ClickEvent(ClickEvent.Action.OPEN_URL, result.item!!.url)
-                message.hoverEvent = HoverEvent(HoverEvent.Action.SHOW_TEXT, Text("点击后将前往 Revenue Monster 付款网页"))
-                builder.append(message)
+                builder.append(
+                    Component.text("&7&l[网页]")
+                        .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.OPEN_URL, result.item!!.url))
+                        .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, "点击后将前往 Revenue Monster 付款网页".toComponent()))
+                )
 
-                builder.append("&r付款，付款好点数会自动加入您的帐号。".colorize())
-
-                player.spigot().sendMessage(ChatMessageType.CHAT, *builder.create())
+                builder.append("&r付款，付款好点数会自动加入您的帐号。".toComponent())
+                player.sendMessage(builder)
             }
         }
     }

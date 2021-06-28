@@ -4,7 +4,7 @@ import com.ec.manager.inventory.UIBase
 import com.ec.manager.inventory.component.PaginationItem
 import com.ec.manager.inventory.component.PaginationUI
 import com.ec.manager.inventory.component.PaginationUIProps
-import com.ec.util.StringUtil.colorize
+import com.ec.util.StringUtil.toComponent
 import org.bukkit.Material
 import org.bukkit.entity.HumanEntity
 import org.bukkit.entity.Player
@@ -13,7 +13,7 @@ class PointUI: PaginationUI<Unit>("point") {
 
     override fun info(props: PaginationUIProps): UIBase {
         return UIBase(
-            title = "&b[&5系统&b] &6点数咨询".colorize()
+            title = "&b[&5系统&b] &6点数咨询"
         )
     }
 
@@ -21,8 +21,8 @@ class PointUI: PaginationUI<Unit>("point") {
         val allPoints = globalManager.points.getPoints()
         return PaginationUIProps(
             info = globalManager.component.item(Material.DIAMOND) {
-                it.setDisplayName("&b[&5系统&b] &6点数咨询".colorize())
-                it.lore = arrayListOf("&7点数数量 &f- &a${allPoints.size}").colorize()
+                it.displayName("&b[&5系统&b] &6点数咨询".toComponent())
+                it.lore(arrayListOf("&7点数数量 &f- &a${allPoints.size}").toComponent())
             },
             items = {
                 allPoints.map { (name, point) ->

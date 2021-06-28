@@ -3,7 +3,8 @@ package com.ec.manager.enchantment
 import com.ec.model.Emoji
 import com.ec.manager.GlobalManager
 import com.ec.util.RomanUtil.toRoman
-import com.ec.util.StringUtil.colorize
+import com.ec.util.StringUtil.toComponent
+import net.kyori.adventure.text.Component
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
 
@@ -31,8 +32,8 @@ abstract class EnchantmentAPI(val id: String) {
         return baseSupportedMaterial().contains(material) || isSupportedMaterial().contains(material)
     }
 
-    fun getDisplayLore(level: Int): String {
-        return ("&e" +emoji.text + " &7" + display + " " + level.toRoman()).colorize()
+    fun getDisplayLore(level: Int): Component {
+        return ("&e<font:minecraft:alt>" +emoji.text + "</font> &7" + display + " " + level.toRoman()).toComponent()
     }
 
 }

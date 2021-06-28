@@ -27,5 +27,6 @@ data class ServerDiscordConfig(
     val registerChannel: String = "",
     val newbieRole: String = "",
     val playerRole: String = "",
+    val ruleChannel: String = "",
     val chatAnnouncement: String = ""
 )

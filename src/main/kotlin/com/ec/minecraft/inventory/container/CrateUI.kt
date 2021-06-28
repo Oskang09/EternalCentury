@@ -3,7 +3,7 @@ package com.ec.minecraft.inventory.container
 import com.ec.config.CrateConfig
 import com.ec.manager.inventory.UIBase
 import com.ec.manager.inventory.UIProvider
-import com.ec.util.StringUtil.colorize
+import com.ec.util.StringUtil.toComponent
 import dev.reactant.resquare.dom.Node
 import dev.reactant.resquare.dom.childrenOf
 import dev.reactant.resquare.dom.declareComponent
@@ -65,7 +65,7 @@ class CrateUI: UIProvider<CrateUI.CrateUIProps>("crate") {
         return UIBase(
             rows = 6,
             cols = 9,
-            title = "&b[&5系统&b] &6抽奖水池".colorize()
+            title = "&b[&5系统&b] &6抽奖水池"
         )
     }
 
@@ -91,8 +91,8 @@ class CrateUI: UIProvider<CrateUI.CrateUIProps>("crate") {
             }
         } else {
             info = globalManager.component.item(Material.CHEST) {
-                it.setDisplayName("&f[&5系统&f] &f抽奖水池".colorize())
-                it.lore = arrayListOf("&7抽奖宝箱 &f- &a${props.crates.size}").colorize()
+                it.displayName("&f[&5系统&f] &f抽奖水池".toComponent())
+                it.lore(arrayListOf("&7抽奖宝箱 &f- &a${props.crates.size}").toComponent())
             }
             items = props.crates.map {
                 div(DivProps(
@@ -134,7 +134,7 @@ class CrateUI: UIProvider<CrateUI.CrateUIProps>("crate") {
                         +(if (crate == null) null else div(DivProps(
                             style = styles.leftBarItem,
                             item = globalManager.component.item(Material.BARRIER) {
-                                it.setDisplayName("&b[&5系统&b] &6返回".colorize())
+                                it.displayName("&b[&5系统&b] &6返回".toComponent())
                             },
                             onClick = {
                                 setPage(0)

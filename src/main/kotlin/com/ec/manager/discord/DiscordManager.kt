@@ -8,16 +8,16 @@ import com.ec.database.Players
 import com.ec.database.model.ChatType
 import com.ec.database.model.economy.EconomyInfo
 import com.ec.database.model.point.PointInfo
-import com.ec.manager.GlobalManager
 import com.ec.logger.Logger
+import com.ec.manager.GlobalManager
 import com.ec.model.ObservableObject
 import com.ec.model.player.ECPlayerAuthState
 import com.ec.util.RandomUtil
-import com.ec.util.StringUtil.colorize
 import com.ec.util.StringUtil.generateUniqueID
-import de.tr7zw.nbtapi.NBTItem
-import dev.reactant.reactant.core.component.Component
+import com.ec.util.StringUtil.toComponent
 import dev.reactant.reactant.core.component.lifecycle.LifeCycleHook
+import io.papermc.paper.chat.ChatRenderer
+import io.papermc.paper.event.player.AsyncChatEvent
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
@@ -28,14 +28,12 @@ import net.dv8tion.jda.api.entities.Role
 import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent
 import net.dv8tion.jda.api.requests.GatewayIntent
-import net.md_5.bungee.api.ChatMessageType
-import net.md_5.bungee.api.chat.ComponentBuilder
-import net.md_5.bungee.api.chat.HoverEvent
-import net.md_5.bungee.api.chat.TextComponent
+import net.kyori.adventure.audience.Audience
+import net.kyori.adventure.identity.Identity
+import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
-import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.inventory.ItemStack
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -44,7 +42,7 @@ import java.time.Instant
 import java.util.*
 import kotlin.time.ExperimentalTime
 
-@Component
+@dev.reactant.reactant.core.component.Component
 class DiscordManager: LifeCycleHook {
     private lateinit var globalManager: GlobalManager
     private lateinit var jda: JDA
@@ -75,9 +73,9 @@ class DiscordManager: LifeCycleHook {
 
         globalManager.events {
 
-            AsyncPlayerChatEvent::class
+            AsyncChatEvent::class
                 .observable(false, EventPriority.LOWEST)
-                .doOnError(Logger.trackError("DiscordManager.AsyncPlayerChatEvent", "error occurs in event subscriber"))
+                .doOnError(Logger.trackError("DiscordManager.AsyncChatEvent", "error occurs in event subscriber"))
                 .subscribe {
                     val ecPlayer = globalManager.players.getByPlayer(it.player)
                     if (ecPlayer.state != ECPlayerAuthState.AUTHENTICATED) {
@@ -87,22 +85,28 @@ class DiscordManager: LifeCycleHook {
 
                     val sender = it.player
                     val chatType = when {
-                        it.message.startsWith("@party ") -> {
-                            it.message = it.message.replace("@party ", "")
+                        it.message().contains("@party ".toComponent()) -> {
+                            it.message(it.message().replaceText { cfg ->
+                                cfg.match("@party ").replacement("")
+                            })
                             ChatType.PARTY
                         }
                         else -> ChatType.GLOBAL
                     }
 
                     val prefix = globalManager.message.playerChatPrefix(chatType)
-                    it.format = "$prefix &r%s : &f%s".colorize()
+                    it.renderer { source, _, message, _ ->
+                        prefix.append("&r ".toComponent()).append(source.displayName()).append("&r : ".toComponent()).append(message)
+                    }
                     if (chatType != ChatType.PARTY) {
-                        it.recipients.removeIf { p -> globalManager.players.getByPlayer(p).database[Players.ignoredPlayers].contains(sender.name) }
+                        val ignored = globalManager.players.getByPlayer(sender).database[Players.ignoredPlayers]
+                        it.viewers().removeIf { p ->
+                            if (p !is Player) return@removeIf false
+                            return@removeIf ignored.contains(p.uniqueId.toString())
+                        }
                     } else {
                         it.isCancelled = true
-                        globalManager.mcmmo.getPlayerParty(sender).map { p ->
-                            p.sendMessage(prefix + " &r${sender.displayName} : &f${it.message}".colorize())
-                        }
+                        globalManager.mcmmo.getPlayerParty(sender).map { p -> p.sendMessage(it.message()) }
                     }
                 }
         }
@@ -112,7 +116,7 @@ class DiscordManager: LifeCycleHook {
         embed.setThumbnail("https://firebasestorage.googleapis.com/v0/b/eternal-century.appspot.com/o/logo.jpg?alt=media")
         embed.setAuthor("永恒新世纪 Eternal Century ", "https://minecraft.oskadev.com", "https://firebasestorage.googleapis.com/v0/b/eternal-century.appspot.com/o/logo.jpg?alt=media")
         embed.setTitle("伺服器状态 - 在线 ( Online )")
-        embed.setDescription("新来的玩家可以到 \'伺服规则\' 频道，通过随便一个Reaction同意并接受规则后才能进行注册。")
+        embed.setDescription("新来的玩家可以到 <#${globalManager.serverConfig.discord.ruleChannel}> 频道，通过随便一个Reaction同意并接受规则后才能进行注册。")
         embed.addField("地区配置", "", true)
         embed.addField("人数限制", "50", true)
         embed.addField("目前版本", ECCore.VERSION, true)
@@ -238,25 +242,27 @@ class DiscordManager: LifeCycleHook {
 
     fun broadcast(message: String, item: ItemStack? = null) {
         var discordMessage = message
-        val component = ComponentBuilder(globalManager.message.broadcast(""))
+        val component = globalManager.message.broadcast("")
         if (message.contains("%item%") && item != null) {
-            val messages = message.split("%item%")
-            val display = TextComponent(("&7[" + (item.itemMeta?.displayName ?: item.type.name) + "]&r").colorize())
-            display.hoverEvent = HoverEvent(HoverEvent.Action.SHOW_ITEM, ComponentBuilder(NBTItem.convertItemtoNBT(item).toString()).create())
-
-            component.append(messages[0])
-            component.append(display)
-            component.append(messages[1])
-            discordMessage = message.replace("%item%", " ${display}(游戏内查看) ")
+            component.append(Component.text(message[0]))
+            val name = item.itemMeta?.displayName() ?: item.displayName()
+            val hoverEvent = Bukkit.getServer().itemFactory.asHoverEvent(item) { return@asHoverEvent it }
+            component.append(Component.text("&7")
+                .append(name)
+                .append("&7]&r".toComponent())
+                .hoverEvent(hoverEvent)
+            )
+            component.append(Component.text(message[1]))
+            discordMessage = message.replace("%item%", " ${globalManager.message.plain(name)}(游戏内查看) ")
         } else {
-            component.append(message)
+            component.append(message.toComponent())
         }
 
         annoucementChannel.sendMessage(discordMessage).queue()
         Bukkit.getOnlinePlayers()
             .parallelStream()
             .forEach { p ->
-                p.spigot().sendMessage(ChatMessageType.CHAT, *component.create())
+                p.sendMessage(component)
             }
     }
 }

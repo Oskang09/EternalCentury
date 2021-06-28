@@ -2,7 +2,7 @@ package com.ec.minecraft.point
 
 import com.ec.database.model.point.PointDetail
 import com.ec.manager.point.PointAPI
-import com.ec.util.StringUtil.colorize
+import com.ec.util.StringUtil.toComponent
 import dev.reactant.reactant.extensions.itemMeta
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
@@ -12,8 +12,8 @@ class SeasonPoint: PointAPI("season") {
     override fun getItemStack(point: PointDetail): ItemStack {
         val stack = ItemStack(Material.GRASS_BLOCK)
         stack.itemMeta<ItemMeta> {
-            setDisplayName("&b赛季点数".colorize())
-            lore = arrayListOf(
+            displayName("&b赛季点数".toComponent())
+            lore(arrayListOf(
                 "&7&l --- &f&l点数介绍 &7&l--- ",
                 "&f此点数能在每次的赛季世界获得",
                 "&f每个赛季的点数是通用的",
@@ -22,7 +22,7 @@ class SeasonPoint: PointAPI("season") {
                 "&f所有点数 - &e${point.total}",
                 "&f剩余点数 - &e${point.balance}",
                 "&f点数阶级 - &e${point.grade}"
-            ).colorize()
+            ).toComponent())
         }
         return stack
     }

@@ -1,6 +1,6 @@
 package com.ec.manager.inventory
 
-import com.ec.util.StringUtil.colorize
+import com.ec.util.StringUtil.toComponent
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.extensions.itemMeta
 import org.bukkit.Bukkit
@@ -62,7 +62,7 @@ class UIComponent {
     fun arrowPrevious(): ItemStack {
         val arrow = ItemStack(Material.SOUL_CAMPFIRE)
         arrow.itemMeta<ItemMeta> {
-            setDisplayName("&b[&5系统&b] &6上一页".colorize())
+            displayName("&b[&5系统&b] &6上一页".toComponent())
         }
         return arrow
     }
@@ -70,7 +70,7 @@ class UIComponent {
     fun arrowNext(): ItemStack {
         val arrow = ItemStack(Material.HOPPER)
         arrow.itemMeta<ItemMeta> {
-            setDisplayName("&b[&5系统&b] &6下一页".colorize())
+            displayName("&b[&5系统&b] &6下一页".toComponent())
         }
         return arrow
     }
@@ -78,7 +78,7 @@ class UIComponent {
     fun woolAccept(): ItemStack {
         val wool = ItemStack(Material.GREEN_WOOL)
         wool.itemMeta<ItemMeta> {
-            setDisplayName("&b[&5系统&b] &a确认".colorize())
+            displayName("&b[&5系统&b] &a确认".toComponent())
         }
         return wool
     }
@@ -86,7 +86,7 @@ class UIComponent {
     fun woolDecline(): ItemStack {
         val wool = ItemStack(Material.RED_WOOL)
         wool.itemMeta<ItemMeta> {
-            setDisplayName("&b[&5系统&b] &c取消".colorize())
+            displayName("&b[&5系统&b] &c取消".toComponent())
         }
         return wool
     }

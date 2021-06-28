@@ -1,7 +1,7 @@
 package com.ec.minecraft.command
 
 import com.ec.manager.GlobalManager
-import com.ec.util.StringUtil.colorize
+import com.ec.util.StringUtil.toComponent
 import dev.reactant.reactant.extra.command.ReactantCommand
 import picocli.CommandLine
 
@@ -69,16 +69,18 @@ internal class HelpCommand(private val globalManager: GlobalManager): ReactantCo
 
     override fun execute() {
         if (commandType == null || commands[commandType] == null) {
-            sender.sendMessage("&f/echelp       - 打开此指令列表".colorize())
-            sender.sendMessage("&f/echelp mcmmo - 打开MCMMO指令列表".colorize())
-            sender.sendMessage("&f/echelp party - 打开队伍指令列表".colorize())
-            sender.sendMessage("&f/echelp res   - 打开领地指令列表".colorize())
-            sender.sendMessage("&f/echelp chat  - 打开聊天教学".colorize())
-            sender.sendMessage("&f/echelp basic - 打开基本指令列表".colorize())
+            sender.sendMessage("&f/echelp       - 打开此指令列表".toComponent())
+            sender.sendMessage("&f/echelp mcmmo - 打开MCMMO指令列表".toComponent())
+            sender.sendMessage("&f/echelp party - 打开队伍指令列表".toComponent())
+            sender.sendMessage("&f/echelp res   - 打开领地指令列表".toComponent())
+            sender.sendMessage("&f/echelp chat  - 打开聊天教学".toComponent())
+            sender.sendMessage("&f/echelp basic - 打开基本指令列表".toComponent())
             return
         }
 
-        sender.sendMessage(commands[commandType]!!.map { "&f$it".colorize() }.toTypedArray())
+        commands[commandType]!!.forEach {
+            sender.sendMessage("&f$it".toComponent())
+        }
     }
 
 }

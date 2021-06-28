@@ -2,7 +2,7 @@ package com.ec.minecraft.activity
 
 import com.ec.manager.GlobalManager
 import com.ec.manager.activity.ActivityAPI
-import com.ec.util.StringUtil.colorize
+import com.ec.util.StringUtil.toComponent
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.event.entity.PlayerDeathEvent
@@ -24,12 +24,12 @@ class EndDG: ActivityAPI("end-dg") {
         super.initialize(globalManager)
 
         display = globalManager.component.item(Material.END_PORTAL_FRAME) { meta ->
-            meta.setDisplayName("&f[&e活动&f] &a末地探险".colorize())
-            meta.lore = arrayListOf(
+            meta.displayName("&f[&e活动&f] &a末地探险".toComponent())
+            meta.lore(arrayListOf(
                 "&7&l --- &f&l活动内容 &7&l--- ",
                 "&f开放末地探险，玩家可以组队进入末地探险",
                 "&f玩家可以到末地使者NPC，付费并进入末地",
-            ).colorize()
+            ).toComponent())
         }
     }
 

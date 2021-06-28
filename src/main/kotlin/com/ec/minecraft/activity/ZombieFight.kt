@@ -6,8 +6,8 @@ import com.ec.manager.GlobalManager
 import com.ec.manager.activity.ActivityAPI
 import com.ec.util.ChanceUtil
 import com.ec.util.RandomUtil
-import com.ec.util.StringUtil.colorize
 import com.ec.util.StringUtil.generateUniqueID
+import com.ec.util.StringUtil.toComponent
 import com.google.common.util.concurrent.AtomicDouble
 import io.reactivex.rxjava3.disposables.Disposable
 import org.bukkit.Bukkit
@@ -38,7 +38,7 @@ class ZombieFight: ActivityAPI("zombie-fight") {
     private val locationX = 0.0
     private val locationY = 0.0
     private val locationZ = 0.0
-    private val customName = "&f[&e活动&f] &a恶人僵尸".colorize()
+    private val customName = "&f[&e活动&f] &a恶人僵尸".toComponent()
     private val mobList = listOf(
         EntityType.ZOMBIE,
         EntityType.SKELETON,
@@ -68,8 +68,8 @@ class ZombieFight: ActivityAPI("zombie-fight") {
         super.initialize(globalManager)
 
         display = globalManager.component.item(Material.ZOMBIE_HEAD) { meta ->
-            meta.setDisplayName("&f[&e活动&f] &a僵尸恶战".colorize())
-            meta.lore = arrayListOf(
+            meta.displayName("&f[&e活动&f] &a僵尸恶战".toComponent())
+            meta.lore(arrayListOf(
                 "&7&l --- &f&l活动内容 &7&l--- ",
                 "&f僵尸恶战是多人讨伐活动，怪物无法被击杀但是",
                 "&f会根据玩家的伤害以给予奖励，并且怪物会越来越强。",
@@ -80,7 +80,7 @@ class ZombieFight: ActivityAPI("zombie-fight") {
                 "&7&l --- &f&l排名奖励 &7&l--- ",
                 "&f1. &f[&9稀有&f] &f金钱抽奖卷&e（小）",
                 "&f2. &f[&9稀有&f] &f附魔书抽奖本&e（小）",
-            ).colorize()
+            ).toComponent())
         }
     }
 
@@ -92,7 +92,7 @@ class ZombieFight: ActivityAPI("zombie-fight") {
         giant.isCustomNameVisible = true
         giant.isGlowing = true
         giant.removeWhenFarAway = false
-        giant.customName = customName
+        giant.customName(customName)
         giant.noDamageTicks = 0
         giant.maximumNoDamageTicks = 0
         giant.getAttribute(Attribute.GENERIC_MAX_HEALTH)?.baseValue = 1000.0
@@ -114,7 +114,7 @@ class ZombieFight: ActivityAPI("zombie-fight") {
                 EntityDamageEvent::class
                     .observable(true, EventPriority.LOWEST)
                     .filter { it.entity is Giant }
-                    .filter { it.entity.customName == customName }
+                    .filter { it.entity.customName() == customName }
                     .subscribe {
                         it.isCancelled = true
                     }
@@ -123,7 +123,7 @@ class ZombieFight: ActivityAPI("zombie-fight") {
                 EntityDamageByEntityEvent::class
                     .observable(false, EventPriority.LOWEST)
                     .filter { it.damager is Player && it.entity is Giant }
-                    .filter { it.entity.customName == customName }
+                    .filter { it.entity.customName() == customName }
                     .subscribe {
                         it.isCancelled = true
 

@@ -1,6 +1,5 @@
 package com.ec.database
 
-import com.ec.database.model.ChatType
 import com.ec.database.model.economy.EconomyInfo
 import com.ec.database.model.point.PointInfo
 import com.ec.database.types.array
@@ -23,9 +22,9 @@ object Players: Table() {
     val balance = json("balance", EconomyInfo::class.java)
     val points = json("points", PointInfo::class.java)
     val permissions = array("permissions", String::class.java)
-    // list of players name
+    // list of players uuid
     val blockedTeleport = array("blocked_teleport", String::class.java)
-    // list of players name
+    // list of players uuid
     val ignoredPlayers = array("ignored_players", String::class.java)
 
     override val primaryKey = PrimaryKey(id)

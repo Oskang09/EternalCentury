@@ -41,11 +41,11 @@ internal class TeleportBlockCommand(private val globalManager: GlobalManager): R
 
         val ecPlayer = globalManager.players.getByPlayer(player)
         ecPlayer.ensureUpdate("teleport block command update", isAsync = true) {
-            if (ecPlayer.database[Players.blockedTeleport].contains(target.name)) {
-                ecPlayer.database[Players.blockedTeleport].remove(target.name)
+            if (ecPlayer.database[Players.blockedTeleport].contains(target.uniqueId.toString())) {
+                ecPlayer.database[Players.blockedTeleport].remove(target.uniqueId.toString())
                 player.sendMessage(globalManager.message.system("玩家 ${target.name} 可以向您发送传送请求了。"))
             } else {
-                ecPlayer.database[Players.blockedTeleport].add(target.name)
+                ecPlayer.database[Players.blockedTeleport].add(target.uniqueId.toString())
                 player.sendMessage(globalManager.message.system("玩家 ${target.name} 将无法向您发送传送请求了。"))
             }
 

@@ -8,7 +8,7 @@ import com.ec.manager.inventory.component.IteratorUI
 import com.ec.manager.inventory.component.IteratorUIProps
 import com.ec.util.DoubleUtil.roundTo
 import com.ec.util.QueryUtil.iterator
-import com.ec.util.StringUtil.colorize
+import com.ec.util.StringUtil.toComponent
 import dev.reactant.reactant.extensions.itemMeta
 import dev.reactant.resquare.elements.DivProps
 import dev.reactant.resquare.elements.div
@@ -25,7 +25,7 @@ class PlayerAuctionUI: IteratorUI<Unit>("player-auction") {
 
     override fun info(props: IteratorUIProps): UIBase {
         return UIBase(
-            title = "&b[&5系统&b] &6个人拍卖".colorize()
+            title = "&b[&5系统&b] &6个人拍卖"
         )
     }
 
@@ -37,11 +37,11 @@ class PlayerAuctionUI: IteratorUI<Unit>("player-auction") {
 
         return IteratorUIProps(
             info = globalManager.component.item(Material.CHEST) {
-                it.setDisplayName("&b[&5系统&b] &6拍卖咨询".colorize())
-                it.lore = arrayListOf(
+                it.displayName("&b[&5系统&b] &6拍卖咨询".toComponent())
+                it.lore(arrayListOf(
                     "&7可拍卖数 &f- &a${ecPlayer.database[Players.auctionLimit]}",
                     "&7已拍卖数 &f- &a${count}"
-                ).colorize()
+                ).toComponent())
             },
             extras = listOf(
                 div(DivProps(
@@ -50,11 +50,11 @@ class PlayerAuctionUI: IteratorUI<Unit>("player-auction") {
                         height = 1.px
                     },
                     item = globalManager.component.item(Material.OAK_SIGN) {
-                        it.setDisplayName("&b[&5系统&b] &6拍卖物品".colorize())
-                        it.lore = arrayListOf(
+                        it.displayName("&b[&5系统&b] &6拍卖物品".toComponent())
+                        it.lore(arrayListOf(
                             "&f手上拿着您要卖的东西，然后",
                             "&f使用指令 /sell <价格> 来进行拍卖"
-                        ).colorize()
+                        ).toComponent())
                     },
                 ))
             ),
@@ -66,15 +66,15 @@ class PlayerAuctionUI: IteratorUI<Unit>("player-auction") {
                 val display = it[Malls.item]
 
                 display.itemMeta<ItemMeta> {
-                    val lores = lore ?: mutableListOf()
+                    val lores = lore() ?: mutableListOf()
 
-                    lores.add("&7--------------------------------")
-                    lores.add("&a点击后将下架物品")
-                    lores.add("")
-                    lores.add("&1库存 - &e${it[Malls.amount]}")
-                    lores.add("&1价格 &f(单价/总价) - &e${it[Malls.price]} &f/ &e${(it[Malls.price] * it[Malls.amount]).roundTo(2)} ")
-                    lores.add("&7--------------------------------")
-                    lore = lores.colorize()
+                    lores.add("&7--------------------------------".toComponent())
+                    lores.add("&a点击后将下架物品".toComponent())
+                    lores.add("".toComponent())
+                    lores.add("&1库存 - &e${it[Malls.amount]}".toComponent())
+                    lores.add("&1价格 &f(单价/总价) - &e${it[Malls.price]} &f/ &e${(it[Malls.price] * it[Malls.amount]).roundTo(2)} ".toComponent())
+                    lores.add("&7--------------------------------".toComponent())
+                    lore(lores)
                 }
 
                 IteratorItem(

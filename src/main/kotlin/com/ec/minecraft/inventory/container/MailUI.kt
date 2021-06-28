@@ -7,7 +7,7 @@ import com.ec.manager.inventory.component.IteratorItem
 import com.ec.manager.inventory.component.IteratorUI
 import com.ec.manager.inventory.component.IteratorUIProps
 import com.ec.util.QueryUtil.iterator
-import com.ec.util.StringUtil.colorize
+import com.ec.util.StringUtil.toComponent
 import dev.reactant.resquare.elements.DivProps
 import dev.reactant.resquare.elements.div
 import dev.reactant.resquare.elements.styleOf
@@ -21,7 +21,7 @@ class MailUI: IteratorUI<Unit>("mail") {
 
     override fun info(props: IteratorUIProps): UIBase {
         return UIBase(
-            title = "&b[&5系统&b] &6邮件快递".colorize()
+            title = "&b[&5系统&b] &6邮件快递"
         )
     }
 
@@ -29,7 +29,7 @@ class MailUI: IteratorUI<Unit>("mail") {
         val ecPlayer = globalManager.players.getByPlayer(player as Player)
         return IteratorUIProps(
             info = globalManager.component.playerHead(player) {
-                it.setDisplayName("&b[&5系统&b] &6邮箱快递".colorize())
+                it.displayName("&b[&5系统&b] &6邮箱快递".toComponent())
             },
             extras = listOf(
                 div(DivProps(
@@ -38,8 +38,8 @@ class MailUI: IteratorUI<Unit>("mail") {
                         height = 1.px
                     },
                     item = globalManager.component.item(Material.BARRIER) {
-                        it.setDisplayName("&b[&5系统&b] &6清理邮箱".colorize())
-                        it.lore = arrayListOf("&f此操作只会清理已读的邮件.").colorize()
+                        it.displayName("&b[&5系统&b] &6清理邮箱".toComponent())
+                        it.lore(arrayListOf("&f此操作只会清理已读的邮件.").toComponent())
                     },
                     onClick = { _ ->
                         transaction {
@@ -81,7 +81,7 @@ class MailUI: IteratorUI<Unit>("mail") {
                         }
                     },
                     item = globalManager.component.item(material) { meta ->
-                        meta.setDisplayName(it[Mails.title].colorize())
+                        meta.displayName(it[Mails.title].toComponent())
                         val lore = it[Mails.content].split("\n").toMutableList()
                         if (it[Mails.rewards].size > 0) {
                             lore.add("")
@@ -95,7 +95,7 @@ class MailUI: IteratorUI<Unit>("mail") {
                                 lore.add(reward.display)
                             }
                         }
-                        meta.lore = lore.colorize()
+                        meta.lore(lore.toComponent())
                     }
                 )
             }

@@ -2,7 +2,7 @@ package com.ec.minecraft.admin
 
 import com.ec.manager.inventory.UIBase
 import com.ec.manager.inventory.UIProvider
-import com.ec.util.StringUtil.colorize
+import com.ec.util.StringUtil.toComponent
 import dev.reactant.reactant.extensions.itemMeta
 import dev.reactant.resquare.dom.childrenOf
 import dev.reactant.resquare.dom.declareComponent
@@ -50,7 +50,7 @@ class AdminUI : UIProvider<AdminUI.AdminUIProps>("admin") {
         return UIBase(
             rows = 3,
             cols = 9,
-            title = "&b[&5系统&b] &6管理控制台".colorize()
+            title = "&b[&5系统&b] &6管理控制台"
         )
     }
 
@@ -84,7 +84,7 @@ class AdminUI : UIProvider<AdminUI.AdminUIProps>("admin") {
                 +(props.data.map {
                     val item = ItemStack(it.material)
                     item.itemMeta<ItemMeta> {
-                        setDisplayName(it.display.colorize())
+                        displayName(it.display.toComponent())
                     }
 
                     return@map div(DivProps(

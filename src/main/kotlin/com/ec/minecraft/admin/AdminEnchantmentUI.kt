@@ -5,7 +5,7 @@ import com.ec.manager.inventory.UIBase
 import com.ec.manager.inventory.component.PaginationItem
 import com.ec.manager.inventory.component.PaginationUI
 import com.ec.manager.inventory.component.PaginationUIProps
-import com.ec.util.StringUtil.colorize
+import com.ec.util.StringUtil.toComponent
 import dev.reactant.reactant.extensions.itemMeta
 import org.bukkit.Material
 import org.bukkit.entity.HumanEntity
@@ -19,7 +19,7 @@ class AdminEnchantmentUI: PaginationUI<Unit>("admin-enchantment") {
         return UIBase(
             rows = 6,
             cols = 9,
-            title = "&b[&5系统&b] &6技能附魔书".colorize()
+            title = "&b[&5系统&b] &6技能附魔书"
         )
     }
 
@@ -32,9 +32,9 @@ class AdminEnchantmentUI: PaginationUI<Unit>("admin-enchantment") {
             for (level in it.startLevel .. it.maxLevel) {
                 val item = ItemStack(Material.ENCHANTED_BOOK)
                 item.itemMeta<EnchantmentStorageMeta> {
-                    val newLores = lore ?: mutableListOf()
+                    val newLores = lore() ?: mutableListOf()
                     newLores.add(it.getDisplayLore(level))
-                    lore = newLores.colorize()
+                    lore(newLores)
 
                     it.origin?.let { ench ->
                         addStoredEnchant(ench, level, true)
@@ -57,11 +57,11 @@ class AdminEnchantmentUI: PaginationUI<Unit>("admin-enchantment") {
 
         return PaginationUIProps(
             globalManager.component.item(Material.BOOK) {
-                it.setDisplayName("&b[&5系统&b] &6附魔咨询".colorize())
-                it.lore = arrayListOf(
+                it.displayName("&b[&5系统&b] &6附魔咨询".toComponent())
+                it.lore(arrayListOf(
                     "&7总附魔数 &f- &a${enchantments.size}",
                     "&7总附魔数 in.等级 &f- &a${items.size}"
-                ).colorize()
+                ).toComponent())
             },
             { items }
         )

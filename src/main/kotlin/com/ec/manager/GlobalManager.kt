@@ -25,13 +25,11 @@ import com.ec.manager.packet.PacketManager
 import com.ec.service.EconomyService
 import com.ec.service.MessageService
 import com.ec.service.PermissionService
-import com.ec.util.StringUtil.colorize
 import com.ec.util.StringUtil.generateUniqueID
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.component.lifecycle.LifeCycleHook
 import dev.reactant.reactant.core.dependency.injection.Inject
-import dev.reactant.reactant.extra.config.type.MultiConfigs
 import dev.reactant.reactant.service.spec.config.Config
 import dev.reactant.reactant.service.spec.server.EventService
 import dev.reactant.reactant.service.spec.server.SchedulerService
@@ -219,7 +217,9 @@ class GlobalManager(
                 .doOnError(Logger.trackError("GlobalManager.ServerListPingEvent", "error occurs in event subscriber"))
                 .subscribe {
                     it.maxPlayers = 0
-                    it.motd = "           §f§l[§5§lEC§f§l] §b§l永恒新世纪  §f§l多种玩法,多种乐趣！\n    §f§l| §c§lMCMMO §f§l| §a§l原味生存 §f§l| §7§l自制插件 §f§l| §d§l赛季玩法 §f§l|".colorize()
+                    it.motd(
+                        net.kyori.adventure.text.Component.text("           §f§l[§5§lEC§f§l] §b§l永恒新世纪  §f§l多种玩法,多种乐趣！\n    §f§l| §c§lMCMMO §f§l| §a§l原味生存 §f§l| §7§l自制插件 §f§l| §d§l赛季玩法 §f§l|")
+                    )
                 }
 
         }

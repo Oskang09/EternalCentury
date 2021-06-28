@@ -2,15 +2,14 @@ package com.ec.manager.mcmmo
 
 import com.ec.manager.GlobalManager
 import com.ec.model.Emoji
-import com.ec.util.StringUtil.colorize
+import com.ec.util.StringUtil.toComponent
 import com.gmail.nossr50.api.ExperienceAPI
 import com.gmail.nossr50.datatypes.player.McMMOPlayer
 import com.gmail.nossr50.util.player.UserManager
-import dev.reactant.reactant.core.component.Component
-import org.bukkit.Bukkit
+import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
 
-@Component
+@dev.reactant.reactant.core.component.Component
 class McMMOManager {
 
     private lateinit var globalManager: GlobalManager
@@ -56,21 +55,27 @@ class McMMOManager {
         val party = mcmmoPlayer.party
         val nearbyMembers = party.getNearMembers(mcmmoPlayer).map { it.name }
         if (nearbyMembers.size != party.members.size - 1) {
-            val messages = arrayListOf("&f&l玩家 ${starter.name} &f&l发起了挑战 - $challenge")
-            messages.addAll(party.members.map { (_, member) ->
-                return@map if (member != starter.name && !nearbyMembers.contains(member)) {
-                    "&c&l${Emoji.CROSS.text} &e&l玩家 $member 还没集合！"
+            val component = Component.text("&f&l玩家 ")
+                .append(starter.displayName())
+                .append(" &f&l发起了挑战 - &e&l${challenge}".toComponent())
+                .asComponent()
+            val messages = arrayListOf(component)
+            messages.addAll(party.onlineMembers.map { member ->
+                return@map if (!nearbyMembers.contains(member.name)) {
+                    Component.text("&c&l${Emoji.CROSS.text} &e&l玩家 ")
+                        .append(member.displayName())
+                        .append(" 还没集合！".toComponent())
+                        .asComponent()
                 } else {
-                    "&a&l${Emoji.CHECK.text} &e&l玩家 $member 准备就绪！"
+                    Component.text("&c&l${Emoji.CHECK.text} &e&l玩家 ")
+                        .append(member.displayName())
+                        .append(" 准备就绪！".toComponent())
+                        .asComponent()
                 }
             })
 
             party.onlineMembers.forEach {
-                it.sendMessage(
-                    messages.map { msg -> globalManager.message.system(msg) }
-                        .colorize()
-                        .toTypedArray()
-                )
+                messages.forEach { c -> it.sendMessage(c) }
             }
             return false
         }
@@ -103,17 +108,27 @@ class McMMOManager {
         val party = mcmmoPlayer.party
         val nearbyMembers = party.getNearMembers(mcmmoPlayer)
         if (nearbyMembers.size != party.onlineMembers.size) {
-            val messages = arrayListOf(globalManager.message.system("&f&l玩家 ${starter.displayName} &f&l发起了挑战 - &e&l${challenge}"))
+            val component = Component.text("&f&l玩家 ")
+                .append(starter.displayName())
+                .append(" &f&l发起了挑战 - &e&l${challenge}".toComponent())
+                .asComponent()
+            val messages = arrayListOf(component)
             messages.addAll(party.onlineMembers.map { member ->
                 return@map if (!nearbyMembers.contains(member)) {
-                    "&c&l${Emoji.CROSS.text} &e&l玩家 ${member.displayName} 还没集合！"
+                    Component.text("&c&l${Emoji.CROSS.text} &e&l玩家 ")
+                        .append(member.displayName())
+                        .append(" 还没集合！".toComponent())
+                        .asComponent()
                 } else {
-                    "&e&l玩家 ${member.displayName} 准备就绪！"
+                    Component.text("&c&l${Emoji.CHECK.text} &e&l玩家 ")
+                        .append(member.displayName())
+                        .append(" 准备就绪！".toComponent())
+                        .asComponent()
                 }
             })
 
             party.onlineMembers.forEach {
-                it.sendMessage(messages.toTypedArray())
+                messages.forEach { c -> it.sendMessage(c) }
             }
             return
         }

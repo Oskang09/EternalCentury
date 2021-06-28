@@ -35,7 +35,7 @@ internal class TeleportCommand(private val globalManager: GlobalManager): Reacta
         }
 
         val targetPlayer = globalManager.players.getByPlayer(target)
-        if (targetPlayer.database[Players.blockedTeleport].contains(player.name)) {
+        if (targetPlayer.database[Players.blockedTeleport].contains(player.uniqueId.toString())) {
             player.sendMessage(globalManager.message.system("玩家 ${target.name} 已经把你加入传送黑名单了。"))
             return
         }

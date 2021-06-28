@@ -5,7 +5,7 @@ import com.ec.manager.inventory.UIBase
 import com.ec.manager.inventory.component.PaginationItem
 import com.ec.manager.inventory.component.PaginationUI
 import com.ec.manager.inventory.component.PaginationUIProps
-import com.ec.util.StringUtil.colorize
+import com.ec.util.StringUtil.toComponent
 import org.bukkit.Material
 import org.bukkit.entity.HumanEntity
 import org.bukkit.entity.Player
@@ -17,7 +17,7 @@ class TitleUI: PaginationUI<Unit>("title") {
 
     override fun info(props: PaginationUIProps): UIBase {
         return UIBase(
-            title = "&b[&5系统&b] &6称号列表".colorize()
+            title = "&b[&5系统&b] &6称号列表"
         )
     }
 
@@ -31,11 +31,11 @@ class TitleUI: PaginationUI<Unit>("title") {
         val titles = globalManager.titles.getTitles()
         return PaginationUIProps(
             info = globalManager.component.item(Material.ITEM_FRAME) {
-                it.setDisplayName("&b[&5系统&b] &6称号咨询".colorize())
-                it.lore = arrayListOf(
+                it.displayName("&b[&5系统&b] &6称号咨询".toComponent())
+                it.lore(arrayListOf(
                     "&7已解锁称号数 &f- &a${availableTitles.size}",
                     "&7所有称号数 &f-  &a${titles.size}"
-                ).colorize()
+                ).toComponent())
             },
             {
                 titles.sortedBy { it.position }
@@ -44,22 +44,22 @@ class TitleUI: PaginationUI<Unit>("title") {
                             var display = title.getItemStack(ItemStack(Material.NAME_TAG))
                             if (ecPlayer.database[Players.currentTitle] == title.id) {
                                 display = globalManager.component.withGlow(display) { meta ->
-                                    val lores = meta.lore ?: mutableListOf()
-                                    lores.add("")
-                                    lores.add(" &7--- &e目前称号使用中 &7---".colorize())
-                                    meta.lore = lores
+                                    val lores = meta.lore() ?: mutableListOf()
+                                    lores.add("".toComponent())
+                                    lores.add(" &7--- &e目前称号使用中 &7---".toComponent())
+                                    meta.lore(lores)
                                 }
                             }
 
                             return@map PaginationItem(display) { _ ->
                                 val titleDisplay = title.getDisplay()
-                                player.setDisplayName(titleDisplay + " " + player.name)
-                                player.setPlayerListName(titleDisplay + " " + player.name)
+                                player.displayName((titleDisplay + " " + player.name).toComponent())
+                                player.playerListName((titleDisplay + " " + player.name).toComponent())
 
                                 val nameKey = player.name
                                 val board = player.scoreboard
                                 val team = board.getTeam(nameKey) ?: board.registerNewTeam(nameKey)
-                                team.prefix = "$titleDisplay "
+                                team.prefix("$titleDisplay ".toComponent())
                                 team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS)
                                 team.addEntry(player.name)
                                 player.scoreboard = board
