@@ -68,13 +68,13 @@ class PaymentManager {
         val mapperKey = globalManager.players.getByPlayer(player).database[Players.id]
         if (paymentMapper[mapperKey] != null) {
             val builder = globalManager.message.system("&f您上次的付款请求还没过期。请到")
-            builder.append(
-                Component.text("&7&l[网页]")
-                    .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.OPEN_URL, paymentMapper[mapperKey]!!))
-                    .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, "点击后将前往 Revenue Monster 付款网页".toComponent()))
-            )
-
-            builder.append("&r付款，付款好点数会自动加入您的帐号。".toComponent())
+                .append(
+                    "&7&l[网页]".toComponent()
+                        .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.OPEN_URL, paymentMapper[mapperKey]!!))
+                        .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, "点击后将前往 Revenue Monster 付款网页".toComponent()))
+                )
+                .append("&r付款，付款好点数会自动加入您的帐号。".toComponent())
+            player.sendMessage(builder)
             return
         }
 
@@ -114,14 +114,12 @@ class PaymentManager {
                 }
 
                 val builder = globalManager.message.system("请到")
-
-                builder.append(
-                    Component.text("&7&l[网页]")
-                        .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.OPEN_URL, result.item!!.url))
-                        .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, "点击后将前往 Revenue Monster 付款网页".toComponent()))
-                )
-
-                builder.append("&r付款，付款好点数会自动加入您的帐号。".toComponent())
+                    .append(
+                        "&7&l[网页]".toComponent()
+                            .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.OPEN_URL, result.item!!.url))
+                            .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, "点击后将前往 Revenue Monster 付款网页".toComponent()))
+                    )
+                    .append("&r付款，付款好点数会自动加入您的帐号。".toComponent())
                 player.sendMessage(builder)
             }
         }

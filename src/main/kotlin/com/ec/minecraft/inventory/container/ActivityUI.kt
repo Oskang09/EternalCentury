@@ -36,7 +36,8 @@ class ActivityUI: PaginationUI<Unit>("activity") {
                     minute = "0$minute"
                 }
 
-                it.display.itemMeta<ItemMeta> {
+                val clonedDisplay = it.display.clone()
+                clonedDisplay.itemMeta<ItemMeta> {
                     val lores = lore() ?: mutableListOf()
                     lores.add("".toComponent())
                     lores.add("&7开放时间 - &f${it.startInstant().toEpochSecond().toMalaysiaReadableTime()}".toComponent())
@@ -44,7 +45,7 @@ class ActivityUI: PaginationUI<Unit>("activity") {
                     lore(lores)
                 }
 
-                display.add(it.display)
+                display.add(clonedDisplay)
                 display.add(BannerUtil[hour[0].digitToInt()])
                 display.add(BannerUtil[hour[1].digitToInt()])
                 display.add(BannerUtil.colonBanner)

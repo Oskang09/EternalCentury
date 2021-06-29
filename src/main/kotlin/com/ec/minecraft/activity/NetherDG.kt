@@ -49,12 +49,15 @@ class NetherDG: ActivityAPI("nether-dg") {
     }
 
     override fun onQuit(event: PlayerQuitEvent) {
+
     }
 
     override fun onDeath(event: PlayerDeathEvent) {
+
     }
 
     override fun onRespawn(event: PlayerRespawnEvent) {
+
     }
 
 }

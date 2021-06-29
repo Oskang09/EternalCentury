@@ -75,7 +75,7 @@ class PartyModule: ModuleAPI() {
 
                 val block = it.world.getBlockAt(location)
                 val targetLocation = block.location.add(0.5, 1.5, 0.5)
-                players.forEach { p -> p.teleport(targetLocation) }
+                players.forEach { p -> p.teleportAsync(targetLocation) }
                 globalManager.states.delayedTask(1) {
                     val worldConfig = rtp.locationFactory.getWorldConfigSection(randomWorld)
                     rtp.worldQueue.get(randomWorld).generate(worldConfig, 1)

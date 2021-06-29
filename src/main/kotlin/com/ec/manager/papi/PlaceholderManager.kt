@@ -2,6 +2,7 @@ package com.ec.manager.papi
 
 import com.ec.ECCore
 import com.ec.manager.GlobalManager
+import com.ec.util.StringUtil.toColorized
 import com.ec.util.StringUtil.toComponent
 import dev.reactant.reactant.core.component.Component
 import me.clip.placeholderapi.expansion.PlaceholderExpansion
@@ -44,12 +45,12 @@ class PlaceholderManager: PlaceholderExpansion() {
     override fun onPlaceholderRequest(player: Player, identifier: String): String {
         val item = placeholders[identifier]
         if (item != null) {
-            return item.onPlaceholderRequest(player, identifier).toComponent().toString()
+            return item.onPlaceholderRequest(player, identifier).toColorized()
         }
 
         dynamicPlaceholders.forEach {
             if (identifier.startsWith(it.key)) {
-                return it.value.onPlaceholderRequest(player, identifier.replace(it.key, "")).toComponent().toString()
+                return it.value.onPlaceholderRequest(player, identifier.replace(it.key, "")).toColorized()
             }
         }
         return ""

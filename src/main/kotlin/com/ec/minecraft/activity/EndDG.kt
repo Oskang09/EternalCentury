@@ -50,9 +50,11 @@ class EndDG: ActivityAPI("end-dg") {
     }
 
     override fun onDeath(event: PlayerDeathEvent) {
+
     }
 
     override fun onRespawn(event: PlayerRespawnEvent) {
+
     }
 
 }

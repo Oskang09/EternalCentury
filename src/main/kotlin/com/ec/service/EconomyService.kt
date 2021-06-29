@@ -85,7 +85,6 @@ class EconomyService: Economy {
 
     override fun has(playerName: String, amount: Double): Boolean {
         return globalManager.wallets.playerHas(playerName, WalletManager.ECONOMY_WALLET, amount)
-
     }
 
     override fun has(player: OfflinePlayer, amount: Double): Boolean {

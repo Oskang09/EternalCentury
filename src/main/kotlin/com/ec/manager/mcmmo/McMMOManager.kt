@@ -55,19 +55,19 @@ class McMMOManager {
         val party = mcmmoPlayer.party
         val nearbyMembers = party.getNearMembers(mcmmoPlayer).map { it.name }
         if (nearbyMembers.size != party.members.size - 1) {
-            val component = Component.text("&f&l玩家 ")
+            val component = "&f&l玩家 ".toComponent()
                 .append(starter.displayName())
                 .append(" &f&l发起了挑战 - &e&l${challenge}".toComponent())
                 .asComponent()
             val messages = arrayListOf(component)
             messages.addAll(party.onlineMembers.map { member ->
                 return@map if (!nearbyMembers.contains(member.name)) {
-                    Component.text("&c&l${Emoji.CROSS.text} &e&l玩家 ")
+                    "&c&l${Emoji.CROSS.text} &e&l玩家 ".toComponent()
                         .append(member.displayName())
                         .append(" 还没集合！".toComponent())
                         .asComponent()
                 } else {
-                    Component.text("&c&l${Emoji.CHECK.text} &e&l玩家 ")
+                    "&c&l${Emoji.CHECK.text} &e&l玩家 ".toComponent()
                         .append(member.displayName())
                         .append(" 准备就绪！".toComponent())
                         .asComponent()
@@ -108,19 +108,19 @@ class McMMOManager {
         val party = mcmmoPlayer.party
         val nearbyMembers = party.getNearMembers(mcmmoPlayer)
         if (nearbyMembers.size != party.onlineMembers.size) {
-            val component = Component.text("&f&l玩家 ")
+            val component = "&f&l玩家 ".toComponent()
                 .append(starter.displayName())
                 .append(" &f&l发起了挑战 - &e&l${challenge}".toComponent())
                 .asComponent()
             val messages = arrayListOf(component)
             messages.addAll(party.onlineMembers.map { member ->
                 return@map if (!nearbyMembers.contains(member)) {
-                    Component.text("&c&l${Emoji.CROSS.text} &e&l玩家 ")
+                    "&c&l${Emoji.CROSS.text} &e&l玩家 ".toComponent()
                         .append(member.displayName())
                         .append(" 还没集合！".toComponent())
                         .asComponent()
                 } else {
-                    Component.text("&c&l${Emoji.CHECK.text} &e&l玩家 ")
+                    "&c&l${Emoji.CHECK.text} &e&l玩家 ".toComponent()
                         .append(member.displayName())
                         .append(" 准备就绪！".toComponent())
                         .asComponent()
@@ -134,7 +134,7 @@ class McMMOManager {
         }
 
         party.onlineMembers.forEach {
-            it.teleport(globalManager.serverConfig.teleports[to]!!.location)
+            it.teleportAsync(globalManager.serverConfig.teleports[to]!!.location)
         }
     }
 

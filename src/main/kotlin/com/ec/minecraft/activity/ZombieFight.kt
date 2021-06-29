@@ -144,7 +144,7 @@ class ZombieFight: ActivityAPI("zombie-fight") {
 
                             val location = it.entity.location
                             location.y += 3
-                            it.damager.teleport(location)
+                            it.damager.teleportAsync(location)
                         }
 
                         // Spawning :

@@ -34,7 +34,7 @@ internal class TeleportAcceptCommand(private val globalManager: GlobalManager): 
 
         if (globalManager.states.teleportPlayers[target.name] == player.name) {
             globalManager.states.teleportPlayers.remove(target.name)
-            player.teleport(target.location)
+            player.teleportAsync(target.location)
             return
         }
 

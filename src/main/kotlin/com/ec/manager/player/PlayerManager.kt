@@ -38,7 +38,6 @@ class PlayerManager {
     fun onInitialize(globalManager: GlobalManager) {
         this.globalManager = globalManager
 
-        ItemConfig
         globalManager.events {
 
              PlayerDeathEvent::class
@@ -130,7 +129,7 @@ class PlayerManager {
                      val to = it.to
                      val player = it.player
                      if (previous.z != to.z && previous.x != to.x) {
-                         player.teleport(it.from)
+                         player.teleportAsync(it.from)
                      }
                  }
 
@@ -157,13 +156,20 @@ class PlayerManager {
                 .doOnError(Logger.trackError("PlayerManager.PlayerJoinEvent", "error occurs in event subscriber"))
                 .subscribe { event ->
                     event.joinMessage(null)
-
-                    if (!event.player.hasPlayedBefore()) {
-                        event.player.teleport(globalManager.serverConfig.teleports["old-spawn"]!!.location)
-                    }
-
                     val player = event.player
                     val ecPlayer = ECPlayer(event.player)
+
+                    if (!event.player.hasPlayedBefore()) {
+                        event.player.teleportAsync(globalManager.serverConfig.teleports["old-spawn"]!!.location)
+                        ecPlayer.ensureUpdate("saving player", isAsync = true) {
+                            Players.update({ Players.playerName eq player.name }) {
+                                it[playerName] = player.name
+                                it[uuid] = player.uniqueId.toString()
+                                it[lastOnlineAt] = Instant.now().epochSecond
+                            }
+                        }
+                    }
+
                     ecPlayer.playerJoinedAt = Instant.now()
                     ecPlayer.state = ECPlayerAuthState.LOGIN
                     players[player.uniqueId] = ecPlayer

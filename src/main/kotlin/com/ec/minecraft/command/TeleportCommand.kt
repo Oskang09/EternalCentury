@@ -41,7 +41,7 @@ internal class TeleportCommand(private val globalManager: GlobalManager): Reacta
         }
 
         if (globalManager.serverConfig.adminPlayers.contains(player.name)) {
-            player.teleport(target.location)
+            player.teleportAsync(target.location)
             return
         }
 

@@ -53,7 +53,7 @@ class PlayerAuctionUI: IteratorUI<Unit>("player-auction") {
                         it.displayName("&b[&5系统&b] &6拍卖物品".toComponent())
                         it.lore(arrayListOf(
                             "&f手上拿着您要卖的东西，然后",
-                            "&f使用指令 /sell <价格> 来进行拍卖"
+                            "&f使用指令 /sell (价格) 来进行拍卖"
                         ).toComponent())
                     },
                 ))

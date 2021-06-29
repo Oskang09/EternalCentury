@@ -89,7 +89,7 @@ class WalletManager {
                 WalletHistories
                     .select { WalletHistories.playerId eq player[Players.id] }
                     .andWhere { WalletHistories.action eq WalletAction.DEPOSIT }
-                    .sumOf { it[Wallets.balance] }
+                    .sumOf { it[WalletHistories.balance] }
             }
             wallet.grade = getGradeByWallet(walletName, wallet)
 
@@ -148,7 +148,7 @@ class WalletManager {
                 WalletHistories
                     .select { WalletHistories.playerId eq player[Players.id] }
                     .andWhere { WalletHistories.action eq WalletAction.DEPOSIT }
-                    .sumOf { it[Wallets.balance] }
+                    .sumOf { it[WalletHistories.balance] }
             }
             wallet.grade = getGradeByWallet(walletName, wallet)
 

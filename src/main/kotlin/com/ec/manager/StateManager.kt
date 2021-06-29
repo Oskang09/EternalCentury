@@ -84,7 +84,7 @@ class StateManager(
         transaction {
             TransactionManager.current().exec("""
                     SELECT 
-                        "player_id",
+                        "playerId",
                         "type",
                         "total",
                         RANK() OVER ( 
@@ -98,7 +98,7 @@ class StateManager(
                     return@exec
                 }
 
-                val player = it.getString("player_id")
+                val player = it.getString("playerId")
                 val type = it.getString("type")
                 val rank = it.getInt("rank")
                 val total = it.getDouble("total")

@@ -39,8 +39,8 @@ internal class TeleportGoCommand(private val globalManager: GlobalManager): Reac
             target.sendMessage(globalManager.message.system("传送点不存在, 出现了问题快告诉服主."))
             return
         }
-
-        target.teleport(location.location)
+        
+        target.teleportAsync(location.location)
     }
 
 }
