@@ -1,5 +1,7 @@
 package com.ec.database.types
 
+import com.ec.database.enums.AdminStatus
+import org.bukkit.Bukkit
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ColumnType
 import org.jetbrains.exposed.sql.Table

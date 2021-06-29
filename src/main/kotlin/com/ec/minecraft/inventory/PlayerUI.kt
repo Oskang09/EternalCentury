@@ -68,9 +68,9 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
                 routeTo = "vote"
             ),
             PlayerUIPropsData(
-                material = Material.DIAMOND,
-                display = "&f&l前往 &b[&5系统&b] &6点数咨询",
-                routeTo = "point"
+                material = Material.CHEST_MINECART,
+                display = "&f&l前往 &b[&5系统&b] &6钱包咨询",
+                routeTo = "wallet"
             ),
             PlayerUIPropsData(
                 material = Material.END_PORTAL_FRAME,

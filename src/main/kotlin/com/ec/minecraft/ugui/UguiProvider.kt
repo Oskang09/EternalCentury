@@ -1,6 +1,7 @@
 package com.ec.minecraft.ugui
 
 import com.ec.manager.GlobalManager
+import com.ec.util.StringUtil.toComponent
 import dev.reactant.reactant.extensions.itemMeta
 import me.oska.module.ItemProvider
 import org.bukkit.Material
@@ -37,10 +38,9 @@ class UguiProvider(private val globalManager: GlobalManager): ItemProvider() {
         val extras = config["lore"] as List<String>?
         if (extras != null) {
             item.itemMeta<ItemMeta> {
-                val lores = lore ?: mutableListOf()
-                lores.addAll(extras)
-
-                lore = lores
+                val lores = lore() ?: mutableListOf()
+                lores.addAll(extras.toComponent())
+                lore(lores)
             }
         }
         return item

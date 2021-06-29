@@ -1,6 +1,6 @@
 package com.ec.service
 
-import com.ec.database.model.ChatType
+import com.ec.database.enums.ChatType
 import com.ec.util.ModelUtil.toDisplay
 import com.ec.util.StringUtil.toComponent
 import net.kyori.adventure.text.Component

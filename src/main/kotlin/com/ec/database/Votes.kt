@@ -8,7 +8,7 @@ object Votes: Table() {
     val year = integer("year")
     val month = integer("month")
     val day = integer("day")
-    val signedAt = long("signedAt")
+    val signedAt = long("signed_at")
 
     override val primaryKey = PrimaryKey(id)
 }

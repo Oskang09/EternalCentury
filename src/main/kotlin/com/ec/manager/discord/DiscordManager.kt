@@ -5,9 +5,7 @@ import club.minnced.jda.reactor.on
 import club.minnced.jda.reactor.onMessage
 import com.ec.ECCore
 import com.ec.database.Players
-import com.ec.database.model.ChatType
-import com.ec.database.model.economy.EconomyInfo
-import com.ec.database.model.point.PointInfo
+import com.ec.database.enums.ChatType
 import com.ec.logger.Logger
 import com.ec.manager.GlobalManager
 import com.ec.model.ObservableObject
@@ -16,7 +14,6 @@ import com.ec.util.RandomUtil
 import com.ec.util.StringUtil.generateUniqueID
 import com.ec.util.StringUtil.toComponent
 import dev.reactant.reactant.core.component.lifecycle.LifeCycleHook
-import io.papermc.paper.chat.ChatRenderer
 import io.papermc.paper.event.player.AsyncChatEvent
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA
@@ -28,8 +25,6 @@ import net.dv8tion.jda.api.entities.Role
 import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent
 import net.dv8tion.jda.api.requests.GatewayIntent
-import net.kyori.adventure.audience.Audience
-import net.kyori.adventure.identity.Identity
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -145,7 +140,7 @@ class DiscordManager: LifeCycleHook {
             .onMessage()
             .doOnError(Logger.trackError("DiscordManager.REGISTER_CHANNEL", "error occurs in discord event"))
             .doOnNext { it.message.delete().complete() }
-            .filter { globalManager.players.getByDiscordTag(it.message.author.asTag) == null }
+            .filter { !it.message.author.isBot && globalManager.players.getByDiscordTag(it.message.author.asTag) == null }
             .subscribe {
                 val name = it.message.contentRaw
                 if (!nameRegex.containsMatchIn(name)) {
@@ -168,8 +163,6 @@ class DiscordManager: LifeCycleHook {
                         data[lastOnlineAt] = Instant.now().epochSecond
                         data[enchantmentRandomSeed] = RandomUtil.randomInteger(99999)
                         data[skins] = mutableListOf()
-                        data[balance] = EconomyInfo()
-                        data[points] = PointInfo()
                         data[permissions] = mutableListOf()
                         data[blockedTeleport] = mutableListOf()
                         data[ignoredPlayers] = mutableListOf()

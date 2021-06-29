@@ -1,15 +1,17 @@
-package com.ec.minecraft.point
+package com.ec.minecraft.wallet
 
-import com.ec.database.model.point.PointDetail
-import com.ec.manager.point.PointAPI
+import com.ec.database.Wallet
+import com.ec.manager.wallet.WalletAPI
+import com.ec.manager.wallet.WalletManager
 import com.ec.util.StringUtil.toComponent
 import dev.reactant.reactant.extensions.itemMeta
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 
-class SeasonPoint: PointAPI("season") {
-    override fun getItemStack(point: PointDetail): ItemStack {
+class SeasonWallet: WalletAPI(WalletManager.SEASON_WALLET) {
+
+    override fun getItemStack(wallet: Wallet): ItemStack {
         val stack = ItemStack(Material.GRASS_BLOCK)
         stack.itemMeta<ItemMeta> {
             displayName("&b赛季点数".toComponent())
@@ -19,15 +21,15 @@ class SeasonPoint: PointAPI("season") {
                 "&f每个赛季的点数是通用的",
                 "&f能够兑换赛季专有物品",
                 "&7&l --- &f&l点数咨询 &7&l--- ",
-                "&f所有点数 - &e${point.total}",
-                "&f剩余点数 - &e${point.balance}",
-                "&f点数阶级 - &e${point.grade}"
+                "&f所有点数 - &e${wallet.total}",
+                "&f剩余点数 - &e${wallet.balance}",
+                "&f点数阶级 - &e${wallet.grade}"
             ).toComponent())
         }
         return stack
     }
 
-    override fun getGrade(point: PointDetail): Int {
+    override fun getGrade(wallet: Wallet): Int {
         return 1
     }
 

@@ -1,9 +1,7 @@
 package com.ec.database
 
-import com.ec.database.model.economy.EconomyInfo
-import com.ec.database.model.point.PointInfo
+import com.ec.database.enums.PlayerStatus
 import com.ec.database.types.array
-import com.ec.database.types.json
 import org.jetbrains.exposed.sql.Table
 
 object Players: Table() {
@@ -19,13 +17,13 @@ object Players: Table() {
     val plotLimit = integer("plot_limit").default(1)
     val auctionLimit = integer("auction_limit").default(1)
     val skins = array("skins", String::class.java)
-    val balance = json("balance", EconomyInfo::class.java)
-    val points = json("points", PointInfo::class.java)
     val permissions = array("permissions", String::class.java)
     // list of players uuid
     val blockedTeleport = array("blocked_teleport", String::class.java)
     // list of players uuid
     val ignoredPlayers = array("ignored_players", String::class.java)
+    val status = enumerationByName("status", 20, PlayerStatus::class).default(PlayerStatus.ACTIVE)
+    val reason = text("reason").default("")
 
     override val primaryKey = PrimaryKey(id)
 }

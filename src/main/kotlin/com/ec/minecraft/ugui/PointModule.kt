@@ -48,15 +48,15 @@ class PointModule: ModuleAPI() {
 
         override fun action(player: Player) {
             when (type) {
-                ModuleType.REQUIREMENT -> globalManager.points.withdrawPlayerPoint(player, name, value)
-                ModuleType.REWARD -> globalManager.points.depositPlayerPoint(player, name, value)
+                ModuleType.REQUIREMENT -> globalManager.wallets.withdrawPlayerWallet(player, name, value)
+                ModuleType.REWARD -> globalManager.wallets.depositPlayerWallet(player, name, value)
                 ModuleType.ITEM_PROVIDER -> {}
             }
         }
 
         override fun check(player: Player): Boolean {
             if (type == ModuleType.REQUIREMENT) {
-                return globalManager.points.hasPlayerPoint(player, name, value)
+                return globalManager.wallets.playerHas(player, name, value)
             }
             return true
         }

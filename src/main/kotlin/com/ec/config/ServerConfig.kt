@@ -8,14 +8,21 @@ data class ServerConfig(
     val auctionNpcId: Int = 0,
     val repairEnchantmentPrice: Float = 100F,
     var repairRate: Float =  1F, // 0.5 = 50%,
-    val apiKey: String = "",
     val discord: ServerDiscordConfig = ServerDiscordConfig(),
+    val payment: ServerPaymentConfig = ServerPaymentConfig(),
     var maintenance: Boolean = false,
     val allowedCommands: List<String> = listOf(),
     val adminPlayers: List<String> = listOf(),
     val teleportBlockedWorlds: List<String> = listOf(),
     val teleports: MutableMap<String, LocationConfig> = mutableMapOf(),
     val signRewards: MutableMap<String, List<RewardConfig>> = mutableMapOf()
+)
+
+data class ServerPaymentConfig(
+    val environment: String = "",
+    val clientId: String ="",
+    val clientSecret: String = "",
+    val privateKey: String = "",
 )
 
 data class ServerDiscordConfig(

@@ -5,11 +5,14 @@ import com.ec.manager.inventory.component.PaginationItem
 import com.ec.manager.inventory.component.PaginationUI
 import com.ec.manager.inventory.component.PaginationUIProps
 import com.ec.util.BannerUtil
+import com.ec.util.InstantUtil.toMalaysiaReadableTime
 import com.ec.util.StringUtil.toComponent
+import dev.reactant.reactant.extensions.itemMeta
 import org.bukkit.Material
 import org.bukkit.entity.HumanEntity
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.ItemMeta
 
 class ActivityUI: PaginationUI<Unit>("activity") {
 
@@ -31,6 +34,14 @@ class ActivityUI: PaginationUI<Unit>("activity") {
 
                 if (minute.length == 1) {
                     minute = "0$minute"
+                }
+
+                it.display.itemMeta<ItemMeta> {
+                    val lores = lore() ?: mutableListOf()
+                    lores.add("".toComponent())
+                    lores.add("&7开放时间 - &f${it.startInstant().toEpochSecond().toMalaysiaReadableTime()}".toComponent())
+                    lores.add("&7结束时间 - &f${it.endInstant().toEpochSecond().toMalaysiaReadableTime()}".toComponent())
+                    lore(lores)
                 }
 
                 display.add(it.display)

@@ -5,12 +5,13 @@ import com.ec.manager.activity.ActivityAPI
 import com.ec.manager.enchantment.EnchantmentAPI
 import com.ec.manager.inventory.UIProvider
 import com.ec.manager.papi.PlaceholderAPI
-import com.ec.manager.point.PointAPI
+import com.ec.manager.wallet.WalletAPI
 import com.ec.manager.title.TitleAPI
 import com.ec.manager.ugui.ModuleAPI
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.component.lifecycle.LifeCycleHook
 import dev.reactant.reactant.extra.command.ReactantCommand
+import org.bukkit.Bukkit
 import org.reflections8.Reflections
 import java.lang.reflect.Modifier
 
@@ -52,8 +53,8 @@ class ReflectionManager: LifeCycleHook {
         }
     }
 
-    fun loopPoints(action: (PointAPI) -> Unit) {
-        reflections.getSubTypesOf(PointAPI::class.java).forEach {
+    fun loopWallets(action: (WalletAPI) -> Unit) {
+        reflections.getSubTypesOf(WalletAPI::class.java).forEach {
             action(it.getDeclaredConstructor().newInstance())
         }
     }

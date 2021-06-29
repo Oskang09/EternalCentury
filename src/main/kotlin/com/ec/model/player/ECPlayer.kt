@@ -2,7 +2,7 @@ package com.ec.model.player
 
 import com.ec.database.Players
 import com.ec.database.Titles
-import com.ec.database.model.ChatType
+import com.ec.database.enums.ChatType
 import com.ec.logger.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking

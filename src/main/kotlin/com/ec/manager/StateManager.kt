@@ -1,6 +1,7 @@
 package com.ec.manager
 
 import com.ec.config.StateConfig
+import com.ec.database.Players
 import com.ec.logger.Logger
 import com.ec.model.ObservableMap
 import com.ec.util.InstantUtil.toMalaysiaSystemDate
@@ -34,8 +35,7 @@ class StateManager(
 
     private val taskMapper = mutableMapOf<String, Disposable>()
     private val states = mutableMapOf<String, Config<StateConfig>>()
-    val balanceRanks = mutableMapOf<String, Int>()
-    val mcmmoRanks = mutableMapOf<String, Int>()
+    val ranks = mutableMapOf<String, Pair<Int, Double>>()
     val teleportPlayers = ObservableMap<String, String>()
 
     fun onInitialize(globalManager: GlobalManager) {
@@ -75,9 +75,37 @@ class StateManager(
 
         }
 
-        refreshRanking()
         continuousTask(3600) {
             refreshRanking()
+        }
+    }
+
+    private fun refreshRanking() {
+        transaction {
+            TransactionManager.current().exec("""
+                    SELECT 
+                        "player_id",
+                        "type",
+                        "total",
+                        RANK() OVER ( 
+                            PARTITION BY type
+                            ORDER BY "Wallets".balance DESC
+                        ) as "rank"
+                    FROM 
+                        Wallets
+                """.trimIndent()) {
+                if (it.isClosed) {
+                    return@exec
+                }
+
+                val player = it.getString("player_id")
+                val type = it.getString("type")
+                val rank = it.getInt("rank")
+                val total = it.getDouble("total")
+                ranks["$player@$type"] = Pair(rank, total)
+            }
+
+            globalManager.message.broadcast("伺服排行榜刷新了,下次刷新是一小时后哦！")
         }
     }
 
@@ -91,28 +119,9 @@ class StateManager(
         config.save().subscribe()
     }
 
-    private fun refreshRanking() {
-        transaction {
-            TransactionManager.current().exec("""
-                    SELECT 
-                        id, 
-                        RANK() OVER ( ORDER BY json_extract("Players".balance, '$.balance') DESC ) as rank
-                    FROM Players 
-                """.trimIndent()) {
-                balanceRanks[it.getString("id")] = it.getInt("rank")
-            }
-
-            TransactionManager.current().exec("""
-                    SELECT 
-                        player_id, 
-                        RANK() OVER ( ORDER BY "Points".balance DESC ) as rank
-                    FROM Points
-                """.trimIndent()) {
-                mcmmoRanks[it.getString("player_id")] = it.getInt("rank")
-            }
-
-            globalManager.message.broadcast("伺服排行榜已经刷新了。")
-        }
+    fun getPlayerRank(player: Player, walletName: String): Pair<Int, Double> {
+        val p = globalManager.players.getByPlayerName(player.name)!!
+        return ranks[p[Players.id] + "@" + walletName]!!
     }
 
     fun disposeTask(key: String) {

@@ -4,6 +4,7 @@ import com.ec.database.Players
 import com.ec.database.ZombieFights
 import com.ec.manager.GlobalManager
 import com.ec.manager.activity.ActivityAPI
+import com.ec.manager.wallet.WalletManager
 import com.ec.util.ChanceUtil
 import com.ec.util.RandomUtil
 import com.ec.util.StringUtil.generateUniqueID
@@ -234,7 +235,7 @@ class ZombieFight: ActivityAPI("zombie-fight") {
                             it[month] = endDateTime.monthValue
                             it[day] = endDateTime.dayOfMonth
 
-                            globalManager.points.depositPlayerPoint(pair.first, "activity", 1.0)
+                            globalManager.wallets.depositPlayerWallet(pair.first, WalletManager.ACTIVITY_WALLET, 1.0)
                             globalManager.economy.depositPlayer(pair.first, 500.0)
                             if (overallRank <= 3) {
                                 globalManager.givePlayerItem(

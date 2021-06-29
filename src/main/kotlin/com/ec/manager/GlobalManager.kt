@@ -2,7 +2,6 @@ package com.ec.manager
 
 import com.ec.ECCore
 import com.ec.config.ServerConfig
-import com.ec.config.StateConfig
 import com.ec.database.Mails
 import com.ec.database.Players
 import com.ec.database.model.Reward
@@ -18,7 +17,7 @@ import com.ec.minecraft.ugui.UguiProvider
 import com.ec.manager.papi.PlaceholderManager
 import com.ec.manager.payment.PaymentManager
 import com.ec.manager.player.PlayerManager
-import com.ec.manager.point.PointManager
+import com.ec.manager.wallet.WalletManager
 import com.ec.manager.title.TitleManager
 import com.ec.logger.Logger
 import com.ec.manager.packet.PacketManager
@@ -56,7 +55,7 @@ class GlobalManager(
     val enchantments: EnchantmentManager,
     val placeholders: PlaceholderManager,
     val titles: TitleManager,
-    val points: PointManager,
+    val wallets: WalletManager,
     val items: ItemManager,
     val discord: DiscordManager,
     val inventory: UIManager,
@@ -189,7 +188,7 @@ class GlobalManager(
         payments.onInitialize(this)
         players.onInitialize(this)
         titles.onInitialize(this)
-        points.onInitialize(this)
+        wallets.onInitialize(this)
         inventory.onInitialize(this)
         items.onInitialize(this)
         crates.onInitialize(this)

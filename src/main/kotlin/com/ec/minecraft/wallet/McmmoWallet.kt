@@ -1,8 +1,9 @@
-package com.ec.minecraft.point
+package com.ec.minecraft.wallet
 
-import com.ec.database.model.point.PointDetail
+import com.ec.database.Wallet
 import com.ec.manager.GlobalManager
-import com.ec.manager.point.PointAPI
+import com.ec.manager.wallet.WalletAPI
+import com.ec.manager.wallet.WalletManager
 import com.ec.util.StringUtil.toComponent
 import com.gmail.nossr50.events.experience.McMMOPlayerLevelUpEvent
 import dev.reactant.reactant.extensions.itemMeta
@@ -11,13 +12,13 @@ import org.bukkit.event.EventPriority
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 
-class McmmoPoint: PointAPI("mcmmo") {
+class McmmoWallet: WalletAPI(WalletManager.MCMMO_WALLET) {
 
-    override fun getGrade(point: PointDetail): Int {
+    override fun getGrade(wallet: Wallet): Int {
         return 1
     }
 
-    override fun getItemStack(point: PointDetail): ItemStack {
+    override fun getItemStack(wallet: Wallet): ItemStack {
         val stack = ItemStack(Material.BOOK)
         stack.itemMeta<ItemMeta> {
             displayName("&aMMO点数".toComponent())
@@ -26,9 +27,9 @@ class McmmoPoint: PointAPI("mcmmo") {
                 "&f此点数为玩家MCMMO的总等级，就算季节刷新他都会永远保存",
                 "&f玩家在每次升级的时候都会获得一点，所以一点也代表一个等级",
                 "&7&l --- &f&l点数咨询 &7&l--- ",
-                "&f所有点数 - &e${point.total}",
-                "&f剩余点数 - &e${point.balance}",
-                "&f点数阶级 - &e${point.grade}"
+                "&f所有点数 - &e${wallet.total}",
+                "&f剩余点数 - &e${wallet.balance}",
+                "&f点数阶级 - &e${wallet.grade}"
             ).toComponent())
         }
         return stack
@@ -42,7 +43,7 @@ class McmmoPoint: PointAPI("mcmmo") {
             McMMOPlayerLevelUpEvent::class
                 .observable( true, EventPriority.HIGHEST)
                 .subscribe {
-                    globalManager.points.depositPlayerPoint(it.player, "mcmmo", it.levelsGained.toDouble())
+                    globalManager.wallets.depositPlayerWallet(it.player, super.id, it.levelsGained.toDouble())
                 }
 
         }

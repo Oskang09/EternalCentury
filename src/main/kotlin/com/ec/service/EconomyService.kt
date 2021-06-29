@@ -1,10 +1,8 @@
 package com.ec.service
 
-import com.ec.database.Economies
 import com.ec.database.Players
-import com.ec.database.model.economy.EconomyInfo
-import com.ec.database.model.economy.EconomyType
 import com.ec.manager.GlobalManager
+import com.ec.manager.wallet.WalletManager
 import com.ec.util.DoubleUtil.roundTo
 import com.ec.util.StringUtil.generateUniqueID
 import dev.reactant.reactant.core.component.Component
@@ -70,13 +68,11 @@ class EconomyService: Economy {
     }
 
     override fun getBalance(playerName: String): Double {
-        val ecPlayer = globalManager.players.getByPlayerName(playerName) ?: return 0.0
-        return ecPlayer[Players.balance].balance
+        return globalManager.wallets.playerWallet(playerName, WalletManager.ECONOMY_WALLET).balance
     }
 
     override fun getBalance(player: OfflinePlayer): Double {
-        val ecPlayer = globalManager.players.getByOfflinePlayer(player) ?: return 0.0
-        return ecPlayer[Players.balance].balance
+        return globalManager.wallets.playerWallet(player.name!!, WalletManager.ECONOMY_WALLET).balance
     }
 
     override fun getBalance(playerName: String, world: String): Double {
@@ -88,16 +84,12 @@ class EconomyService: Economy {
     }
 
     override fun has(playerName: String, amount: Double): Boolean {
-        val ecPlayer = globalManager.players.getByPlayerName(playerName) ?: return false
-        val balance = ecPlayer[Players.balance].balance
-        return balance >= amount
+        return globalManager.wallets.playerHas(playerName, WalletManager.ECONOMY_WALLET, amount)
 
     }
 
     override fun has(player: OfflinePlayer, amount: Double): Boolean {
-        val ecPlayer = globalManager.players.getByOfflinePlayer(player) ?: return false
-        val balance = ecPlayer[Players.balance].balance
-        return balance >= amount
+        return has(player.name!!, amount)
     }
 
     override fun has(playerName: String, worldName: String?, amount: Double): Boolean {
@@ -109,75 +101,17 @@ class EconomyService: Economy {
     }
 
     override fun withdrawPlayer(playerName: String, amount: Double): EconomyResponse {
-        return transaction {
-            val ecPlayer = globalManager.players.getByPlayerName(playerName)!!
-
-            Economies.insert {
-                it[id] = "".generateUniqueID()
-                it[playerId] = ecPlayer[Players.id]
-                it[type] = EconomyType.WITHDRAW
-                it[balance] = amount
-                it[actionAt] = Instant.now().epochSecond
-            }
-
-            val nextBalance = (ecPlayer[Players.balance].balance + amount).roundTo(2)
-            val total = Economies
-                .select { Economies.playerId eq ecPlayer[Players.id] }
-                .andWhere { Economies.type eq EconomyType.DEPOSIT }
-                .sumOf { it[Economies.balance] }
-
-            Players.update({ Players.id eq ecPlayer[Players.id] }) {
-                it[balance] = EconomyInfo(
-                    total,
-                    nextBalance,
-                    Instant.now().epochSecond
-                )
-            }
-
-            globalManager.players.refreshPlayerIfOnline(UUID.fromString(ecPlayer[Players.uuid]!!))
-            return@transaction EconomyResponse(
-                amount,
-                nextBalance,
-                EconomyResponse.ResponseType.SUCCESS,
-                ""
-            )
-        }
+        val wallet = globalManager.wallets.withdrawPlayerWallet(playerName, WalletManager.ECONOMY_WALLET, amount)
+        return EconomyResponse(
+            amount,
+            wallet.balance,
+            EconomyResponse.ResponseType.SUCCESS,
+            ""
+        )
     }
 
     override fun withdrawPlayer(player: OfflinePlayer, amount: Double): EconomyResponse {
-        return transaction {
-            val ecPlayer = globalManager.players.getByOfflinePlayer(player)!!
-
-            Economies.insert {
-                it[id] = "".generateUniqueID()
-                it[playerId] = ecPlayer[Players.id]
-                it[type] = EconomyType.WITHDRAW
-                it[balance] = amount
-                it[actionAt] = Instant.now().epochSecond
-            }
-
-            val nextBalance = (ecPlayer[Players.balance].balance - amount).roundTo(2)
-            val total = Economies
-                .select { Economies.playerId eq ecPlayer[Players.id] }
-                .andWhere { Economies.type eq EconomyType.DEPOSIT }
-                .sumOf { it[Economies.balance] }
-
-            Players.update({ Players.id eq ecPlayer[Players.id] }) {
-                it[balance] = EconomyInfo(
-                    total,
-                    nextBalance,
-                    Instant.now().epochSecond
-                )
-            }
-
-            globalManager.players.refreshPlayerIfOnline(UUID.fromString(ecPlayer[Players.uuid]!!))
-            return@transaction EconomyResponse(
-                amount,
-                nextBalance,
-                EconomyResponse.ResponseType.SUCCESS,
-                ""
-            )
-        }
+        return withdrawPlayer(player.name!!, amount)
     }
 
     override fun withdrawPlayer(playerName: String, worldName: String, amount: Double): EconomyResponse {
@@ -189,75 +123,17 @@ class EconomyService: Economy {
     }
 
     override fun depositPlayer(playerName: String, amount: Double): EconomyResponse {
-        return transaction {
-            val ecPlayer = globalManager.players.getByPlayerName(playerName)!!
-
-            Economies.insert {
-                it[id] = "".generateUniqueID()
-                it[playerId] = ecPlayer[Players.id]
-                it[type] = EconomyType.DEPOSIT
-                it[balance] = amount
-                it[actionAt] = Instant.now().epochSecond
-            }
-
-            val nextBalance = (ecPlayer[Players.balance].balance + amount).roundTo(2)
-            val total = Economies
-                .select { Economies.playerId eq ecPlayer[Players.id] }
-                .andWhere { Economies.type eq EconomyType.DEPOSIT }
-                .sumOf { it[Economies.balance] }
-
-            Players.update({ Players.id eq ecPlayer[Players.id] }) {
-                it[balance] = EconomyInfo(
-                    total,
-                    nextBalance,
-                    Instant.now().epochSecond
-                )
-            }
-
-            globalManager.players.refreshPlayerIfOnline(UUID.fromString(ecPlayer[Players.uuid]!!))
-            return@transaction EconomyResponse(
-                amount,
-                nextBalance,
-                EconomyResponse.ResponseType.SUCCESS,
-                ""
-            )
-        }
+        val wallet = globalManager.wallets.depositPlayerWallet(playerName, WalletManager.ECONOMY_WALLET, amount)
+        return EconomyResponse(
+            amount,
+            wallet.balance,
+            EconomyResponse.ResponseType.SUCCESS,
+            ""
+        )
     }
 
     override fun depositPlayer(player: OfflinePlayer, amount: Double): EconomyResponse {
-        return transaction {
-            val ecPlayer = globalManager.players.getByOfflinePlayer(player)!!
-
-            Economies.insert {
-                it[id] = "".generateUniqueID()
-                it[playerId] = ecPlayer[Players.id]
-                it[type] = EconomyType.DEPOSIT
-                it[balance] = amount
-                it[actionAt] = Instant.now().epochSecond
-            }
-
-            val nextBalance = (ecPlayer[Players.balance].balance + amount).roundTo(2)
-            val total = Economies
-                .select { Economies.playerId eq ecPlayer[Players.id] }
-                .andWhere { Economies.type eq EconomyType.DEPOSIT }
-                .sumOf { it[Economies.balance] }
-
-            Players.update({ Players.id eq ecPlayer[Players.id] }) {
-                it[balance] = EconomyInfo(
-                    total,
-                    nextBalance,
-                    Instant.now().epochSecond
-                )
-            }
-
-            globalManager.players.refreshPlayerIfOnline(UUID.fromString(ecPlayer[Players.uuid]!!))
-            return@transaction EconomyResponse(
-                amount,
-                nextBalance,
-                EconomyResponse.ResponseType.SUCCESS,
-                ""
-            )
-        }
+        return depositPlayer(player.name!!, amount)
     }
 
     override fun depositPlayer(playerName: String, worldName: String, amount: Double): EconomyResponse {

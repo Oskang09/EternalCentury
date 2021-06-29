@@ -9,25 +9,25 @@ import org.bukkit.Material
 import org.bukkit.entity.HumanEntity
 import org.bukkit.entity.Player
 
-class PointUI: PaginationUI<Unit>("point") {
+class WalletUI: PaginationUI<Unit>("wallet") {
 
     override fun info(props: PaginationUIProps): UIBase {
         return UIBase(
-            title = "&b[&5系统&b] &6点数咨询"
+            title = "&b[&5系统&b] &6钱包咨询"
         )
     }
 
     override fun props(player: HumanEntity): PaginationUIProps {
-        val allPoints = globalManager.points.getPoints()
+        val allWallets = globalManager.wallets.getWallets()
         return PaginationUIProps(
             info = globalManager.component.item(Material.DIAMOND) {
-                it.displayName("&b[&5系统&b] &6点数咨询".toComponent())
-                it.lore(arrayListOf("&7点数数量 &f- &a${allPoints.size}").toComponent())
+                it.displayName("&b[&5系统&b] &6钱包咨询".toComponent())
+                it.lore(arrayListOf("&7点数数量 &f- &a${allWallets.size}").toComponent())
             },
             items = {
-                allPoints.map { (name, point) ->
-                    val playerPoint = globalManager.points.getPointByNameFromPlayer(name, player as Player)
-                    return@map PaginationItem(item = point.getItemStack(playerPoint))
+                allWallets.map { (name, wallet) ->
+                    val playerWallet = globalManager.wallets.playerWallet(player.name, name)
+                    return@map PaginationItem(item = wallet.getItemStack(playerWallet))
                 }
             }
         )

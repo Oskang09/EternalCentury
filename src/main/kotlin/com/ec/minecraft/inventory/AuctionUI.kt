@@ -7,6 +7,7 @@ import com.ec.manager.inventory.UIBase
 import com.ec.manager.inventory.component.IteratorItem
 import com.ec.manager.inventory.component.IteratorUI
 import com.ec.manager.inventory.component.IteratorUIProps
+import com.ec.manager.wallet.WalletManager
 import com.ec.util.DoubleUtil.roundTo
 import com.ec.util.QueryUtil.iterator
 import com.ec.util.StringUtil.generateUniqueID
@@ -65,7 +66,7 @@ class AuctionUI: IteratorUI<AuctionUI.AuctionUIProps>("auction") {
                 it.lore(arrayListOf(
                     "&7分类类别 &f- &a${filterType}",
                     "&7分类数值 &f- &a${filterResult}",
-                    "&7拥有金钱 &f- &a${ecPlayer.database[Players.balance].balance}"
+                    "&7拥有金钱 &f- &a${globalManager.wallets.playerWallet(player.name, WalletManager.ECONOMY_WALLET)}"
                 ).toComponent())
             },
             extras = listOf(

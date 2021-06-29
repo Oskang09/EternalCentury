@@ -2,6 +2,7 @@ package com.ec.minecraft.command
 
 import com.ec.database.Players
 import com.ec.manager.GlobalManager
+import com.ec.manager.wallet.WalletManager
 import dev.reactant.reactant.extra.command.ReactantCommand
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -26,8 +27,8 @@ internal class BalanceCommand(private val globalManager: GlobalManager): Reactan
             requireSenderIsPlayer()
 
             val player = sender as Player
-            val database = globalManager.players.getByPlayer(player).database
-            player.sendMessage(globalManager.message.system("金钱 ： &e&l${database[Players.balance].balance}"))
+            val wallet = globalManager.wallets.playerWallet(player.name, WalletManager.ECONOMY_WALLET)
+            player.sendMessage(globalManager.message.system("金钱 ： &e&l${wallet.balance}"))
             return
         }
 
@@ -41,7 +42,7 @@ internal class BalanceCommand(private val globalManager: GlobalManager): Reactan
             }
         }
 
-        val database = globalManager.players.getByPlayerName(target.name)!!
-        sender.sendMessage(globalManager.message.system("${target.name}的金钱 ： &e&l${database[Players.balance].balance}"))
+        val wallet = globalManager.wallets.playerWallet(target.name, WalletManager.ECONOMY_WALLET)
+        sender.sendMessage(globalManager.message.system("${target.name}的金钱 ： &e&l${wallet.balance}"))
     }
 }

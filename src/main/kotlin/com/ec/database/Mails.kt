@@ -14,8 +14,8 @@ object Mails: Table() {
     val content = varchar("content", 1024)
     val item = array("item", ItemStack::class.java)
     val rewards = array("rewards", RewardConfig::class.java)
-    val isRead = bool("isRead")
-    val createdAt = long("createdAt")
+    val isRead = bool("is_read")
+    val createdAt = long("created_at")
 
     override val primaryKey = PrimaryKey(id)
 }
