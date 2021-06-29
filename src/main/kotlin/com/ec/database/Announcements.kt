@@ -9,8 +9,8 @@ object Announcements: Table() {
     val title = varchar("title", 256)
     val content = varchar("content", 1024)
     val rewards = array("rewards", RewardConfig::class.java)
-    val createdAt = long("created_at")
-    val isExpired = bool("is_expired")
+    val createdAt = long("createdAt")
+    val isExpired = bool("isExpired")
 
     override val primaryKey = PrimaryKey(id)
 }

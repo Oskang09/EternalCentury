@@ -5,12 +5,12 @@ import org.jetbrains.exposed.sql.Table
 
 object Wallets: Table() {
     val id = varchar("id", 20)
-    val playerId = varchar("player_id", 20)
+    val playerId = varchar("playerId", 20)
     val type = varchar("type", 20)
     val grade = integer("grade")
     val total = double("total")
     val balance = double("balance")
-    val updatedAt = long("updated_at")
+    val updatedAt = long("updatedAt")
 
     override val primaryKey = PrimaryKey(id)
 }

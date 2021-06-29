@@ -10,7 +10,6 @@ import com.ec.util.StringUtil.generateUniqueID
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.component.lifecycle.LifeCycleHook
 import io.javalin.Javalin
-import org.bukkit.Bukkit
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction

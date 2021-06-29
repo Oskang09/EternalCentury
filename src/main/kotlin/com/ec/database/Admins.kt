@@ -1,17 +1,16 @@
 package com.ec.database
 
 import com.ec.database.enums.AdminStatus
-import com.ec.database.types.enum
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
 
 object Admins: Table() {
     val id = varchar("id", 20)
     val name = varchar("name", 150)
-    val apiKey = varchar("api_key", 30).uniqueIndex()
+    val apiKey = varchar("apiKey", 30).uniqueIndex()
     val status = enumerationByName("status", 30, AdminStatus::class)
-    val createdAt = long("created_at")
-    val updatedAt = long("updated_at")
+    val createdAt = long("createdAt")
+    val updatedAt = long("updatedAt")
 
     override val primaryKey = PrimaryKey(id)
 }

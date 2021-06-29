@@ -4,7 +4,7 @@ import org.jetbrains.exposed.sql.Table
 
 object ZombieFights: Table() {
     val id = varchar("id", 20)
-    val playerId = varchar("player_id", 20)
+    val playerId = varchar("playerId", 20)
     val damage = double("damage")
     val rank = integer("rank")
     val year = integer("year")
