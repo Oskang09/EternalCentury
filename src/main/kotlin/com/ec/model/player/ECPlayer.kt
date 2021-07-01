@@ -23,7 +23,7 @@ data class ECPlayer(var player: Player) {
     var playerJoinedAt: Instant = Instant.now()
     var state: ECPlayerAuthState = ECPlayerAuthState.LOGIN
     var gameState: ECPlayerGameState = ECPlayerGameState.FREE
-    var activityType: String = ""
+    var activityName: String = ""
 
     var database: ResultRow = transaction {
         return@transaction Players.select { Players.playerName eq player.name }.single()

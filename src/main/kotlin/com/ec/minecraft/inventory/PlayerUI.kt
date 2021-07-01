@@ -2,6 +2,8 @@ package com.ec.minecraft.inventory
 
 import com.ec.manager.inventory.UIBase
 import com.ec.manager.inventory.UIProvider
+import com.ec.minecraft.inventory.filter.YesOrNoUI
+import com.ec.model.player.ECPlayerGameState
 import com.ec.util.StringUtil.toComponent
 import dev.reactant.reactant.extensions.itemMeta
 import dev.reactant.resquare.dom.childrenOf
@@ -10,6 +12,8 @@ import dev.reactant.resquare.dom.unaryPlus
 import dev.reactant.resquare.elements.DivProps
 import dev.reactant.resquare.elements.div
 import dev.reactant.resquare.elements.styleOf
+import dev.reactant.resquare.event.EventHandler
+import dev.reactant.resquare.event.ResquareClickEvent
 import dev.reactant.resquare.render.useCancelRawEvent
 import org.bukkit.Material
 import org.bukkit.entity.HumanEntity
@@ -121,7 +125,12 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
                 material = Material.CRAFTING_TABLE,
                 display = "&f&l前往 &b[&5系统&b] &6随身工作台",
                 routeTo = "command:wb"
-            )
+            ),
+            PlayerUIPropsData(
+                material = Material.BARRIER,
+                display = "&6退出当前活动",
+                routeTo = "yesornoui"
+            ),
         )
         return PlayerUIProps(display)
     }
@@ -146,10 +155,37 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
                         item = item,
                         onClick = { event ->
                             val player = event.whoClicked as Player
-                            if (it.routeTo.startsWith("command:")) {
-                                player.performCommand(it.routeTo.replace("command:", ""))
-                            } else {
-                                globalManager.inventory.displayTo(player, it.routeTo)
+                            val ecPlayer = globalManager.players.getByPlayer(player)
+                            when  {
+                                it.routeTo.startsWith("command:") -> player.performCommand(it.routeTo.replace("command:", ""))
+                                it.routeTo == "yesornoui" -> {
+                                    when (ecPlayer.gameState == ECPlayerGameState.FREE) {
+                                        true -> player.sendMessage(globalManager.message.system("您不在任何活动中！"))
+                                        false -> {
+                                            globalManager.inventory.displaySelection(player, YesOrNoUI.YesOrNoUIProps(
+                                                title = "&f[&5系统&f] &a您确定要退出当前活动？",
+                                                onNo = { this.displayTo(player) },
+                                                onYes = {
+                                                    globalManager.activity.getActivityById(ecPlayer.activityName).onQuitEvent(player)
+                                                    ecPlayer.gameState = ECPlayerGameState.FREE
+                                                    ecPlayer.activityName = ""
+                                                }
+                                            ))
+                                        }
+                                    }
+                                }
+                                else -> {
+                                    when (it.routeTo) {
+                                        "teleport" -> {
+                                            if (ecPlayer.gameState == ECPlayerGameState.ACTIVITY) {
+                                                player.sendMessage(globalManager.message.system("您在活动中，无法进行传送！"))
+                                            } else {
+                                                globalManager.inventory.displayTo(player, it.routeTo)
+                                            }
+                                        }
+                                        else -> globalManager.inventory.displayTo(player, it.routeTo)
+                                    }
+                                }
                             }
                         }
                     ))

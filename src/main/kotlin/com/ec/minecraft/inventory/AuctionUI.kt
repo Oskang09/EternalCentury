@@ -43,7 +43,7 @@ class AuctionUI: IteratorUI<AuctionUI.AuctionUIProps>("auction") {
 
     override fun props(player: HumanEntity, props: AuctionUIProps?): IteratorUIProps {
         val ecPlayer = globalManager.players.getByPlayer(player as Player)
-        val query = Malls.select { Malls.playerId neq ecPlayer.database[Players.id ] }
+        val query = Malls.select { Malls.playerId neq  ecPlayer.database[Players.id ] }
         var filterType = "全部"
         var filterResult = "NULL"
         if (props != null) {
@@ -66,7 +66,7 @@ class AuctionUI: IteratorUI<AuctionUI.AuctionUIProps>("auction") {
                 it.lore(arrayListOf(
                     "&7分类类别 &f- &a${filterType}",
                     "&7分类数值 &f- &a${filterResult}",
-                    "&7拥有金钱 &f- &a${globalManager.wallets.playerWallet(player.name, WalletManager.ECONOMY_WALLET)}"
+                    "&7拥有金钱 &f- &a${globalManager.wallets.playerWallet(player.name, WalletManager.ECONOMY_WALLET).balance}"
                 ).toComponent())
             },
             extras = listOf(

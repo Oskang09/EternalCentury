@@ -1,11 +1,14 @@
 package com.ec.manager.activity
 
+import com.ec.logger.Logger
 import com.ec.manager.GlobalManager
 import com.ec.model.player.ECPlayerGameState
 import io.reactivex.rxjava3.disposables.Disposable
+import net.skinsrestorer.bukkit.listener.PlayerJoin
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.inventory.ItemStack
@@ -18,6 +21,8 @@ abstract class ActivityAPI(val id: String) {
         this.globalManager = globalManager
     }
 
+    var running: Boolean = false
+
     abstract val weekdays: List<DayOfWeek>
     abstract val startHour: Int
     abstract val startMinute: Int
@@ -28,7 +33,7 @@ abstract class ActivityAPI(val id: String) {
         return ZonedDateTime.now(ZoneId.of("Asia/Kuala_Lumpur"))
     }
 
-    private val disposers = mutableListOf<Disposable>()
+    protected val disposers = mutableListOf<Disposable>()
 
     fun startInstant(): ZonedDateTime {
         return current()
@@ -43,16 +48,18 @@ abstract class ActivityAPI(val id: String) {
     }
 
     open fun onStart() {
+        this.running = true
 
         globalManager.events {
 
             disposers.add(
                 PlayerDeathEvent::class
                     .observable(false, EventPriority.HIGHEST)
+                    .doOnError(Logger.trackError("ActivityAPI.PlayerDeathEvent", "error occurs in event subscriber"))
                     .filter {
                         val player = globalManager.players.getByPlayer(it.entity)
                         return@filter player.gameState == ECPlayerGameState.ACTIVITY
-                                && player.activityType == id
+                                && player.activityName == id
                     }
                     .subscribe { onDeath(it) }
             )
@@ -60,10 +67,11 @@ abstract class ActivityAPI(val id: String) {
             disposers.add(
                 PlayerRespawnEvent::class
                     .observable(false, EventPriority.HIGHEST)
+                    .doOnError(Logger.trackError("ActivityAPI.PlayerRespawnEvent", "error occurs in event subscriber"))
                     .filter {
                         val player = globalManager.players.getByPlayer(it.player)
                         return@filter player.gameState == ECPlayerGameState.ACTIVITY
-                                && player.activityType == id
+                                && player.activityName == id
                     }
                     .subscribe { onRespawn(it) }
             )
@@ -71,10 +79,11 @@ abstract class ActivityAPI(val id: String) {
             disposers.add(
                 PlayerQuitEvent::class
                     .observable(false, EventPriority.HIGHEST)
+                    .doOnError(Logger.trackError("ActivityAPI.PlayerQuitEvent", "error occurs in event subscriber"))
                     .filter {
                         val player = globalManager.players.getByPlayer(it.player)
                         return@filter player.gameState == ECPlayerGameState.ACTIVITY
-                                && player.activityType == id
+                                && player.activityName == id
                     }
                     .subscribe { onQuit(it) }
             )
@@ -84,11 +93,16 @@ abstract class ActivityAPI(val id: String) {
     }
 
     open fun onEnd() {
+        this.running = false
+
         disposers.forEach { it.dispose() }
+        disposers.clear()
     }
 
-    abstract fun onQuit(event: PlayerQuitEvent)
-    abstract fun onDeath(event: PlayerDeathEvent)
-    abstract fun onRespawn(event: PlayerRespawnEvent)
+    open fun onJoinEvent(player: Player) {}
+    open fun onQuitEvent(player: Player) {}
+    open fun onQuit(event: PlayerQuitEvent) {}
+    open fun onDeath(event: PlayerDeathEvent) {}
+    open fun onRespawn(event: PlayerRespawnEvent) {}
 
 }

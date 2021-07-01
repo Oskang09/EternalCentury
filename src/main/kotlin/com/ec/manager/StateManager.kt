@@ -35,7 +35,7 @@ class StateManager(
 
     private val taskMapper = mutableMapOf<String, Disposable>()
     private val states = mutableMapOf<String, Config<StateConfig>>()
-    val ranks = mutableMapOf<String, Pair<Int, Double>>()
+    private val ranks = mutableMapOf<String, Pair<Int, Double>>()
     val teleportPlayers = ObservableMap<String, String>()
 
     fun onInitialize(globalManager: GlobalManager) {
@@ -105,7 +105,7 @@ class StateManager(
                 ranks["$player@$type"] = Pair(rank, total)
             }
 
-            globalManager.message.broadcast("伺服排行榜刷新了,下次刷新是一小时后哦！")
+            globalManager.discord.broadcast("伺服排行榜刷新了,下次刷新是一小时后哦！")
         }
     }
 

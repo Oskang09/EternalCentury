@@ -38,6 +38,7 @@ class ECCore: JavaPlugin() {
                 Announcements, Mails, Malls, MallHistories, Issues,
                 Players, Titles, Votes, VoteRewards, Transactions,
                 Wallets, WalletHistories, Admins, AuditLogs,
+                ZombieFights,
             )
 
             exec("SELECT 1")

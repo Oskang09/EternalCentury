@@ -7,6 +7,7 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.minimessage.Template
 import net.kyori.adventure.text.minimessage.transformation.TransformationType
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 
 @dev.reactant.reactant.core.component.Component

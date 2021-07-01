@@ -9,6 +9,7 @@ import dev.reactant.resquare.elements.DivProps
 import dev.reactant.resquare.elements.div
 import dev.reactant.resquare.elements.styleOf
 import dev.reactant.resquare.render.useCancelRawEvent
+import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.entity.HumanEntity
 import org.bukkit.inventory.ItemStack
@@ -42,20 +43,15 @@ class RepairUI: UIProvider<RepairUI.RepairUIProps>("repair") {
 
     override fun props(player: HumanEntity): RepairUIProps {
         var repairRequired = 0.0
-        val mainHand = player.inventory.itemInMainHand
+        val mainHand = player.inventory.itemInOffHand
         if (mainHand.hasItemMeta() && mainHand.itemMeta is Damageable) {
             val meta = mainHand.itemMeta as Damageable
-
-            val currentDamage = meta.damage
-            val maxDurability = mainHand.type.maxDurability
-            val repairDamage = maxDurability - currentDamage
-
             val nbt = globalManager.items.deserializeFromItem(mainHand)
             nbt?.enchantments?.forEach { (_, level) ->
                 repairRequired += (level * globalManager.serverConfig.repairPrice)
             }
 
-            repairRequired = ((globalManager.serverConfig.repairPrice * repairDamage) * globalManager.serverConfig.repairRate).toDouble()
+            repairRequired = ((globalManager.serverConfig.repairPrice * meta.damage) * globalManager.serverConfig.repairRate).toDouble()
         }
         return RepairUIProps(mainHand, repairRequired )
     }

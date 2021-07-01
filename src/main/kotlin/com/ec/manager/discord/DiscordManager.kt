@@ -26,6 +26,7 @@ import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.ComponentLike
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
@@ -79,29 +80,17 @@ class DiscordManager: LifeCycleHook {
                     }
 
                     val sender = it.player
-                    val chatType = when {
-                        it.message().contains("@party ".toComponent()) -> {
-                            it.message(it.message().replaceText { cfg ->
-                                cfg.match("@party ").replacement("")
-                            })
-                            ChatType.PARTY
-                        }
-                        else -> ChatType.GLOBAL
-                    }
+                    val chatType = ChatType.GLOBAL
 
                     val prefix = globalManager.message.playerChatPrefix(chatType)
                     it.renderer { source, _, message, _ ->
                         prefix.append("&r ".toComponent()).append(source.displayName()).append("&r : ".toComponent()).append(message)
                     }
-                    if (chatType != ChatType.PARTY) {
-                        val ignored = globalManager.players.getByPlayer(sender).database[Players.ignoredPlayers]
-                        it.viewers().removeIf { p ->
-                            if (p !is Player) return@removeIf false
-                            return@removeIf ignored.contains(p.uniqueId.toString())
-                        }
-                    } else {
-                        it.isCancelled = true
-                        globalManager.mcmmo.getPlayerParty(sender).map { p -> p.sendMessage(it.message()) }
+
+                    val ignored = globalManager.players.getByPlayer(sender).database[Players.ignoredPlayers]
+                    it.viewers().removeIf { p ->
+                        if (p !is Player) return@removeIf false
+                        return@removeIf ignored.contains(p.uniqueId.toString())
                     }
                 }
         }
@@ -169,6 +158,7 @@ class DiscordManager: LifeCycleHook {
                         data[skinLimit] = 1
                         data[plotLimit] = 1
                         data[auctionLimit] = 1
+                        data[homeLimit] = 1
                     }
                 }
 
@@ -235,20 +225,20 @@ class DiscordManager: LifeCycleHook {
 
     fun broadcast(message: String, item: ItemStack? = null) {
         var discordMessage = message
-        val component = globalManager.message.broadcast("")
+        var component = globalManager.message.broadcast("")
         if (message.contains("%item%") && item != null) {
-            component.append(Component.text(message[0]))
+            component = component.append(Component.text(message[0]))
             val name = item.itemMeta?.displayName() ?: item.displayName()
             val hoverEvent = Bukkit.getServer().itemFactory.asHoverEvent(item) { return@asHoverEvent it }
-            component.append(Component.text("&7")
+            component = component.append(Component.text("&7")
                 .append(name)
                 .append("&7]&r".toComponent())
                 .hoverEvent(hoverEvent)
             )
-            component.append(Component.text(message[1]))
+            component = component.append(Component.text(message[1]))
             discordMessage = message.replace("%item%", " ${globalManager.message.plain(name)}(游戏内查看) ")
         } else {
-            component.append(message.toComponent())
+            component = component.append(message.toComponent())
         }
 
         annoucementChannel.sendMessage(discordMessage).queue()

@@ -32,7 +32,7 @@ class UITriggerCommand(private val globalManager: GlobalManager): ReactantComman
         val player = Bukkit.getPlayer(playerName)!!
         when (uiName) {
             "repair" -> {
-                val item = player.inventory.itemInMainHand
+                val item = player.inventory.itemInOffHand
                 if (item.hasItemMeta() && item.itemMeta is Damageable) {
                     return globalManager.inventory.displayRepair(player)
                 }

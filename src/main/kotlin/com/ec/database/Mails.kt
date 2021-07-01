@@ -11,7 +11,7 @@ object Mails: Table() {
     val playerId = varchar("playerId", 20)
     val announcementId = varchar("announcementId", 20).nullable()
     val title = varchar("title", 256)
-    val content = varchar("content", 1024)
+    val content = array("content", String::class.java)
     val item = array("item", ItemStack::class.java)
     val rewards = array("rewards", RewardConfig::class.java)
     val isRead = bool("isRead")

@@ -5,6 +5,7 @@ import com.ec.manager.inventory.component.IteratorUI
 import com.ec.manager.inventory.component.PaginationUI
 import com.ec.minecraft.inventory.AuctionUI
 import com.ec.minecraft.inventory.filter.ItemUI
+import com.ec.minecraft.inventory.filter.YesOrNoUI
 import dev.reactant.reactant.core.component.Component
 import org.bukkit.Material
 import org.bukkit.entity.HumanEntity
@@ -36,6 +37,11 @@ class UIManager {
     fun displayItemFilter(player: Player, onSelect: (Material?, String?) -> Unit) {
         val ui = uis["item-filter"]!! as PaginationUI<ItemUI.InputProps>
         ui.displayWithProps(player, ItemUI.InputProps(onSelect = onSelect))
+    }
+
+    fun displaySelection(player: Player, props: YesOrNoUI.YesOrNoUIProps) {
+        val ui = uis["yesorno"]!! as YesOrNoUI
+        ui.displayTo(player, props)
     }
 
     fun displayAuction(player: Player, props: AuctionUI.AuctionUIProps? = null) {

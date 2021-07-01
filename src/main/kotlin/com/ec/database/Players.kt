@@ -16,6 +16,7 @@ object Players: Table() {
     val skinLimit = integer("skinLimit").default(1)
     val plotLimit = integer("plotLimit").default(1)
     val auctionLimit = integer("auctionLimit").default(1)
+    val homeLimit = integer("homeLimit").default(1)
     val skins = array("skins", String::class.java)
     val permissions = array("permissions", String::class.java)
     // list of players uuid

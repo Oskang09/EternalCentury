@@ -90,7 +90,7 @@ class PartyModule: ModuleAPI() {
                 ModuleType.REWARD -> {
                     val activity = config["activity"] as String
                     globalManager.mcmmo.getPlayerParty(player).forEach { p ->
-                        globalManager.players.getByPlayer(p).activityType = activity
+                        globalManager.players.getByPlayer(p).activityName = activity
                         globalManager.players.getByPlayer(p).gameState = if (activity == "") {
                             ECPlayerGameState.FREE
                         } else {

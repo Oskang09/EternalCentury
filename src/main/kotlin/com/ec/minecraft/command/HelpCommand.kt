@@ -6,7 +6,7 @@ import dev.reactant.reactant.extra.command.ReactantCommand
 import picocli.CommandLine
 
 @CommandLine.Command(
-    name = "echelp",
+    name = "help",
     description = ["查看可用指令列表"]
 )
 internal class HelpCommand(private val globalManager: GlobalManager): ReactantCommand() {
@@ -41,13 +41,6 @@ internal class HelpCommand(private val globalManager: GlobalManager): ReactantCo
             "/party help   - 查看队伍指令列表",
             "/party        - 查看您的队伍咨询",
         ),
-        "res" to listOf(
-            "/res limits - 查看您的领地限制",
-            "/res help   - 查看领地指令列表",
-            "",
-            "1. 用 \"线\" 来查看领地是否其他玩家已经圈了",
-            "2. 用 \"木锄\" 来进行圈地"
-        ),
         "chat" to listOf(
             "@party <讯息>       - 发送队伍讯息",
             "[ item ]           - 展示手上的物品",
@@ -72,7 +65,6 @@ internal class HelpCommand(private val globalManager: GlobalManager): ReactantCo
             sender.sendMessage("&f/echelp       - 打开此指令列表".toComponent())
             sender.sendMessage("&f/echelp mcmmo - 打开MCMMO指令列表".toComponent())
             sender.sendMessage("&f/echelp party - 打开队伍指令列表".toComponent())
-            sender.sendMessage("&f/echelp res   - 打开领地指令列表".toComponent())
             sender.sendMessage("&f/echelp chat  - 打开聊天教学".toComponent())
             sender.sendMessage("&f/echelp basic - 打开基本指令列表".toComponent())
             return

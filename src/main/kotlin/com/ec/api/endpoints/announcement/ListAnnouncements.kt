@@ -12,8 +12,10 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class ListAnnouncements: EndpointAPI() {
+
     override val method = HandlerType.GET
     override val path = "/announcements"
+
     override val handler = Handler { ctx ->
         transaction {
             val query = Announcements.selectAll()
@@ -22,7 +24,6 @@ class ListAnnouncements: EndpointAPI() {
                 when (key) {
                     "id" -> query.andWhere { Announcements.id inList values }
                     "title" -> query.andWhere { Announcements.title like values[0] }
-                    "content" -> query.andWhere { Announcements.content like values[0] }
                     "cursor" -> cursor = values[0]
                 }
             }

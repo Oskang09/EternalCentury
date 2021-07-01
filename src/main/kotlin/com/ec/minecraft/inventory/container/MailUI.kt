@@ -82,7 +82,7 @@ class MailUI: IteratorUI<Unit>("mail") {
                     },
                     item = globalManager.component.item(material) { meta ->
                         meta.displayName(it[Mails.title].toComponent())
-                        val lore = it[Mails.content].split("\n").toMutableList()
+                        val lore = it[Mails.content]
                         if (it[Mails.rewards].size > 0) {
                             lore.add("")
                             lore.add("&f快递物件 &b>")

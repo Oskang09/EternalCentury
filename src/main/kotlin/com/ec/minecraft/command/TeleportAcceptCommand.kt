@@ -1,6 +1,7 @@
 package com.ec.minecraft.command
 
 import com.ec.manager.GlobalManager
+import com.ec.model.player.ECPlayerGameState
 import dev.reactant.reactant.extra.command.ReactantCommand
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -29,6 +30,12 @@ internal class TeleportAcceptCommand(private val globalManager: GlobalManager): 
 
         if (sender.name == target.name) {
             player.sendMessage(globalManager.message.system("您不能传送到你自己的位置。"))
+            return
+        }
+
+        val ecPlayer = globalManager.players.getByPlayer(player)
+        if (ecPlayer.gameState == ECPlayerGameState.ACTIVITY) {
+            player.sendMessage(globalManager.message.system("您在活动状态无法进行传送！"))
             return
         }
 

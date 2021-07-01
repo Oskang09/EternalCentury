@@ -33,7 +33,7 @@ abstract class EnchantmentAPI(val id: String) {
     }
 
     fun getDisplayLore(level: Int): Component {
-        return ("&e<font:minecraft:alt>" +emoji.text + "</font> &7" + display + " " + level.toRoman()).toComponent()
+        return ("&e" +emoji.text + " &7" + display + " " + level.toRoman()).toComponent()
     }
 
 }

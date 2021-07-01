@@ -20,8 +20,8 @@ class SendAnnouncement: EndpointAPI() {
 
     data class Request(
         val title: String,
-        val content: String,
-        val rewards: MutableList<RewardConfig>,
+        val content: List<String>,
+        val rewards: List<RewardConfig>,
     )
 
     override val handler = Handler { ctx ->
@@ -32,8 +32,8 @@ class SendAnnouncement: EndpointAPI() {
             val announcement = Announcements.insert { mail ->
                 mail[id] = "".generateUniqueID()
                 mail[title] = request.title
-                mail[content] = request.content
-                mail[rewards] = request.rewards
+                mail[content] = request.content.toMutableList()
+                mail[rewards] = request.rewards.toMutableList()
                 mail[createdAt] = Instant.now().epochSecond
                 mail[isExpired] = false
             }

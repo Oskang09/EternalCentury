@@ -5,6 +5,7 @@ import com.ec.manager.GlobalManager
 import dev.reactant.reactant.extra.command.ReactantCommand
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
+import org.jetbrains.exposed.sql.logTimeSpent
 import picocli.CommandLine
 
 @CommandLine.Command(
@@ -45,6 +46,10 @@ internal class PrivateMessageCommand(private val globalManager: GlobalManager): 
             player.sendMessage(globalManager.message.system("该玩家已经把你加入了聊天室黑名单。"))
             return
         }
-        target.sendMessage(globalManager.message.private(player, message.joinToString(" ")))
+
+        val message = globalManager.message.private(player, message.joinToString(" "))
+        Bukkit.getConsoleSender().sendMessage(message)
+        player.sendMessage(message)
+        target.sendMessage(message)
     }
 }

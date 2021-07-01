@@ -24,10 +24,13 @@ class ActivityManager {
         activitySchedule()
     }
 
+    fun getActivityById(id: String): ActivityAPI {
+        return activities[id]!!
+    }
+
     private fun activitySchedule() {
         val today = ZonedDateTime.now(ZoneId.of("Asia/Kuala_Lumpur"))
 
-        // schedule tomorrow task
         val tomorrow = today.plusDays(1)
         val tomorrowSeconds = ChronoUnit.SECONDS.between(today, tomorrow)
         globalManager.states.delayedTask(tomorrowSeconds) {

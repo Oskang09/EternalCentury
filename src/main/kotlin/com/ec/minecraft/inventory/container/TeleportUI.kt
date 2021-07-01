@@ -26,10 +26,11 @@ class TeleportUI: PaginationUI<Unit>("teleport") {
     }
 
     override fun props(player: HumanEntity): PaginationUIProps {
+        val playerState = globalManager.states.getPlayerState(player as Player)
         return PaginationUIProps(
             info = globalManager.component.item(Material.END_PORTAL_FRAME) {
                 it.displayName("&b[&5系统&b] &6传送咨询".toComponent())
-                it.lore(arrayListOf("&7传送点数量 &f-  &a3").toComponent())
+                it.lore(arrayListOf("&7传送点数量 &f-  &a${4 + playerState.homes.size}").toComponent())
             },
             {
                 listOf(
@@ -56,6 +57,7 @@ class TeleportUI: PaginationUI<Unit>("teleport") {
                                 "&5- &f玩家商店",
                                 "&5- &f狩猎贩卖",
                                 "&5- &f产物鉴定",
+                                "&5- &f活动大使",
                                 "&5- &f防疫大使"
                             ).toComponent())
                         },
@@ -91,6 +93,23 @@ class TeleportUI: PaginationUI<Unit>("teleport") {
                             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rtp ${player.name} world")
                         }
                     ),
+                    *playerState.homes.map { (name, location) ->
+                        return@map PaginationItem(
+                            item = globalManager.component.item(Material.CHEST) {
+                                it.displayName("&5&l传送到 &e家园&f($name)".toComponent())
+                                it.lore(arrayListOf(
+                                    "&7世界  - &f资源世界",
+                                    "&7坐标X - &f${location.location.x}",
+                                    "&7坐标Y - &f${location.location.y}",
+                                    "&7坐标Z - &f${location.location.z}",
+                                ).toComponent())
+                            },
+                            click = {
+                                player.closeInventory()
+                                player.teleportAsync(location.location)
+                            }
+                        )
+                    }.toTypedArray()
                 )
             }
         )

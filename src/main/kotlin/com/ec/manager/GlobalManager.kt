@@ -158,7 +158,7 @@ class GlobalManager(
                         it[id] = "".generateUniqueID()
                         it[playerId] = ecPlayer[Players.id]
                         it[title] = "&f[&5系统&f] &f未领取奖励"
-                        it[content] = "&f因为您离线或者背包满了所以物品寄托在了信箱。"
+                        it[content] = mutableListOf("&f因为您离线或者背包满了所以物品寄托在了信箱。")
                         it[item] = arrayListOf(*itemLeft.toTypedArray())
                         it[rewards] = arrayListOf()
                         it[isRead] = false

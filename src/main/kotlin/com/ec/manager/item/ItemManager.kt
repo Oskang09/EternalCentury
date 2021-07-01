@@ -178,6 +178,7 @@ class ItemManager(
     }
 
     fun hasItemNBT(item: ItemStack): Boolean {
+        if (item.type == Material.AIR) return false
         return NBTItem(item).hasKey("ecnbt")
     }
 

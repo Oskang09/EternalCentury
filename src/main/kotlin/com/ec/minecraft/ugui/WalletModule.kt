@@ -8,14 +8,14 @@ import me.oska.module.ModuleType
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 
-class PointModule: ModuleAPI() {
+class WalletModule: ModuleAPI() {
 
     override fun getIdentifier(): String {
-        return "point"
+        return "wallet"
     }
 
     override fun getName(): String {
-        return "PointModule"
+        return "WalletModule"
     }
 
     override fun supportParallel(): Boolean {

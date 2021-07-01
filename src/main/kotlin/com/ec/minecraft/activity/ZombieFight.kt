@@ -1,31 +1,33 @@
 package com.ec.minecraft.activity
 
+import com.ec.ECCore
 import com.ec.database.Players
 import com.ec.database.ZombieFights
+import com.ec.logger.Logger
 import com.ec.manager.GlobalManager
 import com.ec.manager.activity.ActivityAPI
 import com.ec.manager.wallet.WalletManager
+import com.ec.model.player.ECPlayerGameState
 import com.ec.util.ChanceUtil
 import com.ec.util.RandomUtil
 import com.ec.util.StringUtil.generateUniqueID
 import com.ec.util.StringUtil.toComponent
 import com.google.common.util.concurrent.AtomicDouble
-import io.reactivex.rxjava3.disposables.Disposable
+import net.kyori.adventure.bossbar.BossBar
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.attribute.Attribute
-import org.bukkit.boss.BarColor
-import org.bukkit.boss.BarFlag
-import org.bukkit.boss.BarStyle
 import org.bukkit.entity.*
 import org.bukkit.event.EventPriority
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
-import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.inventory.ItemStack
+import org.bukkit.metadata.FixedMetadataValue
+import org.bukkit.metadata.MetadataValue
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.DayOfWeek
@@ -34,12 +36,12 @@ import java.time.Duration
 class ZombieFight: ActivityAPI("zombie-fight") {
 
     // Configure State
-    private val bossBar = Bukkit.createBossBar("", BarColor.RED, BarStyle.SOLID)
-    private val world = ""
-    private val locationX = 0.0
-    private val locationY = 0.0
-    private val locationZ = 0.0
+    private val world = "spawn"
+    private val locationX = -8.0
+    private val locationY = 70.0
+    private val locationZ = 291.0
     private val customName = "&f[&e活动&f] &a恶人僵尸".toComponent()
+    private val bossBar = BossBar.bossBar(customName.append(" &f- &a等级1".toComponent()), 1F, BossBar.Color.RED, BossBar.Overlay.PROGRESS)
     private val mobList = listOf(
         EntityType.ZOMBIE,
         EntityType.SKELETON,
@@ -47,27 +49,27 @@ class ZombieFight: ActivityAPI("zombie-fight") {
 
     // Runtime State
     private var entity: Giant? = null
-    private var bossBarScheduler = ""
     private var spawnBase = 0
     private var tpBase = 0
     private var hitBase = 0
     private var bossLevel = 1
     private val totalDamageDeal = AtomicDouble()
-    private val listeners = mutableListOf<Disposable>()
     private val damages = mutableMapOf<String, AtomicDouble>()
 
-    override val weekdays = listOf(
-        DayOfWeek.WEDNESDAY,
-        DayOfWeek.SATURDAY
-    )
+//    override val weekdays = listOf(
+//        DayOfWeek.WEDNESDAY,
+//        DayOfWeek.SATURDAY
+//    )
+    override val weekdays = DayOfWeek.values().toList()
     override val startHour = 20
     override val startMinute = 0
-    override val duration = Duration.ofMinutes(30)!!
+    override val duration = Duration.ofMinutes(3)!!
     override lateinit var display: ItemStack
 
     override fun initialize(globalManager: GlobalManager) {
         super.initialize(globalManager)
 
+        bossBar.addFlag(BossBar.Flag.CREATE_WORLD_FOG)
         display = globalManager.component.item(Material.ZOMBIE_HEAD) { meta ->
             meta.displayName("&f[&e活动&f] &a僵尸恶战".toComponent())
             meta.lore(arrayListOf(
@@ -86,6 +88,9 @@ class ZombieFight: ActivityAPI("zombie-fight") {
     }
 
     override fun onStart() {
+        super.onStart()
+        globalManager.discord.broadcast("&f僵尸恶战活动已经开始，请到相关NPC进入活动吧。")
+
         val mcWorld = Bukkit.getWorld(world)!!
         val mcLocation = Location(mcWorld, locationX, locationY, locationZ)
 
@@ -99,32 +104,36 @@ class ZombieFight: ActivityAPI("zombie-fight") {
         giant.getAttribute(Attribute.GENERIC_MAX_HEALTH)?.baseValue = 1000.0
 
         entity = giant
-        bossBarScheduler = globalManager.states.continuousTask(1) {
-            bossBar.players.clear()
-            bossBar.addFlag(BarFlag.CREATE_FOG)
-            bossBar.setTitle("$customName &f- &a等级$bossLevel")
-            bossBar.players.addAll(
-                giant.getNearbyEntities(200.0, 200.0, 200.0)
-                    .filterIsInstance<Player>()
-                    .toTypedArray()
-            )
-        }
-
         globalManager.events {
-            listeners.add(
+            disposers.add(
                 EntityDamageEvent::class
                     .observable(true, EventPriority.LOWEST)
                     .filter { it.entity is Giant }
                     .filter { it.entity.customName() == customName }
+                    .doOnError(Logger.trackError("ZombieFight.EntityDamageEvent", "error occurs in event subscriber"))
                     .subscribe {
                         it.isCancelled = true
                     }
             )
-            listeners.add(
+
+            disposers.add(
+                EntityDeathEvent::class
+                    .observable(true, EventPriority.LOWEST)
+                    .filter { it.entity.hasMetadata("activity") }
+                    .subscribe {
+                        val metadata = it.entity.getMetadata("activity")
+                        if (metadata.size > 0 && metadata[0].asString() == super.id) {
+                            it.drops.clear()
+                        }
+                    }
+            )
+
+            disposers.add(
                 EntityDamageByEntityEvent::class
                     .observable(false, EventPriority.LOWEST)
                     .filter { it.damager is Player && it.entity is Giant }
                     .filter { it.entity.customName() == customName }
+                    .doOnError(Logger.trackError("ZombieFight.EntityDamageByEntityEvent", "error occurs in event subscriber"))
                     .subscribe {
                         it.isCancelled = true
 
@@ -136,10 +145,11 @@ class ZombieFight: ActivityAPI("zombie-fight") {
                         if (ChanceUtil.increasingChance(15, hitBase)) {
                             hitBase = 0
                             bossLevel += 1
+                            bossBar.name(customName.append(" &f- &a等级$bossLevel".toComponent()))
                         }
 
                         // Teleport :
-                        if (ChanceUtil.trueChance(20, tpBase)) {
+                        if (ChanceUtil.trueChance(15, tpBase)) {
                             tpBase = 0
 
                             val location = it.entity.location
@@ -179,6 +189,7 @@ class ZombieFight: ActivityAPI("zombie-fight") {
             mobList.random()
         ) as LivingEntity
 
+
         /*
          * base + ( n_base * ( level / m_base ) )
          *
@@ -188,6 +199,8 @@ class ZombieFight: ActivityAPI("zombie-fight") {
          * [m_base] - Minecraft based base value
          *
          */
+        entity.customName("&f[&e活动&f] &a捣蛋鬼".toComponent())
+        entity.setMetadata("activity", FixedMetadataValue(ECCore.instance, super.id))
         entity.getAttribute(Attribute.GENERIC_MAX_HEALTH)?.baseValue = 15.0 + (5.0 * ( bossLevel / 20 ))
         entity.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE)?.baseValue = 2.0 + (5.0 * ( bossLevel / 20 ))
     }
@@ -205,17 +218,22 @@ class ZombieFight: ActivityAPI("zombie-fight") {
     }
 
     override fun onEnd() {
-        globalManager.states.disposeTask(bossBarScheduler)
-        entity?.remove()
-        listeners.forEach { it.dispose() }
+        super.onEnd()
 
+        Bukkit.getOnlinePlayers().parallelStream().filter {
+            val ecPlayer =  globalManager.players.getByPlayer(it.player!!)
+            return@filter ecPlayer.gameState == ECPlayerGameState.ACTIVITY && ecPlayer.activityName == super.id
+        }.forEach { onQuitEvent(it) }
+
+        globalManager.discord.broadcast("&f僵尸恶战活动已经结束，下次再来哟。")
+
+        entity?.remove()
         entity = null
         hitBase = 0
         tpBase = 0
         spawnBase = 0
         bossLevel = 1
         totalDamageDeal.set(0.0)
-        listeners.clear()
 
         globalManager.runOffMainThread {
             transaction {
@@ -253,12 +271,21 @@ class ZombieFight: ActivityAPI("zombie-fight") {
         }
     }
 
-    override fun onQuit(event: PlayerQuitEvent) {
+    override fun onJoinEvent(player: Player) {
+        player.showBossBar(bossBar)
+        player.teleport(globalManager.serverConfig.teleports["zf-arena"]!!.location)
     }
 
-    override fun onDeath(event: PlayerDeathEvent) {
+    override fun onQuitEvent(player: Player) {
+        player.hideBossBar(bossBar)
+        player.teleport(globalManager.serverConfig.teleports["old-spawn"]!!.location)
+    }
+
+    override fun onQuit(event: PlayerQuitEvent) {
+        onQuitEvent(event.player)
     }
 
     override fun onRespawn(event: PlayerRespawnEvent) {
+        event.respawnLocation = globalManager.serverConfig.teleports["zf-arena"]!!.location
     }
 }

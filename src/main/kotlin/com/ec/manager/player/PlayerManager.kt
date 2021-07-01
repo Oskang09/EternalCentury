@@ -44,7 +44,8 @@ class PlayerManager {
                  .observable(true, EventPriority.HIGHEST)
                  .filter { globalManager.players.getByPlayer(it.entity).gameState == ECPlayerGameState.FREE }
                  .subscribe {
-                     it.deathMessage(null)
+                     it.keepInventory = true
+                     it.keepLevel = true
                  }
 
              PlayerRespawnEvent::class
@@ -193,9 +194,14 @@ class PlayerManager {
                                     it[title] = result[Announcements.title]
                                     it[content] = result[Announcements.content]
                                     it[rewards] = result[Announcements.rewards]
+                                    it[item] = arrayListOf()
                                     it[isRead] = false
                                     it[createdAt] = result[Announcements.createdAt]
                                 }
+                            }
+
+                            if (pendingIds.isNotEmpty()) {
+                                player.sendMessage(globalManager.message.system("您有新的系统邮件，记得到邮箱查看哦。"))
                             }
                         }
                     }
@@ -257,7 +263,7 @@ class PlayerManager {
                 }
 
             PlayerQuitEvent::class
-                .observable(EventPriority.HIGHEST)
+                .observable(EventPriority.LOWEST)
                 .doOnError(Logger.trackError("PlayerManager.PlayerQuitEvent", "error occurs in event subscriber"))
                 .subscribe { event ->
                     event.quitMessage(null)

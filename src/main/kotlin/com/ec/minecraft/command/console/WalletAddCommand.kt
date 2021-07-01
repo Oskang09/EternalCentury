@@ -6,10 +6,10 @@ import org.bukkit.Bukkit
 import picocli.CommandLine
 
 @CommandLine.Command(
-    name = "point-add",
+    name = "wallet-add",
     description = ["添点数限到指定玩家账号"]
 )
-internal class PointAddCommand(private val globalManager: GlobalManager): ReactantCommand() {
+internal class WalletAddCommand(private val globalManager: GlobalManager): ReactantCommand() {
 
     @CommandLine.Parameters(
         index = "0",

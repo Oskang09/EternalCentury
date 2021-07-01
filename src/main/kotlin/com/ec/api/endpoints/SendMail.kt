@@ -7,6 +7,7 @@ import com.ec.config.RewardConfig
 import com.ec.database.AuditLog
 import com.ec.database.Mails
 import com.ec.database.Players
+import com.ec.util.ModelUtil.toJSON
 import com.ec.util.StringUtil.generateUniqueID
 import io.javalin.http.Handler
 import io.javalin.http.HandlerType
@@ -23,8 +24,8 @@ class SendMail: EndpointAPI() {
     data class Request(
         val player: String,
         val title: String,
-        val content: String,
-        val rewards: MutableList<RewardConfig>,
+        val content: List<String>,
+        val rewards: List<RewardConfig> ,
     )
 
     override val handler = Handler { ctx ->
@@ -40,14 +41,14 @@ class SendMail: EndpointAPI() {
                         mail[id] = "".generateUniqueID()
                         mail[playerId] = targetPlayer[Players.id]
                         mail[title] = request.title
-                        mail[content] = request.content
-                        mail[rewards] = request.rewards
+                        mail[content] = request.content.toMutableList()
+                        mail[rewards] = request.rewards.toMutableList()
                         mail[item] = arrayListOf()
                         mail[isRead] = false
                         mail[createdAt] = Instant.now().epochSecond
                     }
 
-                    ctx.json(ResultResponse(res.resultedValues!![0]))
+                    ctx.json(ResultResponse(res.resultedValues!![0].toJSON()))
                 }
             }
         }
