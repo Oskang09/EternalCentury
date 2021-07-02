@@ -1,5 +1,6 @@
 package com.ec.minecraft.command
 
+import com.ec.database.enums.ChatType
 import com.ec.manager.GlobalManager
 import com.ec.util.StringUtil.toComponent
 import dev.reactant.reactant.extra.command.ReactantCommand
@@ -25,7 +26,9 @@ internal class PartyChatCommand(private val globalManager: GlobalManager): React
         requireSenderIsPlayer()
 
         val player = sender as Player
-        val componentMessage = message.joinToString(" ").toComponent()
+        val prefix = globalManager.message.playerChatPrefix(ChatType.PARTY)
+        val componentMessage = prefix.append("&r ".toComponent()).append(player.displayName()).append("&r : ".toComponent()).append(message.joinToString(" ").toComponent())
+
         globalManager.mcmmo.getPlayerParty(player).map { p -> p.sendMessage(componentMessage) }
         Bukkit.getConsoleSender().sendMessage(componentMessage)
     }

@@ -1,6 +1,7 @@
 package com.ec.util
 
 import com.ec.ECCore
+import com.ec.util.StringUtil.toColorized
 import com.ec.util.StringUtil.toComponent
 import dev.reactant.reactant.extensions.itemMeta
 import net.wesjd.anvilgui.AnvilGUI
@@ -12,7 +13,7 @@ import org.bukkit.inventory.meta.ItemMeta
 object InputUtil {
 
     private fun extractValueFromText(text: String): String {
-        return text.replace("&b[&5系统&b] &a确认 &f- &f", "")
+        return text.replace("&b[&5系统&b] &a确认 &f- &f".toColorized(), "")
     }
 
     private fun getRequestItem() : ItemStack {
@@ -34,7 +35,7 @@ object InputUtil {
             .onClose(onCancel)
             .text("")
             .itemLeft(getRequestItem())
-            .title("&f[&5系统&f] &0${title}")
+            .title("&f[&5系统&f] &0${title}".toColorized())
             .plugin(ECCore.instance)
             .open(opener)
     }
@@ -48,13 +49,13 @@ object InputUtil {
         AnvilGUI.Builder()
             .onComplete { player, text ->
                 val input = extractValueFromText(text)
-                val value = input.toIntOrNull() ?: return@onComplete AnvilGUI.Response.text("&f输入错误，您必须输入数字.")
+                val value = input.toIntOrNull() ?: return@onComplete AnvilGUI.Response.text("&f输入错误，您必须输入数字.".toColorized())
                 onComplete(player, value)
             }
             .onClose(onCancel)
             .text("")
             .itemLeft(getRequestItem())
-            .title("&f[&5系统&f] &0${title}")
+            .title("&f[&5系统&f] &0${title}".toColorized())
             .plugin(ECCore.instance)
             .open(opener)
     }
@@ -68,13 +69,13 @@ object InputUtil {
         AnvilGUI.Builder()
             .onComplete { player, text ->
                 val input = extractValueFromText(text)
-                val value = input.toDoubleOrNull() ?: return@onComplete AnvilGUI.Response.text("&f输入错误，您必须输入数字.")
+                val value = input.toDoubleOrNull() ?: return@onComplete AnvilGUI.Response.text("&f输入错误，您必须输入数字.".toColorized())
                 onComplete(player, value)
             }
             .onClose(onCancel)
             .text("")
             .itemLeft(getRequestItem())
-            .title("&f[&5系统&f] &0${title}")
+            .title("&f[&5系统&f] &0${title}".toColorized())
             .plugin(ECCore.instance)
             .open(opener)
     }

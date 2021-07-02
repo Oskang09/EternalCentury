@@ -4,6 +4,7 @@ import com.ec.manager.inventory.UIBase
 import com.ec.manager.inventory.component.PaginationItem
 import com.ec.manager.inventory.component.PaginationUI
 import com.ec.manager.inventory.component.PaginationUIProps
+import com.ec.util.DoubleUtil.roundTo
 import com.ec.util.StringUtil.toComponent
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -99,9 +100,9 @@ class TeleportUI: PaginationUI<Unit>("teleport") {
                                 it.displayName("&5&l传送到 &e家园&f($name)".toComponent())
                                 it.lore(arrayListOf(
                                     "&7世界  - &f资源世界",
-                                    "&7坐标X - &f${location.location.x}",
-                                    "&7坐标Y - &f${location.location.y}",
-                                    "&7坐标Z - &f${location.location.z}",
+                                    "&7坐标X - &f${location.location.x.roundTo(2)}",
+                                    "&7坐标Y - &f${location.location.y.roundTo(2)}",
+                                    "&7坐标Z - &f${location.location.z.roundTo(2)}",
                                 ).toComponent())
                             },
                             click = {

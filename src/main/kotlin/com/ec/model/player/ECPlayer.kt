@@ -2,7 +2,6 @@ package com.ec.model.player
 
 import com.ec.database.Players
 import com.ec.database.Titles
-import com.ec.database.enums.ChatType
 import com.ec.logger.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -19,7 +18,6 @@ data class ECPlayer(var player: Player) {
     private val mutex = Mutex()
 
     private var uuid: UUID? = player.uniqueId
-    var chatChannels: MutableList<ChatType> = mutableListOf()
     var playerJoinedAt: Instant = Instant.now()
     var state: ECPlayerAuthState = ECPlayerAuthState.LOGIN
     var gameState: ECPlayerGameState = ECPlayerGameState.FREE
@@ -50,7 +48,7 @@ data class ECPlayer(var player: Player) {
         val dispatchers = if (isAsync) Dispatchers.IO else Dispatchers.Default
         runBlocking(dispatchers) {
             mutex.withLock {
-                Logger.withTrackerPlayer(player, "update player - ${uuid.toString()}", action) {
+                id = Logger.withTrackerPlayer(player, "update player - ${uuid.toString()}", action) {
                     transaction {
                         refreshPlayer()
                         update()

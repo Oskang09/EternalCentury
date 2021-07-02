@@ -8,8 +8,7 @@ import org.bukkit.entity.Player
 import picocli.CommandLine
 
 @CommandLine.Command(
-    name = "tpa",
-    aliases = ["teleport-accept"],
+    name = "tpaccept",
     description = ["接受其他玩家传送到你的身边"]
 )
 internal class TeleportAcceptCommand(private val globalManager: GlobalManager): ReactantCommand() {
@@ -41,7 +40,7 @@ internal class TeleportAcceptCommand(private val globalManager: GlobalManager): 
 
         if (globalManager.states.teleportPlayers[target.name] == player.name) {
             globalManager.states.teleportPlayers.remove(target.name)
-            player.teleportAsync(target.location)
+            target.teleportAsync(player.location)
             return
         }
 

@@ -23,7 +23,6 @@ abstract class EnchantmentAPI(val id: String) {
     open val origin: Enchantment? = null
     abstract fun isSupportedMaterial(): List<Material>
 
-
     private fun baseSupportedMaterial(): List<Material> {
         return listOf(Material.BOOK, Material.ENCHANTED_BOOK)
     }

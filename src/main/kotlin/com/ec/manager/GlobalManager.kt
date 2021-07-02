@@ -20,6 +20,7 @@ import com.ec.manager.player.PlayerManager
 import com.ec.manager.wallet.WalletManager
 import com.ec.manager.title.TitleManager
 import com.ec.logger.Logger
+import com.ec.manager.battlepass.BattlePassManager
 import com.ec.manager.packet.PacketManager
 import com.ec.service.EconomyService
 import com.ec.service.MessageService
@@ -65,6 +66,7 @@ class GlobalManager(
     val crates: CrateManager,
     val mcmmo: McMMOManager,
     val activity: ActivityManager,
+    val battlePass: BattlePassManager,
     val packet: PacketManager,
 
     // Services
@@ -79,9 +81,11 @@ class GlobalManager(
     // Configurations
     @Inject("plugins/EternalCentury/server.json")
     private val serverConfigFile: Config<ServerConfig>,
+
+    @Inject("plugins/DiscordSRV/linkedaccounts.json")
+    private val discordLinkedAccounts: Config<MutableMap<String, String>>,
 ): LifeCycleHook {
 
-    private val mapper = jacksonObjectMapper()
     lateinit var skins: SkinsRestorerAPI
     var serverConfig: ServerConfig = serverConfigFile.content
 
@@ -110,6 +114,11 @@ class GlobalManager(
         serverConfigFile.save().subscribe {
             serverConfig = serverConfigFile.content
         }
+    }
+
+    fun updateDiscordLinkedAccounts(discordId: String, playerUUID: String) {
+        discordLinkedAccounts.content[discordId] = playerUUID
+        discordLinkedAccounts.save().subscribe()
     }
 
     fun sendRewardToPlayer(player: Player, rewards: List<Reward>) {
@@ -183,6 +192,7 @@ class GlobalManager(
         economy.onInitialize(this)
 
         discord.onInitialize(this)
+        battlePass.onInitialize(this)
         enchantments.onInitialize(this)
         placeholders.onInitialize(this)
         payments.onInitialize(this)
@@ -197,7 +207,6 @@ class GlobalManager(
         mcmmo.onInitialize(this)
         packet.onInitialize(this)
         skins = SkinsRestorerAPI.getApi()
-
 
         val plugin = Bukkit.getPluginManager().getPlugin("UniversalGUI")
         if (plugin != null) {

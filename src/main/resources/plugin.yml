@@ -18,8 +18,3 @@ depend:
   - Vault
   - SkinsRestorer
   - ProtocolLib
-commands:
-  tp:
-    description: override teleport
-  help:
-    description: override help

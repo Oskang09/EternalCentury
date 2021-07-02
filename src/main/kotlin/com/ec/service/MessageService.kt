@@ -2,6 +2,7 @@ package com.ec.service
 
 import com.ec.database.enums.ChatType
 import com.ec.util.ModelUtil.toDisplay
+import com.ec.util.StringUtil.toColorized
 import com.ec.util.StringUtil.toComponent
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
@@ -22,7 +23,7 @@ class MessageService {
         .build()
 
     fun userComponent(text: Component): Component {
-        return userOnly.deserialize(userOnly.serialize(text))
+        return userOnly.deserialize(userOnly.serialize(text).toColorized())
     }
 
     fun plain(message: Component): String {

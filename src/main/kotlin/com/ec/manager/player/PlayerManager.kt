@@ -1,5 +1,6 @@
 package com.ec.manager.player
 
+import com.ec.ECCore
 import com.ec.database.Announcements
 import com.ec.database.Mails
 import com.ec.database.Players
@@ -10,17 +11,23 @@ import com.ec.model.player.ECPlayerAuthState
 import com.ec.model.player.ECPlayerGameState
 import com.ec.util.StringUtil.generateUniqueID
 import com.ec.util.StringUtil.toComponent
+import com.gmail.filoghost.holographicdisplays.api.HologramsAPI
 import dev.reactant.reactant.core.component.Component
 import io.papermc.paper.event.player.AsyncChatEvent
 import me.oska.config.shop.ItemConfig
 import org.bukkit.Bukkit
+import org.bukkit.Location
+import org.bukkit.Material
 import org.bukkit.OfflinePlayer
+import org.bukkit.block.data.BlockData
+import org.bukkit.block.data.type.Chest
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.block.SignChangeEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.*
+import org.bukkit.material.Pumpkin
 import org.bukkit.scoreboard.Team
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insert
@@ -28,6 +35,7 @@ import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 @Component
@@ -41,7 +49,7 @@ class PlayerManager {
         globalManager.events {
 
              PlayerDeathEvent::class
-                 .observable(true, EventPriority.HIGHEST)
+                 .observable(true, EventPriority.LOWEST)
                  .filter { globalManager.players.getByPlayer(it.entity).gameState == ECPlayerGameState.FREE }
                  .subscribe {
                      it.keepInventory = true
@@ -49,7 +57,7 @@ class PlayerManager {
                  }
 
              PlayerRespawnEvent::class
-                 .observable(true, EventPriority.HIGHEST)
+                 .observable(true, EventPriority.LOWEST)
                  .filter { globalManager.players.getByPlayer(it.player).gameState == ECPlayerGameState.FREE }
                  .subscribe {
                      it.respawnLocation = globalManager.serverConfig.teleports["old-spawn"]!!.location
@@ -73,7 +81,7 @@ class PlayerManager {
                      }
 
              PlayerSwapHandItemsEvent::class
-                 .observable(true, EventPriority.HIGHEST)
+                 .observable(true, EventPriority.LOWEST)
                  .filter { globalManager.players.getByPlayer(it.player).state == ECPlayerAuthState.AUTHENTICATED }
                  .filter { it.player.isSneaking }
                  .subscribe {
@@ -82,7 +90,7 @@ class PlayerManager {
                  }
 
              AsyncPlayerPreLoginEvent::class
-                .observable(true, EventPriority.HIGHEST)
+                .observable(true, EventPriority.LOWEST)
                  .doOnError(Logger.trackError("PlayerManager.AsyncPlayerPreLoginEvent", "error occurs in event subscriber"))
                 .subscribe {
                     if (globalManager.serverConfig.maintenance) {
@@ -102,28 +110,28 @@ class PlayerManager {
                 }
 
              PlayerInteractEvent::class
-                 .observable(true, EventPriority.HIGHEST)
+                 .observable(true, EventPriority.LOWEST)
                  .filter { globalManager.players.getByPlayer(it.player).state != ECPlayerAuthState.AUTHENTICATED }
                  .subscribe {
                      it.isCancelled = true
                  }
 
              InventoryClickEvent::class
-                 .observable(true, EventPriority.HIGHEST)
+                 .observable(true, EventPriority.LOWEST)
                  .filter { globalManager.players.getByPlayer(it.whoClicked as Player).state != ECPlayerAuthState.AUTHENTICATED }
                  .subscribe {
                      it.isCancelled = true
                  }
 
              PlayerDropItemEvent::class
-                 .observable(true, EventPriority.HIGHEST)
+                 .observable(true, EventPriority.LOWEST)
                  .filter { globalManager.players.getByPlayer(it.player).state != ECPlayerAuthState.AUTHENTICATED }
                  .subscribe {
                      it.isCancelled = true
                  }
 
              PlayerMoveEvent::class
-                 .observable(true, EventPriority.HIGHEST)
+                 .observable(true, EventPriority.LOWEST)
                  .filter { globalManager.players.getByPlayer(it.player).state != ECPlayerAuthState.AUTHENTICATED }
                  .subscribe {
                      val previous = it.from
@@ -135,7 +143,7 @@ class PlayerManager {
                  }
 
              PlayerCommandPreprocessEvent::class
-                 .observable(true, EventPriority.HIGHEST)
+                 .observable(true, EventPriority.LOWEST)
                  .subscribe {
                      if (globalManager.players.getByPlayer(it.player).state != ECPlayerAuthState.AUTHENTICATED) {
                          it.isCancelled = true
@@ -153,19 +161,30 @@ class PlayerManager {
                  }
 
             PlayerJoinEvent::class
-                .observable(EventPriority.HIGHEST)
+                .observable(EventPriority.LOWEST)
                 .doOnError(Logger.trackError("PlayerManager.PlayerJoinEvent", "error occurs in event subscriber"))
                 .subscribe { event ->
                     event.joinMessage(null)
                     val player = event.player
                     val ecPlayer = ECPlayer(event.player)
 
-                    if (!event.player.hasPlayedBefore()) {
+                    val userIp = player.address.address.hostAddress
+                    val playerId = ecPlayer.database[Players.id]
+                    val discordTag = ecPlayer.database[Players.discordTag]
+                    val member = globalManager.discord.getMemberByTag(discordTag)
+                    if (member == null) {
+                        player.kick(globalManager.message.system("Discord账号 - $discordTag 用户不存在！"))
+                        return@subscribe
+                    }
+
+                    if (!event.player.hasPlayedBefore() || ecPlayer.database[Players.discordId] == null) {
                         event.player.teleportAsync(globalManager.serverConfig.teleports["old-spawn"]!!.location)
+                        globalManager.updateDiscordLinkedAccounts(member.id, player.uniqueId.toString())
                         ecPlayer.ensureUpdate("saving player", isAsync = true) {
                             Players.update({ Players.playerName eq player.name }) {
                                 it[playerName] = player.name
                                 it[uuid] = player.uniqueId.toString()
+                                it[discordId] = member.id
                                 it[lastOnlineAt] = Instant.now().epochSecond
                             }
                         }
@@ -174,9 +193,7 @@ class PlayerManager {
                     ecPlayer.playerJoinedAt = Instant.now()
                     ecPlayer.state = ECPlayerAuthState.LOGIN
                     players[player.uniqueId] = ecPlayer
-
                     globalManager.permission.injectPermission(player)
-
                     globalManager.runOffMainThread { globalManager.titles.checkPlayerTitleAvailability(player) }
 
                     globalManager.runOffMainThread {
@@ -189,7 +206,7 @@ class PlayerManager {
                             announcement.filter { pendingIds.contains(it[Announcements.id]) }.forEach { result ->
                                 Mails.insert {
                                     it[id] = "".generateUniqueID()
-                                    it[playerId] = ecPlayer.database[Players.id]
+                                    it[Mails.playerId] = ecPlayer.database[Players.id]
                                     it[announcementId] = result[Announcements.id]
                                     it[title] = result[Announcements.title]
                                     it[content] = result[Announcements.content]
@@ -240,10 +257,16 @@ class PlayerManager {
 
                     globalManager.runOffMainThread {
                         Logger.withTrackerPlayerEvent(player, event, "PlayerManager.PlayerJoinEvent" , "player ${player.uniqueId} error occurs when join") {
-                            val discordTag = ecPlayer.database[Players.discordTag]
-                            val isSent = globalManager.discord.sendVerifyMessage(event.player, discordTag, "登入账号") {
+                            if (!globalManager.discord.checkIsVerifyRequired(ecPlayer.database[Players.id], userIp)) {
+                                ecPlayer.state = ECPlayerAuthState.AUTHENTICATED
+                                event.player.sendMessage(globalManager.message.system("Discord 自动登入验证成功！"))
+                                return@withTrackerPlayerEvent
+                            }
+
+                            globalManager.discord.sendVerifyMessage(playerId, userIp, "登入账号") {
                                 if (it) {
                                     ecPlayer.state = ECPlayerAuthState.AUTHENTICATED
+
                                     globalManager.runInMainThread {
                                         event.player.sendMessage(globalManager.message.system("Discord 登入验证成功！"))
                                     }
@@ -251,11 +274,6 @@ class PlayerManager {
                                     globalManager.runInMainThread {
                                         event.player.kick(globalManager.message.system("Discord 登入验证失败！"))
                                     }
-                                }
-                            }
-                            if (!isSent) {
-                                globalManager.runInMainThread {
-                                    event.player.kick(globalManager.message.system("Discord $discordTag 用户不存在！"))
                                 }
                             }
                         }

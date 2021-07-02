@@ -18,7 +18,7 @@ class JSONType<out T: Any>(private val clazz: Class<T>, private val mapper: Obje
     override fun sqlType() = "TEXT"
 
     override fun valueFromDB(value: Any): Any {
-        val text = value.toString()
+        val text = if (value is String) value.toString() else mapper.writeValueAsString(value)
         if (text == "") return clazz.getDeclaredConstructor().newInstance()
         return mapper.readValue(text, clazz)
     }

@@ -15,11 +15,11 @@ import picocli.CommandLine
 internal class SetHomeCommand(private val globalManager: GlobalManager): ReactantCommand() {
 
     @CommandLine.Parameters(
-        index = "0..1",
+        arity = "0..1",
         paramLabel = "家园名称",
         description = ["你要的家园名称"],
     )
-    var homeName: String = "default"
+    var homeName: String? = null
 
     override fun execute() {
         requireSenderIsPlayer()
@@ -31,13 +31,16 @@ internal class SetHomeCommand(private val globalManager: GlobalManager): Reactan
             return
         }
 
+        val name = homeName ?: "default"
         val homes = globalManager.states.getPlayerState(player).homes
-        if (!homes.keys.contains(homeName) && homes.keys.size + 1 > ecPlayer.database[Players.homeLimit]) {
+        if (!homes.keys.contains(name) && homes.keys.size + 1 > ecPlayer.database[Players.homeLimit]) {
             player.sendMessage(globalManager.message.system("您的家园数量已达上限！"))
             return
         }
 
-        homes[homeName] = LocationConfig(player.location)
+        globalManager.states.updatePlayerState(player) {
+            it.homes[name] = LocationConfig(player.location)
+        }
         player.sendMessage(globalManager.message.system("您的家园设置成功！"))
     }
 

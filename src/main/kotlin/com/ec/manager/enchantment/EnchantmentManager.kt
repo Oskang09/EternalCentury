@@ -156,17 +156,37 @@ class EnchantmentManager {
                 .doOnError(Logger.trackError("EnchantmentManager.EnchantItemEvent", "error occurs in event subscriber"))
                 .subscribe {
                     val player = it.enchanter
+                    val availableEnchants = enchantments.keys
+                    availableEnchants.removeAll(globalManager.battlePass.activeBattlePass.exclusiveEnchantment)
+
                     Logger.withTrackerPlayerEvent(player, it, "EnchantManager - EnchantItemEvent", "player ${player.uniqueId} error occurs when enchant") {
 
                         val itemNbt = ItemNBT()
                         it.item.itemMeta<ItemMeta> {
                             val newLores = mutableListOf<net.kyori.adventure.text.Component>()
-
+                            val removedEnchants = mutableListOf<Int>()
                             it.enchantsToAdd.forEach { enchant ->
                                 val ench = getEnchantmentByOrigin(enchant.key)
+                                if (!availableEnchants.contains(ench.id)) {
+                                    removedEnchants.add(enchant.value)
+                                    return@forEach
+                                }
 
+                                availableEnchants.remove(ench.id)
                                 itemNbt.enchantments[ench.id] = enchant.value
                                 newLores.add(ench.getDisplayLore(enchant.value))
+                            }
+
+                            repeat(removedEnchants.size) { level ->
+                                val key = availableEnchants.random()
+                                availableEnchants.remove(key)
+
+                                val ench = enchantments[key]
+                                newLores.add(ench!!.getDisplayLore(removedEnchants[level]))
+                                itemNbt.enchantments[ench.id] = level
+                                if (level > ench.maxLevel ) {
+                                    itemNbt.enchantments[ench.id] = ench.maxLevel
+                                }
                             }
 
                             lore(newLores)
@@ -198,11 +218,16 @@ class EnchantmentManager {
         val item = ItemStack(Material.ENCHANTED_BOOK)
         val itemNbt = ItemNBT()
         val itemEnchantments = mutableMapOf<String, Int>()
+        val availableEnchants = enchantments.keys
+        availableEnchants.removeAll(globalManager.battlePass.activeBattlePass.exclusiveEnchantment)
+
         item.itemMeta<EnchantmentStorageMeta> {
             val newLores = lore() ?: mutableListOf()
 
             repeat(numOfEnchantments) {
-                val randomKey = enchantments.keys.random()
+                val randomKey = availableEnchants.random()
+                availableEnchants.remove(randomKey)
+
                 val ench = enchantments[randomKey]!!
                 var level = RandomUtil.randomInteger(ench.maxLevel) + 1
                 if (level > levelCapped) {

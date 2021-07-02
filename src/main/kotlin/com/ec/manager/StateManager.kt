@@ -1,7 +1,9 @@
 package com.ec.manager
 
+import com.ec.config.BattlePassConfig
 import com.ec.config.StateConfig
 import com.ec.database.Players
+import com.ec.database.enums.BattlePassType
 import com.ec.logger.Logger
 import com.ec.model.ObservableMap
 import com.ec.util.InstantUtil.toMalaysiaSystemDate

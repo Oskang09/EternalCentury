@@ -19,10 +19,7 @@ import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.OnlineStatus
-import net.dv8tion.jda.api.entities.Activity
-import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.entities.Role
-import net.dv8tion.jda.api.entities.TextChannel
+import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.kyori.adventure.text.Component
@@ -33,8 +30,10 @@ import org.bukkit.event.EventPriority
 import org.bukkit.inventory.ItemStack
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 import java.awt.Color
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.*
 import kotlin.time.ExperimentalTime
 
@@ -95,28 +94,7 @@ class DiscordManager: LifeCycleHook {
                 }
         }
 
-        val embed = EmbedBuilder();
-        embed.setColor(Color.GREEN)
-        embed.setThumbnail("https://firebasestorage.googleapis.com/v0/b/eternal-century.appspot.com/o/logo.jpg?alt=media")
-        embed.setAuthor("永恒新世纪 Eternal Century ", "https://minecraft.oskadev.com", "https://firebasestorage.googleapis.com/v0/b/eternal-century.appspot.com/o/logo.jpg?alt=media")
-        embed.setTitle("伺服器状态 - 在线 ( Online )")
-        embed.setDescription("新来的玩家可以到 <#${globalManager.serverConfig.discord.ruleChannel}> 频道，通过随便一个Reaction同意并接受规则后才能进行注册。")
-        embed.addField("地区配置", "", true)
-        embed.addField("人数限制", "50", true)
-        embed.addField("目前版本", ECCore.VERSION, true)
-        embed.addField("伺服DC", "https://discord.gg/7rfSfwQBct", true)
-        embed.addField("伺服IP", "eternalcentury.oskadev.com", true)
-        embed.setFooter("伺服器咨询")
-        embed.setTimestamp(Instant.now())
-
-        if (globalManager.serverConfig.discord.infoMessage == "") {
-            globalManager.serverConfig.discord.infoMessage = guild.getTextChannelById(851153973960114178)!!.sendMessage(embed.build()).complete().id
-        } else {
-            val serverStatusMessage = guild.getTextChannelById(globalManager.serverConfig.discord.infoChannel)!!
-                .retrieveMessageById(globalManager.serverConfig.discord.infoMessage).complete()
-            globalManager.serverConfig.discord.infoMessage = serverStatusMessage.editMessage(embed.build()).complete().id
-        }
-
+        updateServerInfo(globalManager.serverConfig.maintenance)
         verifyObservableObject = ObservableObject(jda.on())
         verifyObservableObject.subscribe({
             it.member?.roles?.contains(newbieRole) != true &&
@@ -169,6 +147,30 @@ class DiscordManager: LifeCycleHook {
             }
     }
 
+    fun updateServerInfo(isMaintain: Boolean) {
+        val embed = EmbedBuilder();
+        embed.setColor(if (isMaintain) Color.GRAY else Color.GREEN)
+        embed.setThumbnail("https://firebasestorage.googleapis.com/v0/b/eternal-century.appspot.com/o/logo.jpg?alt=media")
+        embed.setAuthor("永恒新世纪 Eternal Century ", "https://minecraft.oskadev.com", "https://firebasestorage.googleapis.com/v0/b/eternal-century.appspot.com/o/logo.jpg?alt=media")
+        embed.setTitle(if (isMaintain) "伺服器状态 - 维修中 ( Maintain )" else "伺服器状态 - 在线 ( Online )")
+        embed.setDescription("新来的玩家可以到 <#${globalManager.serverConfig.discord.ruleChannel}> 频道，通过随便一个Reaction同意并接受规则后才能进行注册。")
+        embed.addField("地区配置", "", true)
+        embed.addField("人数限制", "50", true)
+        embed.addField("目前版本", ECCore.VERSION, true)
+        embed.addField("伺服DC", "https://discord.gg/7rfSfwQBct", true)
+        embed.addField("伺服IP", "eternalcentury.oskadev.com", true)
+        embed.setFooter("伺服器咨询")
+        embed.setTimestamp(Instant.now())
+
+        if (globalManager.serverConfig.discord.infoMessage == "") {
+            globalManager.serverConfig.discord.infoMessage = guild.getTextChannelById(851153973960114178)!!.sendMessage(embed.build()).complete().id
+        } else {
+            val serverStatusMessage = guild.getTextChannelById(globalManager.serverConfig.discord.infoChannel)!!
+                .retrieveMessageById(globalManager.serverConfig.discord.infoMessage).complete()
+            globalManager.serverConfig.discord.infoMessage = serverStatusMessage.editMessage(embed.build()).complete().id
+        }
+    }
+
     override fun onDisable() {
         val embed = EmbedBuilder();
         embed.setColor(Color.RED)
@@ -192,16 +194,27 @@ class DiscordManager: LifeCycleHook {
         jda.shutdown()
     }
 
+    fun checkIsVerifyRequired(playerId: String, currentAddress: String): Boolean {
+        val result = globalManager.players.getByPlayerId(playerId)!!
+        val lastIp = result[Players.lastVerifyIPAddress]
+        val lastVerify = result[Players.lastVerifiedAt]
+        val verifyIntervalInSeconds = ChronoUnit.SECONDS.between(Instant.now(), Instant.ofEpochSecond(lastVerify))
+//        return verifyIntervalInSeconds >= 86400 || currentAddress != lastIp
+        return true
+    }
+
     @OptIn(ExperimentalTime::class)
-    fun sendVerifyMessage(player: Player, userTag: String, verifyType: String, callback: (Boolean) -> Unit): Boolean {
-        val members = guild.findMembers { it.user.asTag == userTag }.get()
+    fun sendVerifyMessage(playerId: String, currentAddress: String, verifyType: String, callback: (Boolean) -> Unit): Boolean {
+        val result = globalManager.players.getByPlayerId(playerId)!!
+        val members = guild.findMembers { it.user.asTag == result[Players.discordTag] }.get()
         if (members.size != 1) {
             return false
         }
 
+        val playerName = result[Players.playerName]
         val embed = EmbedBuilder();
-        embed.setThumbnail("https://minotar.net/helm/${player.name}/100.png")
-        embed.setAuthor("永恒新世纪 Eternal Century ", "https://minecraft.oskadev.com", "https://minotar.net/helm/${player.name}/100.png")
+        embed.setThumbnail("https://minotar.net/helm/${playerName}/100.png")
+        embed.setAuthor("永恒新世纪 Eternal Century ", "https://minecraft.oskadev.com", "https://minotar.net/helm/${playerName}/100.png")
         embed.setTitle("您的账号在伺服器发出验证请求，您必须通过请求才能继续！")
         embed.setDescription("您可以通过此讯息下面的表情图案来进行认证。")
         embed.setFooter("请求类型 ： $verifyType")
@@ -215,12 +228,27 @@ class DiscordManager: LifeCycleHook {
             { event -> !event.user!!.isBot && event.messageId == message.id },
             timeout = 30000L, onTimeout = { callback(false) }
         ) {
-            callback(it.reactionEmote.asCodepoints == "U+2705")
+            val res = it.reactionEmote.asCodepoints == "U+2705"
+            callback(res)
+
+            if (res) {
+                transaction {
+                    Players.update({ Players.id eq playerId}) { db ->
+                        db[lastVerifiedAt] = Instant.now().epochSecond
+                        db[lastVerifyIPAddress] = currentAddress
+                    }
+                }
+            }
         }
 
         message.addReaction("✅").queue()
         message.addReaction("❌").queue()
         return true
+    }
+
+    fun getMemberByTag(tag: String): Member? {
+        val members = guild.findMembers { it.user.asTag == tag }.get()
+        return members[0] ?: null
     }
 
     fun broadcast(message: String, item: ItemStack? = null) {

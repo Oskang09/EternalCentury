@@ -142,11 +142,15 @@ class ItemManager(
     }
 
     fun getRandomPPEffects(): ItemStack {
-        return getItemByConfig(ppEffectItems.values.random())
+        val ppEffectKeys = ppEffectItems.keys
+        ppEffectKeys.removeAll(globalManager.battlePass.activeBattlePass.exclusiveParticleEffect)
+        return getItemByConfig(ppEffectItems[ppEffectKeys.random()]!!)
     }
 
     fun getRandomPPStyles(): ItemStack {
-        return getItemByConfig(ppStyleItems.values.random())
+        val ppStyleKeys = ppStyleItems.keys
+        ppStyleKeys.removeAll(globalManager.battlePass.activeBattlePass.exclusiveParticleStyle)
+        return getItemByConfig(ppStyleItems[ppStyleKeys.random()]!!)
     }
 
     fun getRandomArrow(): ItemStack {

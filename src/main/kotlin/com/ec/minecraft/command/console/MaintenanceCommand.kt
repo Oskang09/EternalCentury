@@ -16,6 +16,8 @@ internal class MaintenanceCommand(private val globalManager: GlobalManager): Rea
         requireSenderIsConsole()
 
         globalManager.serverConfig.maintenance = !globalManager.serverConfig.maintenance
+        globalManager.discord.updateServerInfo(globalManager.serverConfig.maintenance)
+        globalManager.saveServerConfig()
         if (globalManager.serverConfig.maintenance) {
             Bukkit.getOnlinePlayers().forEach {
                 if (!globalManager.serverConfig.adminPlayers.contains(it.name)) {

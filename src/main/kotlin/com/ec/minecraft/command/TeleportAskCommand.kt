@@ -10,11 +10,10 @@ import org.bukkit.entity.Player
 import picocli.CommandLine
 
 @CommandLine.Command(
-    name = "tp",
-    aliases = ["teleport"],
+    name = "tpa",
     description = ["传送到指定的玩家身边"]
 )
-internal class TeleportCommand(private val globalManager: GlobalManager): ReactantCommand() {
+internal class TeleportAskCommand(private val globalManager: GlobalManager): ReactantCommand() {
 
     @CommandLine.Parameters(
         index = "0",
@@ -52,7 +51,8 @@ internal class TeleportCommand(private val globalManager: GlobalManager): Reacta
             return
         }
 
-        target.sendMessage(globalManager.message.system("${player.name} 想传送到你这边，接受的话请输入 /tpa ${player.name}。"))
+        player.sendMessage(globalManager.message.system("您的传送请求已经发送到 ${target.name} 了。"))
+        target.sendMessage(globalManager.message.system("${player.name} 想传送到你这边，接受的话请输入 /tpaccept ${player.name}。"))
         globalManager.states.teleportPlayers[sender.name] = target.name
 
         val task = globalManager.states.delayedTask(10) {

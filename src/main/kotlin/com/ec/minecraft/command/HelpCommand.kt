@@ -6,7 +6,7 @@ import dev.reactant.reactant.extra.command.ReactantCommand
 import picocli.CommandLine
 
 @CommandLine.Command(
-    name = "help",
+    name = "echelp",
     description = ["查看可用指令列表"]
 )
 internal class HelpCommand(private val globalManager: GlobalManager): ReactantCommand() {
@@ -40,9 +40,9 @@ internal class HelpCommand(private val globalManager: GlobalManager): ReactantCo
         "party" to listOf(
             "/party help   - 查看队伍指令列表",
             "/party        - 查看您的队伍咨询",
+            "/pc <讯息>     - 发送队伍讯息",
         ),
         "chat" to listOf(
-            "@party <讯息>       - 发送队伍讯息",
             "[ item ]           - 展示手上的物品",
             "[ inv ]            - 展示您的当前背包",
             "[ ender ]          - 展示末影箱子",

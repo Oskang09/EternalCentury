@@ -15,6 +15,7 @@ import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.Instant
 
+
 @Component
 class ApiServer(val globalManager: GlobalManager): LifeCycleHook {
 
