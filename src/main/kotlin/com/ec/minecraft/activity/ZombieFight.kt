@@ -223,7 +223,11 @@ class ZombieFight: ActivityAPI("zombie-fight") {
         Bukkit.getOnlinePlayers().parallelStream().filter {
             val ecPlayer =  globalManager.players.getByPlayer(it.player!!)
             return@filter ecPlayer.gameState == ECPlayerGameState.ACTIVITY && ecPlayer.activityName == super.id
-        }.forEach { onQuitEvent(it) }
+        }.forEach {
+            val ecPlayer =  globalManager.players.getByPlayer(it.player!!)
+            ecPlayer.gameState = ECPlayerGameState.FREE
+            onQuitEvent(it)
+        }
 
         globalManager.discord.broadcast("&f僵尸恶战活动已经结束，下次再来哟。")
 

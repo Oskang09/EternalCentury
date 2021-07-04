@@ -35,5 +35,6 @@ data class ServerDiscordConfig(
     val newbieRole: String = "",
     val playerRole: String = "",
     val ruleChannel: String = "",
-    val chatAnnouncement: String = ""
+    val chatAnnouncement: String = "",
+    val messageChannel: String = "",
 )

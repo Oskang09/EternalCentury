@@ -1,5 +1,6 @@
 package com.ec.manager
 
+import com.ec.ECCore
 import com.ec.config.BattlePassConfig
 import com.ec.config.StateConfig
 import com.ec.database.Players
@@ -128,6 +129,10 @@ class StateManager(
 
     fun disposeTask(key: String) {
         taskMapper[key]?.dispose()
+    }
+
+    fun taskOnNextTick(action: () -> Unit) {
+        Bukkit.getScheduler().runTaskLater(ECCore.instance, Runnable { action() }, 1L)
     }
 
     fun delayedTask(seconds: Long, action: () -> Unit): String {

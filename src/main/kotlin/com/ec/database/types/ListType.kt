@@ -18,7 +18,7 @@ class ArrayType<out T: Any>(private val clazz: Class<T>, private val mapper: Obj
 
     override fun valueFromDB(value: Any): Any {
         val text = if (value is String) value.toString() else mapper.writeValueAsString(value)
-        if (text == "") return mutableListOf<String>()
+        if (text == "" || text == "[]") return mutableListOf<T>()
         val javaType: CollectionType = mapper.typeFactory.constructCollectionType(List::class.java, clazz)
         return mapper.readValue(text, javaType)
     }

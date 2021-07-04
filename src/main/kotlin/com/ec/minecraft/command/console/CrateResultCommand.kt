@@ -2,7 +2,9 @@ package com.ec.minecraft.command.console
 
 import com.ec.manager.GlobalManager
 import com.ec.util.ChanceUtil
+import com.ec.util.StringUtil.toComponent
 import dev.reactant.reactant.extra.command.ReactantCommand
+import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import picocli.CommandLine
 
@@ -33,11 +35,23 @@ class CrateResultCommand(private val globalManager: GlobalManager): ReactantComm
         val player = Bukkit.getPlayer(playerName!!)
         if (player != null && player.isOnline) {
             val reward = mutableListOf(crate.rewards.random())
-            globalManager.discord.broadcast("恭喜 $playerName 在抽奖中获得了%item%!", globalManager.items.getItem(reward[0].item))
+            globalManager.discord.broadcast("恭喜 %player% 在抽奖中获得了 %item%!", player, globalManager.items.getItem(reward[0].item)) { name, item ->
+                return@broadcast "恭喜 ".toComponent()
+                    .append(name)
+                    .append(" 在抽奖中获得了 ".toComponent())
+                    .append(item)
+                    .append(" !".toComponent())
+            }
 
             if (ChanceUtil.defaultChance(10)) {
                 reward.add(crate.rewards.random())
-                globalManager.discord.broadcast("恭喜 $playerName 触发了抽奖连击，额外获得了%item%!", globalManager.items.getItem(reward[1].item))
+                globalManager.discord.broadcast("恭喜 %player% 触发了抽奖连击，额外获得了 %item%!", player, globalManager.items.getItem(reward[1].item)) { name, item ->
+                    return@broadcast "恭喜 ".toComponent()
+                        .append(name)
+                        .append(" 触发了抽奖连击，额外获得了 ".toComponent())
+                        .append(item)
+                        .append(" !".toComponent())
+                }
             }
 
             globalManager.sendRewardToPlayer(player, reward.map { it.reward }.flatten())

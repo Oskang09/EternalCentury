@@ -8,8 +8,9 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.minimessage.Template
 import net.kyori.adventure.text.minimessage.transformation.TransformationType
-import org.bukkit.Bukkit
+import org.bukkit.ChatColor
 import org.bukkit.entity.Player
+import javax.swing.text.html.MinimalHTMLWriter
 
 @dev.reactant.reactant.core.component.Component
 class MessageService {
@@ -22,12 +23,16 @@ class MessageService {
         .transformation(TransformationType.DECORATION)
         .build()
 
+    private val empty = MiniMessage.builder()
+        .removeDefaultTransformations()
+        .build()
+
     fun userComponent(text: Component): Component {
         return userOnly.deserialize(userOnly.serialize(text).toColorized())
     }
 
     fun plain(message: Component): String {
-        return message.toString()
+        return ChatColor.stripColor(empty.serialize(message))!!
     }
 
     fun system(message: String): Component {

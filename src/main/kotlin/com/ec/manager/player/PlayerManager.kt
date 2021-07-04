@@ -1,6 +1,5 @@
 package com.ec.manager.player
 
-import com.ec.ECCore
 import com.ec.database.Announcements
 import com.ec.database.Mails
 import com.ec.database.Players
@@ -11,31 +10,20 @@ import com.ec.model.player.ECPlayerAuthState
 import com.ec.model.player.ECPlayerGameState
 import com.ec.util.StringUtil.generateUniqueID
 import com.ec.util.StringUtil.toComponent
-import com.gmail.filoghost.holographicdisplays.api.HologramsAPI
 import dev.reactant.reactant.core.component.Component
 import io.papermc.paper.event.player.AsyncChatEvent
-import me.oska.config.shop.ItemConfig
 import org.bukkit.Bukkit
-import org.bukkit.Location
-import org.bukkit.Material
 import org.bukkit.OfflinePlayer
-import org.bukkit.block.data.BlockData
-import org.bukkit.block.data.type.Chest
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.block.SignChangeEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.*
-import org.bukkit.material.Pumpkin
 import org.bukkit.scoreboard.Team
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.update
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 import java.util.*
 
 @Component
@@ -65,6 +53,7 @@ class PlayerManager {
 
             AsyncChatEvent::class
                 .observable(false, EventPriority.LOWEST)
+                .filter { globalManager.players.getByPlayer(it.player).state == ECPlayerAuthState.AUTHENTICATED }
                 .subscribe {
                     if (!it.player.hasPermission("ec.colorchat")) {
                         it.message(it.originalMessage())
@@ -197,12 +186,19 @@ class PlayerManager {
                     globalManager.runOffMainThread { globalManager.titles.checkPlayerTitleAvailability(player) }
 
                     globalManager.runOffMainThread {
-                        transaction {
-                            val announcement = Announcements.select { Announcements.isExpired eq false }.toList()
-                            val activeIds = announcement.map { it[Announcements.id] }
-                            val sentIds = Mails.select { Mails.playerId eq ecPlayer.database[Players.id] }.map { it[Mails.announcementId] }
-                            val pendingIds = activeIds.minus(sentIds)
+                        val announcement = transaction {
+                            Announcements.select { Announcements.isExpired eq false }.toList()
+                        }
 
+                        val pendingIds = transaction {
+                            val activeIds = announcement.map { it[Announcements.id] }
+                            val sentIds = Mails.select { Mails.playerId eq ecPlayer.database[Players.id] }
+                                .andWhere { Mails.announcementId neq null }
+                                .map { it[Mails.announcementId] }
+                            return@transaction activeIds.minus(sentIds)
+                        }
+
+                        transaction {
                             announcement.filter { pendingIds.contains(it[Announcements.id]) }.forEach { result ->
                                 Mails.insert {
                                     it[id] = "".generateUniqueID()
@@ -216,10 +212,10 @@ class PlayerManager {
                                     it[createdAt] = result[Announcements.createdAt]
                                 }
                             }
+                        }
 
-                            if (pendingIds.isNotEmpty()) {
-                                player.sendMessage(globalManager.message.system("您有新的系统邮件，记得到邮箱查看哦。"))
-                            }
+                        if (pendingIds.isNotEmpty()) {
+                            player.sendMessage(globalManager.message.system("您有新的系统邮件，记得到邮箱查看哦。"))
                         }
                     }
 
@@ -242,7 +238,7 @@ class PlayerManager {
                         } else {
                             globalManager.runInMainThread {
                                 event.player.displayName(event.player.name.toComponent())
-                                event.player.displayName(event.player.name.toComponent())
+                                event.player.playerListName(event.player.name.toComponent())
 
                                 val nameKey = player.name
                                 val board = player.scoreboard
@@ -281,7 +277,7 @@ class PlayerManager {
                 }
 
             PlayerQuitEvent::class
-                .observable(EventPriority.LOWEST)
+                .observable(EventPriority.HIGHEST)
                 .doOnError(Logger.trackError("PlayerManager.PlayerQuitEvent", "error occurs in event subscriber"))
                 .subscribe { event ->
                     event.quitMessage(null)

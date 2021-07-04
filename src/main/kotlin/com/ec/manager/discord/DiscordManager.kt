@@ -11,8 +11,10 @@ import com.ec.manager.GlobalManager
 import com.ec.model.ObservableObject
 import com.ec.model.player.ECPlayerAuthState
 import com.ec.util.RandomUtil
+import com.ec.util.StringUtil
 import com.ec.util.StringUtil.generateUniqueID
 import com.ec.util.StringUtil.toComponent
+import com.loohp.interactivechat.api.InteractiveChatAPI
 import dev.reactant.reactant.core.component.lifecycle.LifeCycleHook
 import io.papermc.paper.event.player.AsyncChatEvent
 import net.dv8tion.jda.api.EmbedBuilder
@@ -23,11 +25,13 @@ import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.ComponentBuilder
 import net.kyori.adventure.text.ComponentLike
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.inventory.ItemStack
+import org.jetbrains.annotations.NotNull
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
@@ -46,6 +50,7 @@ class DiscordManager: LifeCycleHook {
     private lateinit var playerRole: Role
     private lateinit var verifyObservableObject: ObservableObject<MessageReactionAddEvent>
     private lateinit var annoucementChannel: TextChannel
+    private lateinit var gameChannel: TextChannel
 
     fun onInitialize(globalManager: GlobalManager) {
         this.globalManager = globalManager
@@ -65,6 +70,7 @@ class DiscordManager: LifeCycleHook {
         newbieRole = guild.getRoleById(globalManager.serverConfig.discord.newbieRole)!!
         playerRole = guild.getRoleById(globalManager.serverConfig.discord.playerRole)!!
         annoucementChannel = guild.getTextChannelById(globalManager.serverConfig.discord.chatAnnouncement)!!
+        gameChannel = guild.getTextChannelById(globalManager.serverConfig.discord.messageChannel)!!
 
         globalManager.events {
 
@@ -251,29 +257,34 @@ class DiscordManager: LifeCycleHook {
         return members[0] ?: null
     }
 
-    fun broadcast(message: String, item: ItemStack? = null) {
-        var discordMessage = message
-        var component = globalManager.message.broadcast("")
-        if (message.contains("%item%") && item != null) {
-            component = component.append(Component.text(message[0]))
-            val name = item.itemMeta?.displayName() ?: item.displayName()
-            val hoverEvent = Bukkit.getServer().itemFactory.asHoverEvent(item) { return@asHoverEvent it }
-            component = component.append(Component.text("&7")
-                .append(name)
-                .append("&7]&r".toComponent())
-                .hoverEvent(hoverEvent)
-            )
-            component = component.append(Component.text(message[1]))
-            discordMessage = message.replace("%item%", " ${globalManager.message.plain(name)}(游戏内查看) ")
-        } else {
-            component = component.append(message.toComponent())
-        }
+    fun broadcastToGameChannel(message: String) {
+        gameChannel.sendMessage(message)
+    }
 
-        annoucementChannel.sendMessage(discordMessage).queue()
+    fun broadcast(message: String) {
+        annoucementChannel.sendMessage(message).queue()
+
+        val component = globalManager.message.broadcast(message)
         Bukkit.getOnlinePlayers()
             .parallelStream()
             .forEach { p ->
                 p.sendMessage(component)
             }
+    }
+
+    fun broadcast(message: String, player: Player, item: ItemStack, builder: (Component, Component) -> Component) {
+        val component = globalManager.message.broadcast("")
+        val itemMessage = builder(player.displayName(), InteractiveChatAPI.createItemDisplayComponent(player, item).toComponent())
+        Bukkit.getOnlinePlayers()
+            .parallelStream()
+            .forEach { p ->
+                p.sendMessage(component.append(itemMessage))
+            }
+
+        var discordMessage = message
+        val name = item.itemMeta?.displayName() ?: item.displayName()
+        discordMessage = discordMessage.replace("%item%", "${globalManager.message.plain(name)}(游戏内查看)")
+        discordMessage = discordMessage.replace("%player%", globalManager.message.plain(player.displayName()))
+        annoucementChannel.sendMessage(discordMessage).queue()
     }
 }

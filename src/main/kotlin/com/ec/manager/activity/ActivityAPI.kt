@@ -54,7 +54,7 @@ abstract class ActivityAPI(val id: String) {
 
             disposers.add(
                 PlayerDeathEvent::class
-                    .observable(false, EventPriority.HIGHEST)
+                    .observable(false, EventPriority.LOWEST)
                     .doOnError(Logger.trackError("ActivityAPI.PlayerDeathEvent", "error occurs in event subscriber"))
                     .filter {
                         val player = globalManager.players.getByPlayer(it.entity)
@@ -66,7 +66,7 @@ abstract class ActivityAPI(val id: String) {
 
             disposers.add(
                 PlayerRespawnEvent::class
-                    .observable(false, EventPriority.HIGHEST)
+                    .observable(false, EventPriority.LOWEST)
                     .doOnError(Logger.trackError("ActivityAPI.PlayerRespawnEvent", "error occurs in event subscriber"))
                     .filter {
                         val player = globalManager.players.getByPlayer(it.player)
@@ -78,7 +78,7 @@ abstract class ActivityAPI(val id: String) {
 
             disposers.add(
                 PlayerQuitEvent::class
-                    .observable(false, EventPriority.HIGHEST)
+                    .observable(false, EventPriority.LOWEST)
                     .doOnError(Logger.trackError("ActivityAPI.PlayerQuitEvent", "error occurs in event subscriber"))
                     .filter {
                         val player = globalManager.players.getByPlayer(it.player)

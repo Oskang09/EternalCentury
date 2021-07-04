@@ -33,11 +33,11 @@ repositories {
     maven { url = URI.create("https://m2.dv8tion.net/releases") }
     maven { url = URI.create("https://repo.citizensnpcs.co") }
     maven { url = URI.create("https://repo.minebench.de") }
+    maven { url = URI.create("https://repo.loohpjames.com/repository") }
 }
 
 dependencies {
     compileOnly(kotlin("stdlib-jdk8", kotlinVersion))
-    testImplementation(kotlin("test"))
     compileOnly(fileTree("src/main/libs"))
     implementation(fileTree("src/main/shaded"))
 
@@ -50,6 +50,7 @@ dependencies {
     compileOnly("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.3")
     compileOnly("net.citizensnpcs:citizensapi:2.0.27-SNAPSHOT")
     compileOnly("de.tr7zw:item-nbt-api-plugin:2.8.0")
+    compileOnly("com.loohp:InteractiveChat:4.0.1.2")
 
     implementation("org.jetbrains.exposed:exposed-core:0.32.1")
     implementation("org.jetbrains.exposed:exposed-dao:0.32.1")
