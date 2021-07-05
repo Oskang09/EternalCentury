@@ -7,12 +7,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import org.bukkit.Location
 import org.bukkit.entity.Player
+import org.bukkit.util.Vector
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.Instant
 import java.util.*
+import kotlin.math.cos
+import kotlin.math.sin
 
 data class ECPlayer(var player: Player) {
     private val mutex = Mutex()
@@ -40,6 +44,18 @@ data class ECPlayer(var player: Player) {
                 .toMutableList()
                 .map { it[Titles.titleId] }
         }
+    }
+
+    fun getHandLocation(): Location {
+        val location = player.eyeLocation.subtract(.0, .6, .0)
+        val angle = location.yaw / 60
+        val vector = Vector(
+            cos(angle).toDouble(),
+            0.0,
+            sin(angle).toDouble()
+        )
+        return location.clone().subtract(vector.normalize().multiply(.45))
+
     }
 
     @Throws(Exception::class)

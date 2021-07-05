@@ -16,6 +16,7 @@ import dev.reactant.reactant.core.dependency.injection.Inject
 import dev.reactant.reactant.extra.config.type.MultiConfigs
 import dev.reactant.reactant.service.spec.config.Config
 import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
@@ -147,7 +148,19 @@ class StateManager(
 
     fun continuousTask(seconds: Long, action: (Int) -> Unit): String {
         val key = "".generateUniqueID()
-        val disposer = globalManager.schedulers.interval(tickPerSecond * seconds).subscribe(action)
+        val disposer = globalManager.schedulers
+            .interval(tickPerSecond * seconds)
+            .subscribe(action)
+        taskMapper[key] = disposer
+        return key
+    }
+
+    fun asyncContinuousTask(seconds: Long, action: (Int) -> Unit): String {
+        val key = "".generateUniqueID()
+        val disposer = globalManager.schedulers
+            .interval(tickPerSecond * seconds)
+            .observeOn(Schedulers.io())
+            .subscribe(action)
         taskMapper[key] = disposer
         return key
     }

@@ -24,7 +24,7 @@ class AdminItemUI: PaginationUI<Unit>("admin-item") {
         val views = mutableListOf<PaginationItem>()
 
         items.forEach {
-            val item = globalManager.items.getItemByKey(it.key)
+            val item = globalManager.items.getItemById(it.key)
             views.add(PaginationItem(
                 item = item,
                 click = { event ->

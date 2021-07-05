@@ -251,7 +251,7 @@ class VoteUI: UIProvider<VoteUI.VoteUIProps>("vote") {
                         globalManager.givePlayerItem(
                             player.name,
                             listOf(
-                                globalManager.items.getItemByKey("enchantment-crate-1"),
+                                globalManager.items.getItemById("enchantment-crate-1"),
                                 globalManager.items.getRandomEgg(),
                             )
                         )

@@ -14,6 +14,7 @@ import dev.reactant.reactant.core.component.Component
 import io.papermc.paper.event.player.AsyncChatEvent
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
+import org.bukkit.Particle
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.block.SignChangeEvent
@@ -35,6 +36,14 @@ class PlayerManager {
         this.globalManager = globalManager
 
         globalManager.events {
+
+            PlayerInteractEvent::class
+                .observable(true)
+                .filter { it.player.name == "iRegalia" }
+                .subscribe {
+                    val loc = globalManager.players.getByPlayer(it.player).getHandLocation()
+                    it.player.spawnParticle(Particle.EXPLOSION_NORMAL, loc, 100)
+                }
 
              PlayerDeathEvent::class
                  .observable(true, EventPriority.LOWEST)
@@ -168,7 +177,6 @@ class PlayerManager {
 
                     if (!event.player.hasPlayedBefore() || ecPlayer.database[Players.discordId] == null) {
                         event.player.teleportAsync(globalManager.serverConfig.teleports["old-spawn"]!!.location)
-                        globalManager.updateDiscordLinkedAccounts(member.id, player.uniqueId.toString())
                         ecPlayer.ensureUpdate("saving player", isAsync = true) {
                             Players.update({ Players.playerName eq player.name }) {
                                 it[playerName] = player.name

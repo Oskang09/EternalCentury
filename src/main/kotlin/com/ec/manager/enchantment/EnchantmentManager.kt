@@ -26,7 +26,6 @@ class EnchantmentManager {
     private val enchantments: MutableMap<String, EnchantmentAPI> = HashMap();
     private val originEnchantments: MutableMap<Enchantment, EnchantmentAPI> = HashMap();
     private lateinit var globalManager: GlobalManager
-    private val mapper = jacksonObjectMapper()
 
     fun onInitialize(globalManager: GlobalManager) {
         this.globalManager = globalManager
@@ -156,7 +155,7 @@ class EnchantmentManager {
                 .doOnError(Logger.trackError("EnchantmentManager.EnchantItemEvent", "error occurs in event subscriber"))
                 .subscribe {
                     val player = it.enchanter
-                    val availableEnchants = enchantments.keys
+                    val availableEnchants = enchantments.keys.toMutableList()
                     availableEnchants.removeAll(globalManager.battlePass.activeBattlePass.exclusiveEnchantment)
 
                     Logger.withTrackerPlayerEvent(player, it, "EnchantManager - EnchantItemEvent", "player ${player.uniqueId} error occurs when enchant") {
@@ -218,7 +217,7 @@ class EnchantmentManager {
         val item = ItemStack(Material.ENCHANTED_BOOK)
         val itemNbt = ItemNBT()
         val itemEnchantments = mutableMapOf<String, Int>()
-        val availableEnchants = enchantments.keys
+        val availableEnchants = enchantments.keys.toMutableList()
         availableEnchants.removeAll(globalManager.battlePass.activeBattlePass.exclusiveEnchantment)
 
         item.itemMeta<EnchantmentStorageMeta> {

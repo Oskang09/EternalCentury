@@ -3,6 +3,7 @@ package com.ec
 import com.ec.database.*
 import com.ec.service.EconomyService
 import com.ec.service.PermissionService
+import de.tr7zw.nbtinjector.NBTInjector
 import dev.reactant.reactant.core.ReactantPlugin
 import kotlinx.coroutines.selects.select
 import me.oska.UniversalGUI

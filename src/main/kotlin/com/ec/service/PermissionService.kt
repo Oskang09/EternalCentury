@@ -44,6 +44,7 @@ class PermissionService: Permission() {
         "plots.home",
         "plots.auto",
         "plots.delete",
+        "plots.visit",
         "playerparticles.particles.max.3",
         "playerparticles.groups.max.3",
     )

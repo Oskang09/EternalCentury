@@ -5,13 +5,13 @@ import com.ec.manager.activity.ActivityAPI
 import com.ec.manager.enchantment.EnchantmentAPI
 import com.ec.manager.inventory.UIProvider
 import com.ec.manager.papi.PlaceholderAPI
+import com.ec.manager.skill.SkillAPI
 import com.ec.manager.wallet.WalletAPI
 import com.ec.manager.title.TitleAPI
 import com.ec.manager.ugui.ModuleAPI
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.component.lifecycle.LifeCycleHook
 import dev.reactant.reactant.extra.command.ReactantCommand
-import org.bukkit.Bukkit
 import org.reflections8.Reflections
 import java.lang.reflect.Modifier
 
@@ -21,6 +21,12 @@ class ReflectionManager: LifeCycleHook {
 
     override fun onEnable() {
         reflections = Reflections("com.ec")
+    }
+
+    fun loopSkills(action: (Class<out SkillAPI>) -> Unit) {
+        reflections.getSubTypesOf(SkillAPI::class.java).forEach {
+            action(it)
+        }
     }
 
     fun loopActivity(action: (Class<out ActivityAPI>) -> Unit) {

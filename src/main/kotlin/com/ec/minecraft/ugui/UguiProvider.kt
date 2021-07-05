@@ -32,7 +32,7 @@ class UguiProvider(private val globalManager: GlobalManager): ItemProvider() {
             val enchantments = config["enchantments"] as Map<String, Int>
             globalManager.enchantments.getEnchantedBookByMap(enchantments)
         } else {
-            globalManager.items.getItemByKey(id)
+            globalManager.items.getItemById(id)
         }
 
         val extras = config["lore"] as List<String>?

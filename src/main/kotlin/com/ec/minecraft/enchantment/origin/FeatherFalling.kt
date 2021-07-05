@@ -9,7 +9,7 @@ class FeatherFalling: EnchantmentAPI("feather_falling") {
 
     override val emoji = Emoji.SHIELD
     override val display = "輕盈"
-    override val maxLevel = 2
+    override val maxLevel = 4
     override val startLevel = 1
     override val description = listOf("")
     override val origin = Enchantment.PROTECTION_FALL!!

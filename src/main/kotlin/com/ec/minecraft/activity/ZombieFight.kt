@@ -27,7 +27,6 @@ import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.metadata.FixedMetadataValue
-import org.bukkit.metadata.MetadataValue
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.DayOfWeek
@@ -263,8 +262,8 @@ class ZombieFight: ActivityAPI("zombie-fight") {
                                 globalManager.givePlayerItem(
                                     pair.first,
                                     listOf(
-                                        globalManager.items.getItemByKey("money-pack-1"),
-                                        globalManager.items.getItemByKey("enchantment-crate-1"),
+                                        globalManager.items.getItemById("money-pack-1"),
+                                        globalManager.items.getItemById("enchantment-crate-1"),
                                     )
                                 )
                             }

@@ -5,7 +5,9 @@ import com.ec.config.ServerConfig
 import com.ec.database.Mails
 import com.ec.database.Players
 import com.ec.database.model.Reward
+import com.ec.logger.Logger
 import com.ec.manager.activity.ActivityManager
+import com.ec.manager.battlepass.BattlePassManager
 import com.ec.manager.crate.CrateManager
 import com.ec.manager.discord.DiscordManager
 import com.ec.manager.enchantment.EnchantmentManager
@@ -13,20 +15,19 @@ import com.ec.manager.inventory.UIComponent
 import com.ec.manager.inventory.UIManager
 import com.ec.manager.item.ItemManager
 import com.ec.manager.mcmmo.McMMOManager
-import com.ec.minecraft.ugui.UguiProvider
+import com.ec.manager.mob.MobManager
 import com.ec.manager.papi.PlaceholderManager
 import com.ec.manager.payment.PaymentManager
 import com.ec.manager.player.PlayerManager
-import com.ec.manager.wallet.WalletManager
+import com.ec.manager.skill.SkillManager
 import com.ec.manager.title.TitleManager
-import com.ec.logger.Logger
-import com.ec.manager.battlepass.BattlePassManager
-import com.ec.manager.packet.PacketManager
+import com.ec.manager.visibility.VisibilityManager
+import com.ec.manager.wallet.WalletManager
+import com.ec.minecraft.ugui.UguiProvider
 import com.ec.service.EconomyService
 import com.ec.service.MessageService
 import com.ec.service.PermissionService
 import com.ec.util.StringUtil.generateUniqueID
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.component.lifecycle.LifeCycleHook
 import dev.reactant.reactant.core.dependency.injection.Inject
@@ -67,7 +68,9 @@ class GlobalManager(
     val mcmmo: McMMOManager,
     val activity: ActivityManager,
     val battlePass: BattlePassManager,
-    val packet: PacketManager,
+    val mobs: MobManager,
+    val visibility: VisibilityManager,
+    val skills: SkillManager,
 
     // Services
     var economy: EconomyService,
@@ -81,9 +84,6 @@ class GlobalManager(
     // Configurations
     @Inject("plugins/EternalCentury/server.json")
     private val serverConfigFile: Config<ServerConfig>,
-
-    @Inject("plugins/DiscordSRV/linkedaccounts.json")
-    private val discordLinkedAccounts: Config<MutableMap<String, String>>,
 ): LifeCycleHook {
 
     lateinit var skins: SkinsRestorerAPI
@@ -116,11 +116,6 @@ class GlobalManager(
         }
     }
 
-    fun updateDiscordLinkedAccounts(discordId: String, playerUUID: String) {
-        discordLinkedAccounts.content[discordId] = playerUUID
-        discordLinkedAccounts.save().subscribe()
-    }
-
     fun sendRewardToPlayer(player: Player, rewards: List<Reward>) {
         sendRewardToPlayer(player, *rewards.toTypedArray())
     }
@@ -131,7 +126,7 @@ class GlobalManager(
         rewards.forEach { cfg ->
             when (cfg.type.lowercase()) {
                 "item" -> itemRewards.add(
-                    if (cfg.itemId != null) items.getItemByKey(cfg.itemId)
+                    if (cfg.itemId != null) items.getItemById(cfg.itemId)
                     else items.getItem(cfg.item!!)
                 )
                 "enchantment" ->
@@ -205,7 +200,9 @@ class GlobalManager(
         states.onInitialize(this)
         activity.onInitialize(this)
         mcmmo.onInitialize(this)
-        packet.onInitialize(this)
+        skills.onInitialize(this)
+        mobs.onInitialize(this)
+        visibility.onInitialize(this)
         skins = SkinsRestorerAPI.getApi()
 
         val plugin = Bukkit.getPluginManager().getPlugin("UniversalGUI")

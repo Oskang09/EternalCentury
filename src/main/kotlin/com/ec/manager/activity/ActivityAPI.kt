@@ -4,15 +4,16 @@ import com.ec.logger.Logger
 import com.ec.manager.GlobalManager
 import com.ec.model.player.ECPlayerGameState
 import io.reactivex.rxjava3.disposables.Disposable
-import net.skinsrestorer.bukkit.listener.PlayerJoin
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.entity.PlayerDeathEvent
-import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.inventory.ItemStack
-import java.time.*
+import java.time.DayOfWeek
+import java.time.Duration
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 abstract class ActivityAPI(val id: String) {
 

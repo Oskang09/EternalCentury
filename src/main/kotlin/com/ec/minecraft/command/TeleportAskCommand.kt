@@ -52,7 +52,7 @@ internal class TeleportAskCommand(private val globalManager: GlobalManager): Rea
         }
 
         player.sendMessage(globalManager.message.system("您的传送请求已经发送到 ${target.name} 了。"))
-        target.sendMessage(globalManager.message.system("${player.name} 想传送到你这边，接受的话请输入 /tpaccept ${player.name}。"))
+        target.sendMessage(globalManager.message.system("${player.name} 想传送到你这边，接受的话请输入或者点我 <insert:/tpa accept ${player.name}>/tpaccept ${player.name}</insert>。"))
         globalManager.states.teleportPlayers[sender.name] = target.name
 
         val task = globalManager.states.delayedTask(10) {

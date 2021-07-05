@@ -170,13 +170,13 @@ class ItemManager(
     }
 
     fun playerHas(player: Player, itemId: String, amount: Int = 1): Boolean {
-        val item = globalManager.items.getItemByKey(itemId)
+        val item = globalManager.items.getItemById(itemId)
         item.amount = amount
         return player.inventory.contains(item)
     }
 
     fun playerRemove(player: Player, itemId: String, amount: Int = 1) {
-        val item = globalManager.items.getItemByKey(itemId)
+        val item = globalManager.items.getItemById(itemId)
         item.amount = amount
         player.inventory.removeItem(item)
     }
@@ -270,7 +270,7 @@ class ItemManager(
         return item
     }
 
-    fun getItemByKey(key: String): ItemStack {
+    fun getItemById(key: String): ItemStack {
         return getItemByConfig(items[key]!!)
     }
 
