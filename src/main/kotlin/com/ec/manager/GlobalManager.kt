@@ -4,9 +4,10 @@ import com.ec.ECCore
 import com.ec.config.ServerConfig
 import com.ec.database.Mails
 import com.ec.database.Players
-import com.ec.database.model.Reward
+import com.ec.model.app.Reward
 import com.ec.logger.Logger
 import com.ec.manager.activity.ActivityManager
+import com.ec.manager.arena.ArenaManager
 import com.ec.manager.battlepass.BattlePassManager
 import com.ec.manager.crate.CrateManager
 import com.ec.manager.discord.DiscordManager
@@ -21,7 +22,6 @@ import com.ec.manager.payment.PaymentManager
 import com.ec.manager.player.PlayerManager
 import com.ec.manager.skill.SkillManager
 import com.ec.manager.title.TitleManager
-import com.ec.manager.visibility.VisibilityManager
 import com.ec.manager.wallet.WalletManager
 import com.ec.minecraft.ugui.UguiProvider
 import com.ec.service.EconomyService
@@ -69,8 +69,8 @@ class GlobalManager(
     val activity: ActivityManager,
     val battlePass: BattlePassManager,
     val mobs: MobManager,
-    val visibility: VisibilityManager,
     val skills: SkillManager,
+    val arenas: ArenaManager,
 
     // Services
     var economy: EconomyService,
@@ -202,7 +202,8 @@ class GlobalManager(
         mcmmo.onInitialize(this)
         skills.onInitialize(this)
         mobs.onInitialize(this)
-        visibility.onInitialize(this)
+        arenas.onInitialize(this)
+
         skins = SkinsRestorerAPI.getApi()
 
         val plugin = Bukkit.getPluginManager().getPlugin("UniversalGUI")

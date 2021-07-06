@@ -89,8 +89,8 @@ class PartyModule: ModuleAPI() {
                 ModuleType.ITEM_PROVIDER -> {}
                 ModuleType.REWARD -> {
                     val activity = config["activity"] as String
-                    globalManager.mcmmo.getPlayerParty(player).forEach { p ->
-                        globalManager.players.getByPlayer(p).activityName = activity
+                    globalManager.mcmmo.getPlayerPartyMembers(player).forEach { p ->
+                        globalManager.players.getByPlayer(p).gameName = activity
                         globalManager.players.getByPlayer(p).gameState = if (activity == "") {
                             ECPlayerGameState.FREE
                         } else {
@@ -101,7 +101,7 @@ class PartyModule: ModuleAPI() {
                     when ((config["type"] as String).lowercase()) {
                         "rtp" ->  {
                             val world = config["world"] as String
-                            searchAndTeleport(globalManager.mcmmo.getPlayerParty(player), world, rtp.instance)
+                            searchAndTeleport(globalManager.mcmmo.getPlayerPartyMembers(player), world, rtp.instance)
                         }
                         "teleport" ->  {
                             val teleportId = config["teleport_id"] as String
@@ -118,9 +118,14 @@ class PartyModule: ModuleAPI() {
 
         override fun check(player: Player): Boolean {
             if (type == ModuleType.REQUIREMENT) {
+                if (!globalManager.mcmmo.hasParty(player)) {
+                    player.sendMessage(globalManager.message.system("您不在任何队伍中。"))
+                    return false
+                }
+
                 val numOfMembers = config["num_of_member"] as Int? ?: 0
                 if (numOfMembers > 0) {
-                    val partyMembers = globalManager.mcmmo.getPlayerParty(player)
+                    val partyMembers = globalManager.mcmmo.getPlayerPartyMembers(player)
                     if (partyMembers.size != numOfMembers) {
                         return false
                     }

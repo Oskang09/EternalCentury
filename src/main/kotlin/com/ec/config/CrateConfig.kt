@@ -1,7 +1,7 @@
 package com.ec.config
 
-import com.ec.database.model.Item
-import com.ec.database.model.Reward
+import com.ec.model.app.Item
+import com.ec.model.app.Reward
 
 data class CrateConfig(
     val id: String = "",

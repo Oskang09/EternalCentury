@@ -1,6 +1,6 @@
 package com.ec.config
 
-import com.ec.database.model.Item
+import com.ec.model.app.Item
 
 data class ItemConfig(
     var id: String = "",

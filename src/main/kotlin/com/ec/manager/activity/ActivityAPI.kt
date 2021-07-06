@@ -60,7 +60,7 @@ abstract class ActivityAPI(val id: String) {
                     .filter {
                         val player = globalManager.players.getByPlayer(it.entity)
                         return@filter player.gameState == ECPlayerGameState.ACTIVITY
-                                && player.activityName == id
+                                && player.gameName == id
                     }
                     .subscribe { onDeath(it) }
             )
@@ -72,7 +72,7 @@ abstract class ActivityAPI(val id: String) {
                     .filter {
                         val player = globalManager.players.getByPlayer(it.player)
                         return@filter player.gameState == ECPlayerGameState.ACTIVITY
-                                && player.activityName == id
+                                && player.gameName == id
                     }
                     .subscribe { onRespawn(it) }
             )
@@ -84,7 +84,7 @@ abstract class ActivityAPI(val id: String) {
                     .filter {
                         val player = globalManager.players.getByPlayer(it.player)
                         return@filter player.gameState == ECPlayerGameState.ACTIVITY
-                                && player.activityName == id
+                                && player.gameName == id
                     }
                     .subscribe { onQuit(it) }
             )
@@ -100,8 +100,13 @@ abstract class ActivityAPI(val id: String) {
         disposers.clear()
     }
 
-    open fun onJoinEvent(player: Player) {}
-    open fun onQuitEvent(player: Player) {}
+    open fun onJoinActivity(player: Player): Boolean {
+        return true
+    }
+    open fun onQuitActivity(player: Player): Boolean {
+        return true
+    }
+
     open fun onQuit(event: PlayerQuitEvent) {}
     open fun onDeath(event: PlayerDeathEvent) {}
     open fun onRespawn(event: PlayerRespawnEvent) {}

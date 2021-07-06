@@ -1,6 +1,6 @@
 package com.ec.manager.battlepass
 
-import com.ec.database.model.BattlePassReward
+import com.ec.model.app.BattlePassReward
 import com.ec.manager.GlobalManager
 
 abstract class BattlePass(val id: String) {

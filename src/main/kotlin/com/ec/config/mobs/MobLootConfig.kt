@@ -1,6 +1,6 @@
 package com.ec.config.mobs
 
-import com.ec.database.model.Item
+import com.ec.model.app.Item
 
 class MobLootConfig(
     val item: Item? = null,

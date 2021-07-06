@@ -53,7 +53,7 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
 
     override fun info(props: PlayerUIProps): UIBase {
         return UIBase(
-            rows = 4,
+            rows = 5,
             cols = 9,
             title = "&b[&5系统&b] &6玩家主页"
         )
@@ -112,9 +112,19 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
                 routeTo = "player-auction"
             ),
             PlayerUIPropsData(
+                material = Material.ENCHANTED_BOOK,
+                display = "&f&l前往 &b[&5系统&b] &6附魔咨询",
+                routeTo = "enchantment"
+            ),
+            PlayerUIPropsData(
                 material = Material.OAK_SIGN,
                 display = "&f&l前往 &b[&5系统&b] &6活动咨询",
                 routeTo = "activity"
+            ),
+            PlayerUIPropsData(
+                material = Material.NETHERITE_SWORD,
+                display = "&f&l前往 &b[&5系统&b] &6副本咨询",
+                routeTo = "dungeon"
             ),
             PlayerUIPropsData(
                 material = Material.ENDER_CHEST,
@@ -128,7 +138,7 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
             ),
             PlayerUIPropsData(
                 material = Material.BARRIER,
-                display = "&6退出当前活动",
+                display = "&6退出当前活动/副本",
                 routeTo = "yesornoui"
             ),
         )
@@ -160,15 +170,26 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
                                 it.routeTo.startsWith("command:") -> player.performCommand(it.routeTo.replace("command:", ""))
                                 it.routeTo == "yesornoui" -> {
                                     when (ecPlayer.gameState == ECPlayerGameState.FREE) {
-                                        true -> player.sendMessage(globalManager.message.system("您不在任何活动中！"))
+                                        true -> player.sendMessage(globalManager.message.system("您不在任何活动或副本中！"))
                                         false -> {
                                             globalManager.inventory.displaySelection(player, YesOrNoUI.YesOrNoUIProps(
-                                                title = "&f[&5系统&f] &a您确定要退出当前活动？",
+                                                title = "&f[&5系统&f] &a您确定要退出当前活动/副本？",
                                                 onNo = { this.displayTo(player) },
                                                 onYes = {
-                                                    globalManager.activity.getActivityById(ecPlayer.activityName).onQuitEvent(player)
-                                                    ecPlayer.gameState = ECPlayerGameState.FREE
-                                                    ecPlayer.activityName = ""
+                                                    when (ecPlayer.gameState) {
+                                                        ECPlayerGameState.ACTIVITY -> {
+                                                            if (globalManager.activity.getActivityById(ecPlayer.gameName).onQuitActivity(player)) {
+                                                                ecPlayer.gameState = ECPlayerGameState.FREE
+                                                                ecPlayer.gameName = ""
+                                                            }
+                                                        }
+                                                        ECPlayerGameState.ARENA -> {
+                                                            if (globalManager.arenas.getArenaById(ecPlayer.gameName).onQuit(player)) {
+                                                                ecPlayer.gameState = ECPlayerGameState.FREE
+                                                                ecPlayer.gameName = ""
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                             ))
                                         }
@@ -177,7 +198,7 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
                                 else -> {
                                     when (it.routeTo) {
                                         "teleport" -> {
-                                            if (ecPlayer.gameState == ECPlayerGameState.ACTIVITY) {
+                                            if (ecPlayer.gameState != ECPlayerGameState.FREE) {
                                                 player.sendMessage(globalManager.message.system("您在活动中，无法进行传送！"))
                                             } else {
                                                 globalManager.inventory.displayTo(player, it.routeTo)

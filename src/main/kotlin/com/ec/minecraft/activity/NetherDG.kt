@@ -53,7 +53,7 @@ class NetherDG: ActivityAPI("nether-dg") {
                     .observable(false, EventPriority.LOWEST)
                     .subscribe {
                         if (it.player.world.name == "nether") {
-                            globalManager.players.getByPlayer(it.player).activityName = super.id
+                            globalManager.players.getByPlayer(it.player).gameName = super.id
                             globalManager.players.getByPlayer(it.player).gameState = ECPlayerGameState.ACTIVITY
                         }
                     }
@@ -73,11 +73,16 @@ class NetherDG: ActivityAPI("nether-dg") {
         globalManager.discord.broadcast("&f地狱旅途活动已经结束，下次趁早参加吧。")
     }
 
+    override fun onQuitActivity(player: Player): Boolean {
+        player.teleportAsync(globalManager.serverConfig.teleports["old-spawn"]!!.location)
+        return true
+    }
+
     override fun onDeath(event: PlayerDeathEvent) {
         val death = event.entity
 
         globalManager.players.getByPlayer(death).gameState = ECPlayerGameState.FREE
-        globalManager.players.getByPlayer(death).activityName = ""
+        globalManager.players.getByPlayer(death).gameName = ""
     }
 
     override fun onRespawn(event: PlayerRespawnEvent) {

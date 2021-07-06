@@ -1,8 +1,8 @@
 package com.ec.manager.item
 
 import com.ec.config.ItemConfig
-import com.ec.database.model.Item
-import com.ec.database.model.Reward
+import com.ec.model.app.Item
+import com.ec.model.app.Reward
 import com.ec.model.ItemNBT
 import com.ec.manager.GlobalManager
 import com.ec.util.StringUtil.toComponent
@@ -23,8 +23,6 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.inventory.meta.PotionMeta
 import org.bukkit.potion.PotionData
-import org.bukkit.potion.PotionEffect
-import org.bukkit.potion.PotionEffectType
 import org.bukkit.potion.PotionType
 
 @Component

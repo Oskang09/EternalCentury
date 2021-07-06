@@ -37,14 +37,6 @@ class PlayerManager {
 
         globalManager.events {
 
-            PlayerInteractEvent::class
-                .observable(true)
-                .filter { it.player.name == "iRegalia" }
-                .subscribe {
-                    val loc = globalManager.players.getByPlayer(it.player).getHandLocation()
-                    it.player.spawnParticle(Particle.EXPLOSION_NORMAL, loc, 100)
-                }
-
              PlayerDeathEvent::class
                  .observable(true, EventPriority.LOWEST)
                  .filter { globalManager.players.getByPlayer(it.entity).gameState == ECPlayerGameState.FREE }
@@ -187,6 +179,8 @@ class PlayerManager {
                         }
                     }
 
+                    event.player.scoreboardTags.clear()
+
                     ecPlayer.playerJoinedAt = Instant.now()
                     ecPlayer.state = ECPlayerAuthState.LOGIN
                     players[player.uniqueId] = ecPlayer
@@ -292,10 +286,16 @@ class PlayerManager {
 
                     val player = event.player
                     Logger.withTrackerPlayerEvent(player, event, "PlayerManager.PlayerQuitEvent" , "player ${player.uniqueId} error occurs when quit") {
-                        val ecPlayer = players.remove(player.uniqueId)
+                        val ecPlayer = players.remove(player.uniqueId)!!
 
                         player.scoreboard.getTeam(player.name)?.unregister()
-                        ecPlayer!!.ensureUpdate("saving player", isAsync = true) {
+
+                        globalManager.states.updatePlayerState(player) { state ->
+                            state.gameName = ecPlayer.gameName
+                            state.gameState = ecPlayer.gameState
+                        }
+
+                        ecPlayer.ensureUpdate("saving player", isAsync = true) {
                             Players.update({ Players.playerName eq player.name }) {
                                 it[playerName] = player.name
                                 it[uuid] = player.uniqueId.toString()

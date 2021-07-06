@@ -4,6 +4,7 @@ import org.bukkit.attribute.Attribute
 
 data class MobConfig(
     val id: String = "",
+    val type: String = "",
     val name: String = "",
     val flag: MobFlagConfig = MobFlagConfig(),
     val attributes: Map<Attribute, Double> = mutableMapOf(),

@@ -4,8 +4,11 @@ import com.ec.ECCore
 import com.ec.config.mobs.MobConfig
 import com.ec.manager.GlobalManager
 import com.ec.util.StringUtil.toComponent
+import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
+import org.bukkit.entity.Entity
+import org.bukkit.entity.EntityType
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
@@ -70,6 +73,12 @@ class IEntity(val globalManager: GlobalManager, val config: MobConfig) {
 
     }
 
+    fun spawnEntity(location: Location): Entity {
+        val spawnedEntity = location.world.spawnEntity(location, EntityType.valueOf(config.type))
+        injectEntity(spawnedEntity as LivingEntity)
+        return spawnedEntity
+    }
+
     fun injectEntity(entity: LivingEntity) {
         entity.scoreboardTags.add("mobId@" + config.id)
         entity.scoreboardTags.add("skills@" + config.skills.joinToString(","))
@@ -94,7 +103,9 @@ class IEntity(val globalManager: GlobalManager, val config: MobConfig) {
 
         if (entity is Lootable) {
             entity.clearLootTable()
-            entity.lootTable = lootTable
+            if (config.loots.isNotEmpty()) {
+                entity.lootTable = lootTable
+            }
         }
     }
 

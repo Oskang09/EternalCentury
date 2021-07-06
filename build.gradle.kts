@@ -60,7 +60,7 @@ dependencies {
 
     implementation("net.kyori:adventure-text-minimessage:4.1.0-SNAPSHOT")
     implementation("net.wesjd:anvilgui:1.5.1-SNAPSHOT")
-    implementation("xyz.xenondevs:particle:1.5.1")
+    implementation("xyz.xenondevs:particle:1.6.3")
     implementation("net.oneandone.reflections8:reflections8:0.11.5")
 
     compileOnly("com.squareup.okhttp3:logging-interceptor:4.2.1")

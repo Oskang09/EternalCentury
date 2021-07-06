@@ -4,6 +4,7 @@ import com.ec.manager.GlobalManager
 import com.ec.model.Emoji
 import com.ec.util.StringUtil.toComponent
 import com.gmail.nossr50.api.ExperienceAPI
+import com.gmail.nossr50.datatypes.party.Party
 import com.gmail.nossr50.datatypes.player.McMMOPlayer
 import com.gmail.nossr50.util.player.UserManager
 import net.kyori.adventure.text.Component
@@ -33,10 +34,18 @@ class McMMOManager {
         return ExperienceAPI.getPlayerRankSkill(player.uniqueId, skill)
     }
 
-    fun getPlayerParty(player: Player): List<Player> {
+    fun hasParty(player: Player): Boolean {
+        return UserManager.getPlayer(player).inParty()
+    }
+
+    fun getPlayerParty(player: Player): Party {
+        val mcmmoPlayer = UserManager.getPlayer(player)
+        return mcmmoPlayer.party
+    }
+
+    fun getPlayerPartyMembers(player: Player): List<Player> {
         val mcmmoPlayer = UserManager.getPlayer(player)
         if (!mcmmoPlayer.inParty()) {
-            player.sendMessage(globalManager.message.system("您目前不在任何队伍。"))
             return listOf()
         }
 
@@ -47,11 +56,6 @@ class McMMOManager {
 
     fun partyIsNearby(starter: Player, challenge: String): Boolean {
         val mcmmoPlayer = UserManager.getPlayer(starter)
-        if (!mcmmoPlayer.inParty()) {
-            starter.sendMessage(globalManager.message.system("您目前不在任何队伍。"))
-            return false
-        }
-
         val party = mcmmoPlayer.party
         val nearbyMembers = party.getNearMembers(mcmmoPlayer).map { it.name }
         if (nearbyMembers.size != party.members.size - 1) {

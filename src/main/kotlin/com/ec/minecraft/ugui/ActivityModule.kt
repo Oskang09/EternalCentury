@@ -47,13 +47,13 @@ class ActivityModule: ModuleAPI() {
         override fun action(player: Player) {
             when (type) {
                 ModuleType.REWARD -> {
-                    globalManager.players.getByPlayer(player).activityName = activity
+                    globalManager.players.getByPlayer(player).gameName = activity
                     globalManager.players.getByPlayer(player).gameState = if (activity == "") {
                         ECPlayerGameState.FREE
                     } else {
                         ECPlayerGameState.ACTIVITY
                     }
-                    globalManager.activity.getActivityById(activity).onJoinEvent(player)
+                    globalManager.activity.getActivityById(activity).onJoinActivity(player)
                 }
                 ModuleType.ITEM_PROVIDER -> {}
                 else -> {}

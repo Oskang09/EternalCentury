@@ -17,7 +17,7 @@ internal class SpawnCommand(private val globalManager: GlobalManager): ReactantC
 
         val player = sender as Player
         val ecPlayer = globalManager.players.getByPlayer(player)
-        if (ecPlayer.gameState == ECPlayerGameState.ACTIVITY) {
+        if (ecPlayer.gameState != ECPlayerGameState.FREE) {
             player.sendMessage(globalManager.message.system("您在活动状态无法进行传送！"))
             return
         }

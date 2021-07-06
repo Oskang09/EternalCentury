@@ -18,7 +18,7 @@ class ActivityUI: PaginationUI<Unit>("activity") {
 
     override fun info(props: PaginationUIProps): UIBase {
         return UIBase(
-            title = "&b[&5系统&b] &6活动列表"
+            title = "&b[&5系统&b] &6活动咨询"
         )
     }
 

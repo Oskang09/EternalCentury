@@ -1,4 +1,4 @@
-package com.ec.database.model
+package com.ec.model.app
 
 import org.bukkit.Material
 

@@ -8,6 +8,7 @@ import me.oska.config.shop.ItemConfig
 import okhttp3.internal.wait
 import org.bukkit.Bukkit
 import org.bukkit.Material
+import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerJoinEvent
@@ -52,7 +53,7 @@ class EndDG: ActivityAPI("end-dg") {
                     .observable(false, EventPriority.LOWEST)
                     .subscribe {
                         if (it.player.world.name == "end") {
-                            globalManager.players.getByPlayer(it.player).activityName = super.id
+                            globalManager.players.getByPlayer(it.player).gameName = super.id
                             globalManager.players.getByPlayer(it.player).gameState = ECPlayerGameState.ACTIVITY
                         }
                     }
@@ -70,11 +71,16 @@ class EndDG: ActivityAPI("end-dg") {
         globalManager.discord.broadcast("&f末地探险活动已经结束，下次趁早参加吧。")
     }
 
+    override fun onQuitActivity(player: Player): Boolean {
+        player.teleportAsync(globalManager.serverConfig.teleports["old-spawn"]!!.location)
+        return true
+    }
+
     override fun onDeath(event: PlayerDeathEvent) {
         val death = event.entity
 
         globalManager.players.getByPlayer(death).gameState = ECPlayerGameState.FREE
-        globalManager.players.getByPlayer(death).activityName = ""
+        globalManager.players.getByPlayer(death).gameName = ""
     }
 
     override fun onRespawn(event: PlayerRespawnEvent) {

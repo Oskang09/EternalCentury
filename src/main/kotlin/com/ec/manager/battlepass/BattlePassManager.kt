@@ -3,8 +3,8 @@ package com.ec.manager.battlepass
 import com.ec.ECCore
 import com.ec.config.BattlePassConfig
 import com.ec.database.enums.BattlePassType
-import com.ec.database.model.BattlePassReward
-import com.ec.database.model.Reward
+import com.ec.model.app.BattlePassReward
+import com.ec.model.app.Reward
 import com.ec.manager.GlobalManager
 import com.ec.util.HologramUtil.onTouch
 import com.ec.util.StringUtil.toColorized

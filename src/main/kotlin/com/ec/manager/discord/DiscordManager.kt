@@ -119,8 +119,9 @@ class DiscordManager: LifeCycleHook {
         jda.getTextChannelById(globalManager.serverConfig.discord.registerChannel)!!
             .onMessage()
             .doOnError(Logger.trackError("DiscordManager.REGISTER_CHANNEL", "error occurs in discord event"))
-            .filter { !it.message.author.isBot && globalManager.players.getByDiscordTag(it.message.author.asTag) == null }
-            .doOnNext { it.message.delete().complete() }
+            .filter { !it.message.author.isBot }
+            .doOnNext { it.message.delete().queue() }
+            .filter { globalManager.players.getByDiscordTag(it.message.author.asTag) == null }
             .subscribe {
                 val name = it.message.contentRaw
                 if (!nameRegex.containsMatchIn(name)) {

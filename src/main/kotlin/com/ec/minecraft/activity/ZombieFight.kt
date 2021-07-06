@@ -221,11 +221,11 @@ class ZombieFight: ActivityAPI("zombie-fight") {
 
         Bukkit.getOnlinePlayers().parallelStream().filter {
             val ecPlayer =  globalManager.players.getByPlayer(it.player!!)
-            return@filter ecPlayer.gameState == ECPlayerGameState.ACTIVITY && ecPlayer.activityName == super.id
+            return@filter ecPlayer.gameState == ECPlayerGameState.ACTIVITY && ecPlayer.gameName == super.id
         }.forEach {
             val ecPlayer =  globalManager.players.getByPlayer(it.player!!)
             ecPlayer.gameState = ECPlayerGameState.FREE
-            onQuitEvent(it)
+            onQuitActivity(it)
         }
 
         globalManager.discord.broadcast("&f僵尸恶战活动已经结束，下次再来哟。")
@@ -274,18 +274,20 @@ class ZombieFight: ActivityAPI("zombie-fight") {
         }
     }
 
-    override fun onJoinEvent(player: Player) {
+    override fun onJoinActivity(player: Player): Boolean {
         player.showBossBar(bossBar)
-        player.teleport(globalManager.serverConfig.teleports["zf-arena"]!!.location)
+        player.teleportAsync(globalManager.serverConfig.teleports["zf-arena"]!!.location)
+        return true
     }
 
-    override fun onQuitEvent(player: Player) {
+    override fun onQuitActivity(player: Player): Boolean {
         player.hideBossBar(bossBar)
-        player.teleport(globalManager.serverConfig.teleports["old-spawn"]!!.location)
+        player.teleportAsync(globalManager.serverConfig.teleports["old-spawn"]!!.location)
+        return true
     }
 
     override fun onQuit(event: PlayerQuitEvent) {
-        onQuitEvent(event.player)
+        onQuitActivity(event.player)
     }
 
     override fun onRespawn(event: PlayerRespawnEvent) {

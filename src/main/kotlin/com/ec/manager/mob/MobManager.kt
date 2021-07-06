@@ -23,4 +23,8 @@ class MobManager(
         }
     }
 
+    fun getMobById(id: String): IEntity {
+        return mobs[id]!!
+    }
+
 }

@@ -29,7 +29,7 @@ internal class PartyChatCommand(private val globalManager: GlobalManager): React
         val prefix = globalManager.message.playerChatPrefix(ChatType.PARTY)
         val componentMessage = prefix.append("&r ".toComponent()).append(player.displayName()).append("&r : ".toComponent()).append(message.joinToString(" ").toComponent())
 
-        globalManager.mcmmo.getPlayerParty(player).map { p -> p.sendMessage(componentMessage) }
+        globalManager.mcmmo.getPlayerPartyMembers(player).map { p -> p.sendMessage(componentMessage) }
         Bukkit.getConsoleSender().sendMessage(componentMessage)
     }
 
