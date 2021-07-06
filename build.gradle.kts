@@ -68,7 +68,7 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
     implementation("com.github.MinnDevelopment:jda-reactor:1.3.0")
-    implementation("net.dv8tion:JDA:4.2.1_253") {
+    implementation("net.dv8tion:JDA:4.3.0_277") {
         exclude(module = "opus-java")
     }
 }

@@ -28,7 +28,7 @@ open class SkillAPI(val id: String) {
 
     }
 
-    open fun onWorldChange(caster: Entity, world: World) {
+    open fun onChange(caster: Entity, world: World) {
 
     }
 

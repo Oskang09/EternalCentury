@@ -19,7 +19,7 @@ internal class MaintenanceCommand(private val globalManager: GlobalManager): Rea
         globalManager.discord.updateServerInfo(globalManager.serverConfig.maintenance)
         globalManager.saveServerConfig()
         if (globalManager.serverConfig.maintenance) {
-            globalManager.discord.broadcastToGameChannel("\uD83D\uDEE0 伺服器维修中")
+            globalManager.discord.broadcastToGameChannel("\uD83D\uDEE0 **伺服器维修中**")
 
             Bukkit.getOnlinePlayers().forEach {
                 if (!globalManager.serverConfig.adminPlayers.contains(it.name)) {
@@ -27,7 +27,7 @@ internal class MaintenanceCommand(private val globalManager: GlobalManager): Rea
                 }
             }
         } else {
-            globalManager.discord.broadcastToGameChannel("✅ 伺服器开启了")
+            globalManager.discord.broadcastToGameChannel("✅ **伺服器开启了**")
         }
     }
 

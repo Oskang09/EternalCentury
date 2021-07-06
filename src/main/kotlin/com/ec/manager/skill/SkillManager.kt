@@ -71,7 +71,7 @@ class SkillManager {
                 .observable(false, EventPriority.MONITOR)
                 .subscribe {
                     extractSkillTags(it.player).parallelStream().forEach { name ->
-                        skills[name]?.onWorldChange(it.player, it.player.world)
+                        skills[name]?.onChange(it.player, it.player.world)
                     }
                 }
 
@@ -80,7 +80,7 @@ class SkillManager {
                 .subscribe {
                     it.world.entities.filter { e -> e.isTicking }.forEach { e ->
                         extractSkillTags(e).parallelStream().forEach { name ->
-                            skills[name]?.onWorldChange(e, it.world)
+                            skills[name]?.onChange(e, it.world)
                         }
                     }
                 }

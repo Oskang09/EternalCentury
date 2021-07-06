@@ -10,6 +10,7 @@ import com.ec.logger.Logger
 import com.ec.manager.GlobalManager
 import com.ec.model.ObservableObject
 import com.ec.model.player.ECPlayerAuthState
+import com.ec.util.InstantUtil.toMalaysiaReadableTime
 import com.ec.util.RandomUtil
 import com.ec.util.StringUtil
 import com.ec.util.StringUtil.generateUniqueID
@@ -22,7 +23,9 @@ import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.OnlineStatus
 import net.dv8tion.jda.api.entities.*
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent
+import net.dv8tion.jda.api.interactions.components.Button
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.ComponentBuilder
@@ -48,7 +51,7 @@ class DiscordManager: LifeCycleHook {
     private lateinit var guild: Guild
     private lateinit var newbieRole: Role
     private lateinit var playerRole: Role
-    private lateinit var verifyObservableObject: ObservableObject<MessageReactionAddEvent>
+    private lateinit var verifyObservableObject: ObservableObject<ButtonClickEvent>
     private lateinit var annoucementChannel: TextChannel
     private lateinit var gameChannel: TextChannel
 
@@ -101,19 +104,23 @@ class DiscordManager: LifeCycleHook {
         }
 
         updateServerInfo(globalManager.serverConfig.maintenance)
+        updateRuleInfo()
+
         verifyObservableObject = ObservableObject(jda.on())
         verifyObservableObject.subscribe({
             it.member?.roles?.contains(newbieRole) != true &&
             it.messageId == globalManager.serverConfig.discord.ruleMessage
         }) {
-            guild.addRoleToMember(it.member!!.idLong, newbieRole).complete()
+            if (it.button!!.id!! == "accept") {
+                guild.addRoleToMember(it.member!!.idLong, newbieRole).complete()
+            }
         }
 
         jda.getTextChannelById(globalManager.serverConfig.discord.registerChannel)!!
             .onMessage()
             .doOnError(Logger.trackError("DiscordManager.REGISTER_CHANNEL", "error occurs in discord event"))
-            .doOnNext { it.message.delete().complete() }
             .filter { !it.message.author.isBot && globalManager.players.getByDiscordTag(it.message.author.asTag) == null }
+            .doOnNext { it.message.delete().complete() }
             .subscribe {
                 val name = it.message.contentRaw
                 if (!nameRegex.containsMatchIn(name)) {
@@ -153,23 +160,47 @@ class DiscordManager: LifeCycleHook {
             }
     }
 
+    fun updateRuleInfo() {
+        val message = globalManager.serverConfig.rules.joinToString("\n")
+        if (globalManager.serverConfig.discord.ruleMessage == "") {
+            globalManager.serverConfig.discord.ruleMessage = guild
+                .getTextChannelById(globalManager.serverConfig.discord.infoChannel)!!
+                .sendMessage(message)
+                .setActionRow(Button.success("accept", "接受"))
+                .complete()
+                .id
+        } else {
+            val serverStatusMessage = guild.getTextChannelById(globalManager.serverConfig.discord.infoChannel)!!
+                .retrieveMessageById(globalManager.serverConfig.discord.infoMessage).complete()
+            globalManager.serverConfig.discord.ruleMessage = serverStatusMessage
+                .editMessage(message)
+                .setActionRow(Button.success("accept", "接受"))
+                .complete()
+                .id
+        }
+    }
+
     fun updateServerInfo(isMaintain: Boolean) {
         val embed = EmbedBuilder();
         embed.setColor(if (isMaintain) Color.GRAY else Color.GREEN)
         embed.setThumbnail("https://firebasestorage.googleapis.com/v0/b/eternal-century.appspot.com/o/logo.jpg?alt=media")
         embed.setAuthor("永恒新世纪 Eternal Century ", "https://minecraft.oskadev.com", "https://firebasestorage.googleapis.com/v0/b/eternal-century.appspot.com/o/logo.jpg?alt=media")
         embed.setTitle(if (isMaintain) "伺服器状态 - 维修中 ( Maintain )" else "伺服器状态 - 在线 ( Online )")
-        embed.setDescription("新来的玩家可以到 <#${globalManager.serverConfig.discord.ruleChannel}> 频道，通过随便一个Reaction同意并接受规则后才能进行注册。")
+        embed.setDescription("新来的玩家可以到下面的规则讯息，同意并接受规则后才能进行注册。")
         embed.addField("地区配置", "", true)
-        embed.addField("人数限制", "50", true)
+        embed.addField("人数限制", "20", true)
         embed.addField("目前版本", ECCore.VERSION, true)
         embed.addField("伺服DC", "https://discord.gg/7rfSfwQBct", true)
-        embed.addField("伺服IP", "eternalcentury.oskadev.com", true)
+        embed.addField("伺服IP", "0.tcp.ap.ngrok.io:11144", true)
         embed.setFooter("伺服器咨询")
         embed.setTimestamp(Instant.now())
 
         if (globalManager.serverConfig.discord.infoMessage == "") {
-            globalManager.serverConfig.discord.infoMessage = guild.getTextChannelById(851153973960114178)!!.sendMessage(embed.build()).complete().id
+            globalManager.serverConfig.discord.infoMessage = guild
+                .getTextChannelById(globalManager.serverConfig.discord.infoChannel)!!
+                .sendMessage(embed.build())
+                .complete()
+                .id
         } else {
             val serverStatusMessage = guild.getTextChannelById(globalManager.serverConfig.discord.infoChannel)!!
                 .retrieveMessageById(globalManager.serverConfig.discord.infoMessage).complete()
@@ -188,7 +219,7 @@ class DiscordManager: LifeCycleHook {
         embed.addField("人数限制", "50", true)
         embed.addField("目前版本", ECCore.VERSION, true)
         embed.addField("伺服DC", "https://discord.gg/7rfSfwQBct", true)
-        embed.addField("伺服IP", "eternalcentury.oskadev.com", true)
+        embed.addField("伺服IP", "0.tcp.ap.ngrok.io:11144", true)
         embed.setFooter("伺服器咨询")
         embed.setTimestamp(Instant.now())
 
@@ -228,27 +259,65 @@ class DiscordManager: LifeCycleHook {
 
         val user = members[0].user
         val channel = user.openPrivateChannel().complete()
-        val message = channel.sendMessage(embed.build()).complete()
+        val message = channel.sendMessage(embed.build()).setActionRow(
+            Button.success("authorize", "接受"),
+            Button.danger("reject", "拒绝")
+        ).complete()
 
         verifyObservableObject.subscribeOnceWithTimeout(
-            { event -> !event.user!!.isBot && event.messageId == message.id },
-            timeout = 30000L, onTimeout = { callback(false) }
-        ) {
-            val res = it.reactionEmote.asCodepoints == "U+2705"
-            callback(res)
+            { event -> !event.user.isBot && event.messageId == message.id },
+            timeout = 30000L, onTimeout = {
+                callback(false)
 
-            if (res) {
+                val failEmbed = EmbedBuilder();
+                failEmbed.setColor(Color.RED)
+                failEmbed.setThumbnail("https://minotar.net/helm/${playerName}/100.png")
+                failEmbed.setAuthor("永恒新世纪 Eternal Century ", "https://minecraft.oskadev.com", "https://minotar.net/helm/${playerName}/100.png")
+                failEmbed.setTitle("您的账号在伺服器发出验证请求已经超时！")
+                failEmbed.setDescription("如不是您个人操作或者有任何东西遗失，请向管理员寻求帮助 。")
+                failEmbed.addField("IP地址", currentAddress , true)
+                failEmbed.addField("验证时间", Instant.now().epochSecond.toMalaysiaReadableTime(), true)
+                failEmbed.setFooter("请求类型 ： $verifyType")
+                failEmbed.setTimestamp(Instant.now())
+                channel.deleteMessageById(message.id).queue()
+                channel.sendMessage(failEmbed.build()).queue()
+            }
+        ) {
+            val isAuthorize = it.button!!.id!! == "authorize"
+            callback(isAuthorize)
+            if (isAuthorize) {
+                val successEmbed = EmbedBuilder();
+                successEmbed.setColor(Color.GREEN)
+                successEmbed.setThumbnail("https://minotar.net/helm/${playerName}/100.png")
+                successEmbed.setAuthor("永恒新世纪 Eternal Century ", "https://minecraft.oskadev.com", "https://minotar.net/helm/${playerName}/100.png")
+                successEmbed.setTitle("您的账号在伺服器发出验证请求，您通过了验证请求！")
+                successEmbed.setDescription("在一天内您的账号将不会再发出任何请求，除非IP地址更改 。")
+                successEmbed.addField("IP地址", currentAddress , true)
+                successEmbed.addField("验证时间", Instant.now().epochSecond.toMalaysiaReadableTime(), true)
+                successEmbed.setFooter("请求类型 ： $verifyType")
+                successEmbed.setTimestamp(Instant.now())
+                it.replyEmbeds(successEmbed.build()).complete().deleteOriginal()
+
                 transaction {
                     Players.update({ Players.id eq playerId}) { db ->
                         db[lastVerifiedAt] = Instant.now().epochSecond
                         db[lastVerifyIPAddress] = currentAddress
                     }
                 }
+            } else {
+                val failEmbed = EmbedBuilder();
+                failEmbed.setColor(Color.RED)
+                failEmbed.setThumbnail("https://minotar.net/helm/${playerName}/100.png")
+                failEmbed.setAuthor("永恒新世纪 Eternal Century ", "https://minecraft.oskadev.com", "https://minotar.net/helm/${playerName}/100.png")
+                failEmbed.setTitle("您的账号在伺服器发出验证请求，您取消了验证请求！")
+                failEmbed.setDescription("如不是您个人操作或者有任何东西遗失，请向管理员寻求帮助 。")
+                failEmbed.addField("IP地址", currentAddress , true)
+                failEmbed.addField("验证时间", Instant.now().epochSecond.toMalaysiaReadableTime(), true)
+                failEmbed.setFooter("请求类型 ： $verifyType")
+                failEmbed.setTimestamp(Instant.now())
+                it.replyEmbeds(failEmbed.build()).complete().deleteOriginal()
             }
         }
-
-        message.addReaction("✅").queue()
-        message.addReaction("❌").queue()
         return true
     }
 
@@ -258,7 +327,7 @@ class DiscordManager: LifeCycleHook {
     }
 
     fun broadcastToGameChannel(message: String) {
-        gameChannel.sendMessage(message)
+        gameChannel.sendMessage(message).queue()
     }
 
     fun broadcast(message: String) {
