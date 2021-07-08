@@ -8,6 +8,7 @@ import dev.reactant.reactant.extra.config.type.MultiConfigs
 import org.bukkit.entity.Entity
 import org.bukkit.event.EventPriority
 import org.bukkit.event.entity.EntityDeathEvent
+import org.bukkit.loot.LootContext
 
 @Component
 class MobManager(
@@ -30,8 +31,11 @@ class MobManager(
                 .observable(true, EventPriority.LOWEST)
                 .filter { isCustomMob(it.entity) }
                 .subscribe {
-                    val mob = extractEntity(it.entity)
+                    val mob = getEntityMobId(it.entity)
                     it.droppedExp = mob.config.xp
+
+                    it.drops.clear()
+                    it.drops.addAll(mob.getDrops(it))
                 }
         }
     }
@@ -41,7 +45,7 @@ class MobManager(
         return id != null
     }
 
-    fun extractEntity(entity: Entity): IEntity {
+    fun getEntityMobId(entity: Entity): IEntity {
         val id = entity.scoreboardTags.find { it.startsWith("mobId@") }!!
         return mobs[id.trimStart(*"mobId@".toCharArray())]!!
     }

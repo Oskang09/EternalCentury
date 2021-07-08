@@ -47,7 +47,7 @@ class RepairUI: UIProvider<RepairUI.RepairUIProps>("repair") {
         if (mainHand.hasItemMeta() && mainHand.itemMeta is Damageable) {
             val meta = mainHand.itemMeta as Damageable
             val nbt = globalManager.items.deserializeFromItem(mainHand)
-            nbt?.enchantments?.forEach { (_, level) ->
+            nbt.enchantments.forEach { (_, level) ->
                 repairRequired += (level * globalManager.serverConfig.repairPrice)
             }
 

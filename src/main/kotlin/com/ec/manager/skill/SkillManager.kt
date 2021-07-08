@@ -30,10 +30,10 @@ class SkillManager {
                 .flatten()
                 .parallelStream()
                 .filter { it.isTicking }
-                .filter { extractSkillTags(it).isNotEmpty() }
+                .filter { getEntitySkill(it).isNotEmpty() }
                 .forEach { e ->
-                    extractSkillTags(e).parallelStream().forEach {
-                        skills[it]?.onTick(e, count)
+                    getEntitySkill(e).parallelStream().forEach { skill ->
+                        skill.onTick(e, count)
                     }
                 }
         }
@@ -43,16 +43,16 @@ class SkillManager {
             EntityDeathEvent::class
                 .observable(false, EventPriority.MONITOR)
                 .subscribe {
-                    extractSkillTags(it.entity).forEach { name ->
-                        skills[name]?.onDeath(it, it.entity)
+                    getEntitySkill(it.entity).forEach { skill ->
+                        skill.onDeath(it, it.entity)
                     }
                 }
 
             EntityRegainHealthEvent::class
                 .observable(false, EventPriority.MONITOR)
                 .subscribe {
-                    extractSkillTags(it.entity).forEach { name ->
-                        skills[name]?.onRegain(it, it.entity)
+                    getEntitySkill(it.entity).forEach { skill ->
+                        skill.onRegain(it, it.entity)
                     }
                 }
 
@@ -62,16 +62,16 @@ class SkillManager {
                 .subscribe {
                     val victim = it.entity.shooter!!
                     if (victim is Entity)
-                    extractSkillTags(victim).forEach { name ->
-                        skills[name]?.onShoot(it, victim, it.entity)
+                        getEntitySkill(victim).forEach { skill ->
+                        skill.onShoot(it, victim, it.entity)
                     }
                 }
 
             PlayerChangedWorldEvent::class
                 .observable(false, EventPriority.MONITOR)
                 .subscribe {
-                    extractSkillTags(it.player).parallelStream().forEach { name ->
-                        skills[name]?.onChange(it.player, it.player.world)
+                    getEntitySkill(it.player).parallelStream().forEach { skill ->
+                        skill.onChange(it.player, it.player.world)
                     }
                 }
 
@@ -79,8 +79,8 @@ class SkillManager {
                 .observable(false, EventPriority.MONITOR)
                 .subscribe {
                     it.world.entities.filter { e -> e.isTicking }.forEach { e ->
-                        extractSkillTags(e).parallelStream().forEach { name ->
-                            skills[name]?.onChange(e, it.world)
+                        getEntitySkill(e).parallelStream().forEach { skill ->
+                            skill.onChange(e, it.world)
                         }
                     }
                 }
@@ -93,8 +93,8 @@ class SkillManager {
                     val shooter = it.entity.shooter!!
                     val victim = it.hitBlock!!
                     if (shooter is Entity) {
-                        extractSkillTags(shooter).forEach { name ->
-                            skills[name]?.onProjectileHitBlock(it, shooter, projectile, victim)
+                        getEntitySkill(shooter).forEach { skill ->
+                            skill.onProjectileHitBlock(it, shooter, projectile, victim)
                         }
                     }
                 }
@@ -107,12 +107,12 @@ class SkillManager {
                     val shooter = it.entity.shooter!!
                     val victim = it.hitEntity!!
                     if (shooter is Entity) {
-                        extractSkillTags(shooter).forEach { name ->
-                            skills[name]?.onProjectileHitEntity(it, shooter, projectile, victim, SkillAPI.Type.ATTACK)
+                        getEntitySkill(shooter).forEach { skill ->
+                            skill.onProjectileHitEntity(it, shooter, projectile, victim, SkillAPI.Type.ATTACK)
                         }
 
-                        extractSkillTags(victim).forEach { name ->
-                            skills[name]?.onProjectileHitEntity(it, victim, projectile, shooter, SkillAPI.Type.DEFEND)
+                        getEntitySkill(victim).forEach { skill ->
+                            skill.onProjectileHitEntity(it, victim, projectile, shooter, SkillAPI.Type.DEFEND)
                         }
                     }
                 }
@@ -123,16 +123,19 @@ class SkillManager {
                 .subscribe {
                     val attacker = it.damager
                     val victim = it.entity
-                    extractSkillTags(attacker).forEach { name -> skills[name]?.onDamage(it, attacker, victim, SkillAPI.Type.ATTACK) }
-                    extractSkillTags(victim).forEach { name -> skills[name]?.onDamage(it, victim, attacker, SkillAPI.Type.DEFEND) }
+                    getEntitySkill(attacker).forEach { skill -> skill.onDamage(it, attacker, victim, SkillAPI.Type.ATTACK) }
+                    getEntitySkill(victim).forEach { skill -> skill.onDamage(it, victim, attacker, SkillAPI.Type.DEFEND) }
                 }
 
         }
     }
 
-    private fun extractSkillTags(entity: Entity): List<String> {
+    private fun getEntitySkill(entity: Entity): List<SkillAPI.SkillActor> {
         val tag = entity.scoreboardTags.find {  it.contains("skills@") } ?: return listOf()
-        return tag.trimStart(*"skills@".toCharArray()) .split(",")
+        return tag.trimStart(*"skills@".toCharArray()) .split(",").map {
+            val array = it.split("@")
+            return@map skills[array[0]]?.skill(array[1].toInt())
+        }.filterNotNull()
     }
 
 

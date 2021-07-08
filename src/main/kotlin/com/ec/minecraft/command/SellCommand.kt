@@ -46,7 +46,6 @@ internal class SellCommand(private val globalManager: GlobalManager): ReactantCo
             return
         }
 
-        val nbtItem = globalManager.items.deserializeFromItem(handItem)
         player.inventory.remove(handItem)
 
         val numOfItems = handItem.amount
@@ -63,8 +62,11 @@ internal class SellCommand(private val globalManager: GlobalManager): ReactantCo
                 it[item] = handItem
                 it[price] = inputPrice
                 it[createdAt] = Instant.now().epochSecond
-                if (nbtItem != null && nbtItem.id != "") {
-                    it[nativeId] = nbtItem.id
+                if (globalManager.items.hasItemNBT(handItem)) {
+                    val nbtItem = globalManager.items.deserializeFromItem(handItem)
+                    if (nbtItem.id != "") {
+                        it[nativeId] = nbtItem.id
+                    }
                 }
             }
         }

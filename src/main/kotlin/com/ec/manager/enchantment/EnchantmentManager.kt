@@ -11,6 +11,8 @@ import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.extensions.itemMeta
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
+import org.bukkit.entity.Entity
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.enchantment.EnchantItemEvent
@@ -83,8 +85,8 @@ class EnchantmentManager {
                             var totalLevelUpgraded = 0
                             var enchantments = mutableMapOf<EnchantmentAPI, Int>()
 
-                            val leftNbt = globalManager.items.deserializeFromItem(itemLeft)
-                            totalLevelUpgraded += if (leftNbt != null) {
+                            totalLevelUpgraded += if (globalManager.items.hasItemNBT(itemLeft)) {
+                                val leftNbt = globalManager.items.deserializeFromItem(itemLeft)
                                 mergeEnchantments(enchantments, leftNbt.enchantments)
                             } else {
                                 mergeEnchantments(enchantments, if (itemLeft.type == Material.ENCHANTED_BOOK) {
@@ -94,8 +96,8 @@ class EnchantmentManager {
                                 })
                             }
 
-                            val rightNbt = globalManager.items.deserializeFromItem(itemRight)
-                            totalLevelUpgraded += if (rightNbt != null) {
+                            totalLevelUpgraded += if (globalManager.items.hasItemNBT(itemRight)) {
+                                val rightNbt = globalManager.items.deserializeFromItem(itemRight)
                                 mergeEnchantments(enchantments, rightNbt.enchantments)
                             } else {
                                 mergeEnchantments(enchantments, if (itemRight.type == Material.ENCHANTED_BOOK) {
@@ -277,6 +279,49 @@ class EnchantmentManager {
 
         globalManager.items.serializeToItem(item, itemNbt)
         return item
+    }
+
+    fun getEntityEnchantments(entity: Entity): Map<EnchantmentAPI, Int> {
+        val enchantments = mutableMapOf<EnchantmentAPI, Int>()
+        val equipments = mutableListOf<ItemStack>()
+        if (entity is Player) {
+            val equipment = entity.inventory
+            equipments.addAll(listOfNotNull(
+                equipment.itemInMainHand,
+                equipment.itemInOffHand,
+                equipment.helmet,
+                equipment.chestplate,
+                equipment.leggings,
+                equipment.boots
+            ))
+        } else if (entity is LivingEntity) {
+            val equipment = entity.equipment
+            if (equipment != null) {
+                equipments.addAll(listOfNotNull(
+                    equipment.itemInMainHand,
+                    equipment.itemInOffHand,
+                    equipment.helmet,
+                    equipment.chestplate,
+                    equipment.leggings,
+                    equipment.boots
+                ))
+            }
+        }
+
+        equipments.parallelStream().forEach {
+            if (!globalManager.items.hasItemNBT(it)) {
+                it.enchantments.forEach { (origin, level) ->
+                    enchantments[getEnchantmentByOrigin(origin)] = level
+                }
+                return@forEach
+            }
+            val itemNbt = globalManager.items.deserializeFromItem(it)
+            itemNbt.enchantments.forEach { (id, level) ->
+                enchantments[getEnchantmentById(id)] = level
+            }
+        }
+
+        return enchantments
     }
 
     @JvmName("mergeSerializedEnchantments")

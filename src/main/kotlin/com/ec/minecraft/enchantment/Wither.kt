@@ -49,7 +49,7 @@ class Wither: EnchantmentAPI("wither") {
                 .doOnError(Logger.trackError("Wither.ProjectileHitEvent", "error occurs in event subscriber"))
                 .subscribe {
                     val attacker = it.entity.shooter as Player
-                    val nbt = globalManager.items.deserializeFromItem(attacker.inventory.itemInMainHand)!!
+                    val nbt = globalManager.items.deserializeFromItem(attacker.inventory.itemInMainHand)
                     if (nbt.enchantments.containsKey("wither")) {
                         (it.hitEntity as LivingEntity).addPotionEffect(PotionEffect(
                             PotionEffectType.WITHER,
@@ -71,7 +71,7 @@ class Wither: EnchantmentAPI("wither") {
                 .doOnError(Logger.trackError("Wither.EntityDamageByEntityEvent", "error occurs in event subscriber"))
                 .subscribe {
                     val attacker = it.damager as Player
-                    val nbt = globalManager.items.deserializeFromItem(attacker.inventory.itemInMainHand)!!
+                    val nbt = globalManager.items.deserializeFromItem(attacker.inventory.itemInMainHand)
                     if (nbt.enchantments.containsKey("wither")) {
                         (it.entity as LivingEntity).addPotionEffect(PotionEffect(
                             PotionEffectType.WITHER,

@@ -127,7 +127,7 @@ class ItemManager(
                 .subscribe {
                     val item = it.item!!
                     val nbt = deserializeFromItem(item)
-                    if (nbt != null && nbt.id != "") {
+                    if (nbt.id != "") {
                         val config = items[nbt.id]!!
                         if (config.consume) {
                             playerRemove(it.player, nbt.id, 1)
@@ -191,12 +191,9 @@ class ItemManager(
         nbtItem.applyNBT(item)
     }
 
-    fun deserializeFromItem(item: ItemStack): ItemNBT? {
+    fun deserializeFromItem(item: ItemStack): ItemNBT {
         val nbtItem = NBTItem(item)
-        if (nbtItem.hasKey("ecnbt")) {
-            return mapper.readValue(nbtItem.getString("ecnbt"))
-        }
-        return null
+        return mapper.readValue(nbtItem.getString("ecnbt"))
     }
 
     fun getItem(data: Item): ItemStack {
@@ -219,6 +216,10 @@ class ItemManager(
                         addEnchant(ench, it.value, true)
                     }
                 }
+            }
+
+            data.skills.forEach {
+
             }
 
             if (data.name != "") {

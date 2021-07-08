@@ -8,4 +8,5 @@ open class Item(
     var lore: List<String> = listOf(),
     var amount: Int = 1,
     var enchantments: MutableMap<String, Int> = mutableMapOf(),
+    var skills: MutableMap<String, Int> = mutableMapOf()
 )

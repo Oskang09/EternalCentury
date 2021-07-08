@@ -7,10 +7,13 @@ import com.ec.util.StringUtil.toComponent
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
+import org.bukkit.attribute.Attribute
+import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
+import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.bukkit.loot.LootContext
@@ -71,6 +74,25 @@ class IEntity(val globalManager: GlobalManager, val config: MobConfig) {
             }
         }
 
+    }
+
+    fun getDrops(it: EntityDeathEvent): MutableCollection<ItemStack> {
+        var looting = 0
+        if (it.entity.killer is Player) {
+            val enchantment =globalManager.enchantments.getEntityEnchantments(it.entity.killer!!)
+            val key = enchantment.keys.find { it.origin == Enchantment.LOOT_BONUS_MOBS }
+            if (key != null) {
+                looting = enchantment[key]!!
+            }
+        }
+
+        val context = LootContext.Builder(it.entity.location)
+        context.lootedEntity(it.entity)
+        context.killer(it.entity.killer)
+        context.lootingModifier(looting)
+        context.luck((it.entity.killer?.getAttribute(Attribute.GENERIC_LUCK)?.value ?: 0.0).toFloat())
+
+        return lootTable.populateLoot(Random(), context.build())
     }
 
     fun spawnEntity(location: Location): Entity {
