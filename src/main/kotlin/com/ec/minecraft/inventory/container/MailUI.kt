@@ -31,32 +31,34 @@ class MailUI: IteratorUI<Unit>("mail") {
             info = globalManager.component.playerHead(player) {
                 it.displayName("&b[&5系统&b] &6邮箱快递".toComponent())
             },
-            extras = listOf(
-                div(DivProps(
-                    style = styleOf {
-                        width = 1.px
-                        height = 1.px
-                    },
-                    item = globalManager.component.item(Material.BARRIER) {
-                        it.displayName("&b[&5系统&b] &6清理邮箱".toComponent())
-                        it.lore(arrayListOf("&f此操作只会清理已读的邮件.").toComponent())
-                    },
-                    onClick = { _ ->
-                        transaction {
-                            Mails.select { Mails.playerId eq ecPlayer.database[Players.id] }
-                                .andWhere { Mails.isRead eq true }
-                                .forEach { Mails.deleteWhere { Mails.id eq it[Mails.id] } }
+            extras = {
+                listOf(
+                    div(DivProps(
+                        style = styleOf {
+                            width = 1.px
+                            height = 1.px
+                        },
+                        item = globalManager.component.item(Material.BARRIER) {
+                            it.displayName("&b[&5系统&b] &6清理邮箱".toComponent())
+                            it.lore(arrayListOf("&f此操作只会清理已读的邮件.").toComponent())
+                        },
+                        onClick = { _ ->
+                            transaction {
+                                Mails.select { Mails.playerId eq ecPlayer.database[Players.id] }
+                                    .andWhere { Mails.isRead eq true }
+                                    .forEach { Mails.deleteWhere { Mails.id eq it[Mails.id] } }
+                            }
+                            it.refreshState()
                         }
-                        refresh()
-                    }
-                ))
-            ),
+                    ))
+                )
+            },
             itemsGetter = { cursor -> transaction {
                 Mails.select { Mails.playerId eq ecPlayer.database[Players.id] }
                     .orderBy(Mails.createdAt to SortOrder.DESC)
                     .iterator(Mails.id, 42, cursor) }
             },
-            itemMapper = {
+            itemMapper = { it, controller ->
                 val isRead = it[Mails.isRead]
                 var material = Material.MINECART
                 if (!isRead) {
@@ -77,7 +79,7 @@ class MailUI: IteratorUI<Unit>("mail") {
                                     mail[Mails.isRead] = true
                                 }
                             }
-                            refresh()
+                            controller.refreshState()
                         }
                     },
                     item = globalManager.component.item(material) { meta ->

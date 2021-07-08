@@ -5,6 +5,9 @@ import com.ec.manager.GlobalManager
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.dependency.injection.Inject
 import dev.reactant.reactant.extra.config.type.MultiConfigs
+import org.bukkit.entity.Entity
+import org.bukkit.event.EventPriority
+import org.bukkit.event.entity.EntityDeathEvent
 
 @Component
 class MobManager(
@@ -21,6 +24,26 @@ class MobManager(
             val config = it.content
             mobs[config.id] = IEntity(globalManager, config)
         }
+
+        globalManager.events {
+            EntityDeathEvent::class
+                .observable(true, EventPriority.LOWEST)
+                .filter { isCustomMob(it.entity) }
+                .subscribe {
+                    val mob = extractEntity(it.entity)
+                    it.droppedExp = mob.config.xp
+                }
+        }
+    }
+
+    fun isCustomMob(entity: Entity): Boolean {
+        val id = entity.scoreboardTags.find { it.startsWith("mobId@") }
+        return id != null
+    }
+
+    fun extractEntity(entity: Entity): IEntity {
+        val id = entity.scoreboardTags.find { it.startsWith("mobId@") }!!
+        return mobs[id.trimStart(*"mobId@".toCharArray())]!!
     }
 
     fun getMobById(id: String): IEntity {

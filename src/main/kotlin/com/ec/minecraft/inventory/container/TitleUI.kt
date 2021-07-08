@@ -70,7 +70,7 @@ class TitleUI: PaginationUI<Unit>("title") {
                                     }
                                 }
 
-                                refresh()
+                                it.refreshState()
                             }
                         } else {
                             return@map PaginationItem(

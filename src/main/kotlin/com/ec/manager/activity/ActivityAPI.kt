@@ -7,6 +7,7 @@ import io.reactivex.rxjava3.disposables.Disposable
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.inventory.ItemStack
@@ -54,8 +55,20 @@ abstract class ActivityAPI(val id: String) {
         globalManager.events {
 
             disposers.add(
+                PlayerJoinEvent::class
+                    .observable(false, EventPriority.HIGHEST)
+                    .doOnError(Logger.trackError("ActivityAPI.PlayerJoinEvent", "error occurs in event subscriber"))
+                    .filter {
+                        val player = globalManager.players.getByPlayer(it.player)
+                        return@filter player.gameState == ECPlayerGameState.ACTIVITY
+                                && player.gameName == id
+                    }
+                    .subscribe { onReconnect(it) }
+            )
+
+            disposers.add(
                 PlayerDeathEvent::class
-                    .observable(false, EventPriority.LOWEST)
+                    .observable(false, EventPriority.HIGHEST)
                     .doOnError(Logger.trackError("ActivityAPI.PlayerDeathEvent", "error occurs in event subscriber"))
                     .filter {
                         val player = globalManager.players.getByPlayer(it.entity)
@@ -67,7 +80,7 @@ abstract class ActivityAPI(val id: String) {
 
             disposers.add(
                 PlayerRespawnEvent::class
-                    .observable(false, EventPriority.LOWEST)
+                    .observable(false, EventPriority.HIGHEST)
                     .doOnError(Logger.trackError("ActivityAPI.PlayerRespawnEvent", "error occurs in event subscriber"))
                     .filter {
                         val player = globalManager.players.getByPlayer(it.player)
@@ -108,6 +121,7 @@ abstract class ActivityAPI(val id: String) {
     }
 
     open fun onQuit(event: PlayerQuitEvent) {}
+    open fun onReconnect(event: PlayerJoinEvent) {}
     open fun onDeath(event: PlayerDeathEvent) {}
     open fun onRespawn(event: PlayerRespawnEvent) {}
 

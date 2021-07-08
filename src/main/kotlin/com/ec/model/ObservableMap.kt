@@ -18,10 +18,6 @@ enum class ObservableMapActionType {
 class ObservableMap<K, V>: MutableMap<K, V>, Observable<ObservableMapAction<K, V>>() {
 
     private val mapper: MutableMap<K, V> = mutableMapOf()
-    private val subscriber: MutableList<Consumer<ObservableMapAction<K, V>>> = mutableListOf()
-    private val subscriberOnce: MutableList<Consumer<ObservableMapAction<K, V>>> = mutableListOf()
-    private val predicateSubscriber: MutableMap<Predicate<ObservableMapAction<K, V>>, Consumer<ObservableMapAction<K, V>>> = mutableMapOf()
-    private val predicateSubscriberOnce: MutableMap<Predicate<ObservableMapAction<K, V>>, Consumer<ObservableMapAction<K, V>>> = mutableMapOf()
 
     override val size: Int
         get() = mapper.size

@@ -1,5 +1,6 @@
 package com.ec.manager.inventory.component
 
+import com.ec.manager.inventory.UIController
 import com.ec.manager.inventory.UIProvider
 import com.ec.model.Observable
 import com.ec.util.QueryUtil
@@ -23,8 +24,8 @@ import org.jetbrains.exposed.sql.ResultRow
 class IteratorUIProps(
     val info: ItemStack = ItemStack(Material.AIR),
     val itemsGetter: (String) -> QueryUtil.IteratorResult,
-    val itemMapper: (ResultRow) -> IteratorItem,
-    val extras: List<Node?> = listOf(),
+    val itemMapper: (ResultRow, UIController) -> IteratorItem,
+    val extras: (UIController) -> List<Node?> = { listOf() },
 )
 
 class IteratorItem(
@@ -71,12 +72,6 @@ abstract class IteratorUI<T>(val name: String): UIProvider<IteratorUIProps>(name
         }
     }
 
-    private val refresher = Observable<Boolean>()
-
-    protected fun refresh() {
-        refresher.onNext(true)
-    }
-
     open fun props(player: HumanEntity, props: T?): IteratorUIProps {
         return props(player)
     }
@@ -89,14 +84,28 @@ abstract class IteratorUI<T>(val name: String): UIProvider<IteratorUIProps>(name
         useCancelRawEvent()
 
         val (page, setPage) = useState(0)
+        val (state, setState) = useState(mapOf<String, Any>())
         val (previousCursor, setPreviousCursor) = useState("")
         val (nextCursor, setNextCursor) = useState("")
         val (items, setItems) = useState<MutableMap<Int, List<ResultRow>>>(mutableMapOf())
+        val controller = UIController(
+            state,
+            {
+                setState(it)
+
+                val iterator = props.itemsGetter(previousCursor)
+                items[page] = iterator.items
+                setNextCursor(iterator.cursor)
+                setItems(items)
+            },
+            page,
+            setPage,
+        )
 
         var isFirst = page == 0
         val isLast = nextCursor == "" && page == items.size - 1
 
-        val extras = props.extras.filterNotNull()
+        val extras = props.extras(controller).filterNotNull()
         val extraLength = extras.size + if (isFirst) 0 else 1
 
         useEffect({
@@ -109,13 +118,6 @@ abstract class IteratorUI<T>(val name: String): UIProvider<IteratorUIProps>(name
             }
             return@useEffect { }
         }, arrayOf(page))
-
-        refresher.subscribeOnce {
-            val iterator = props.itemsGetter(previousCursor)
-            items[page] = iterator.items
-            setNextCursor(iterator.cursor)
-            setItems(items)
-        }
 
         div(DivProps(
             style = styles.container,
@@ -158,7 +160,7 @@ abstract class IteratorUI<T>(val name: String): UIProvider<IteratorUIProps>(name
                     style = styles.itemContainer,
                     children = childrenOf(
                         +(items[page]?.map { result ->
-                            val it = props.itemMapper(result)
+                            val it = props.itemMapper(result, controller)
                             return@map div(DivProps(
                                 style = styles.item,
                                 item = it.item,

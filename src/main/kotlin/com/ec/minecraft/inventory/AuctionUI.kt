@@ -69,28 +69,30 @@ class AuctionUI: IteratorUI<AuctionUI.AuctionUIProps>("auction") {
                     "&7拥有金钱 &f- &a${globalManager.wallets.playerWallet(player.name, WalletManager.ECONOMY_WALLET).balance}"
                 ).toComponent())
             },
-            extras = listOf(
-                div(DivProps(
-                    style = styleOf {
-                        width = 1.px
-                        height = 1.px
-                    },
-                    item = globalManager.component.item(Material.NETHER_STAR) {
-                        it.displayName("&f[&5系统&f] &a分类物品".toComponent())
-                        it.lore(arrayListOf("&f点击后会显示界面选择物品进行分类即可").toComponent())
-                    },
-                    onClick = { _ ->
-                        globalManager.inventory.displayItemFilter(player) { material, id ->
-                            displayWithProps(player, AuctionUIProps(
-                                material = material,
-                                nativeId = id,
-                            ))
+            extras = {
+                listOf(
+                    div(DivProps(
+                        style = styleOf {
+                            width = 1.px
+                            height = 1.px
+                        },
+                        item = globalManager.component.item(Material.NETHER_STAR) {
+                            it.displayName("&f[&5系统&f] &a分类物品".toComponent())
+                            it.lore(arrayListOf("&f点击后会显示界面选择物品进行分类即可").toComponent())
+                        },
+                        onClick = { _ ->
+                            globalManager.inventory.displayItemFilter(player) { material, id ->
+                                displayWithProps(player, AuctionUIProps(
+                                    material = material,
+                                    nativeId = id,
+                                ))
+                            }
                         }
-                    }
-                ))
-            ),
+                    ))
+                )
+            },
             itemsGetter = { cursor -> transaction { query.iterator(Malls.id, 42, cursor) } },
-            itemMapper = {
+            itemMapper = { it, controller ->
                 val display = it[Malls.item]
 
                 display.amount = 1
@@ -159,7 +161,7 @@ class AuctionUI: IteratorUI<AuctionUI.AuctionUIProps>("auction") {
                                          globalManager.givePlayerItem(player.name, listOf(item))
                                      }
                                  }
-                                 refresh()
+                                 controller.refreshState()
                              }
                              else -> {
                                  player.sendMessage(globalManager.message.system("您没有足够的金钱购买"))

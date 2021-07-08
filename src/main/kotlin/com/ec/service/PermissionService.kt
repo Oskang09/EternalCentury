@@ -4,50 +4,50 @@ import com.ec.ECCore
 import com.ec.database.Players
 import com.ec.manager.GlobalManager
 import dev.reactant.reactant.core.component.Component
+import java.util.*
 import net.milkbowl.vault.permission.Permission
-import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.permissions.PermissionAttachment
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
-import java.util.*
 
 @Component
-class PermissionService: Permission() {
+class PermissionService : Permission() {
 
-    private val playersDefaultPermissions = listOf(
-        "mcmmo.commands.defaults",
-        "mcmmo.ability.*",
-        "mcmmo.skills.*",
-        "plots.auto",
-        "plots.claim",
-        "plots.set.flag",
-        "plots.set.home",
-        "plots.flag",
-        "plots.flag.add",
-        "plots.flag.remove",
-        "plots.biome",
-        "plots.music",
-        "plots.confirm",
-        "plots.add",
-        "plots.trust",
-        "plots.add.*",
-        "plots.trust.*",
-        "plots.remove",
-        "plots.deny",
-        "plots.kick",
-        "plots.like",
-        "plots.dislike",
-        "plots.rate",
-        "plots.home",
-        "plots.auto",
-        "plots.delete",
-        "plots.visit",
-        "playerparticles.particles.max.3",
-        "playerparticles.groups.max.3",
-    )
+    private val playersDefaultPermissions =
+            listOf(
+                    "mcmmo.commands.defaults",
+                    "mcmmo.ability.*",
+                    "mcmmo.skills.*",
+                    "plots.auto",
+                    "plots.claim",
+                    "plots.set.flag",
+                    "plots.set.home",
+                    "plots.flag",
+                    "plots.flag.add",
+                    "plots.flag.remove",
+                    "plots.biome",
+                    "plots.music",
+                    "plots.confirm",
+                    "plots.add",
+                    "plots.trust",
+                    "plots.add.*",
+                    "plots.trust.*",
+                    "plots.remove",
+                    "plots.deny",
+                    "plots.kick",
+                    "plots.like",
+                    "plots.dislike",
+                    "plots.rate",
+                    "plots.home",
+                    "plots.auto",
+                    "plots.delete",
+                    "plots.visit",
+                    "playerparticles.particles.max.3",
+                    "playerparticles.groups.max.3",
+            )
 
     private lateinit var globalManager: GlobalManager
     private val permissionAttachment: MutableMap<String, PermissionAttachment> = mutableMapOf()
@@ -56,11 +56,9 @@ class PermissionService: Permission() {
         this.globalManager = globalManager
 
         globalManager.events {
-            PlayerQuitEvent::class
-                .observable(true, EventPriority.HIGHEST)
-                .subscribe {
-                    permissionAttachment.remove(it.player.uniqueId.toString())
-                }
+            PlayerQuitEvent::class.observable(true, EventPriority.LOWEST).subscribe {
+                permissionAttachment.remove(it.player.uniqueId.toString())
+            }
         }
     }
 
@@ -79,9 +77,7 @@ class PermissionService: Permission() {
 
         val plotLimit = ecPlayer.database[Players.plotLimit]
         permissions.add("plots.plot.$plotLimit")
-        permissions.forEach {
-            newAttachment.setPermission(it, true)
-        }
+        permissions.forEach { newAttachment.setPermission(it, true) }
 
         player.recalculatePermissions()
     }
@@ -100,7 +96,8 @@ class PermissionService: Permission() {
 
     override fun playerHas(world: String?, player: String, permission: String): Boolean {
         val ecPlayer = globalManager.players.getByPlayerName(player) ?: return false
-        return ecPlayer[Players.permissions].contains(permission) || playersDefaultPermissions.contains(permission)
+        return ecPlayer[Players.permissions].contains(permission) ||
+                playersDefaultPermissions.contains(permission)
     }
 
     override fun playerAdd(world: String?, player: String, permission: String): Boolean {
@@ -109,9 +106,7 @@ class PermissionService: Permission() {
             val list = ecPlayer[Players.permissions]
             list.add(permission)
 
-            Players.update({ Players.id eq ecPlayer[Players.id] }) {
-                it[permissions] = list
-            }
+            Players.update({ Players.id eq ecPlayer[Players.id] }) { it[permissions] = list }
         }
 
         globalManager.players.refreshPlayerIfOnline(UUID.fromString(ecPlayer[Players.uuid]!!)) {
@@ -128,9 +123,7 @@ class PermissionService: Permission() {
             val list = ecPlayer[Players.permissions]
             list.remove(permission)
 
-            Players.update({ Players.id eq ecPlayer[Players.id] }) {
-                it[permissions] = list
-            }
+            Players.update({ Players.id eq ecPlayer[Players.id] }) { it[permissions] = list }
         }
 
         globalManager.players.refreshPlayerIfOnline(UUID.fromString(ecPlayer[Players.uuid]!!)) {

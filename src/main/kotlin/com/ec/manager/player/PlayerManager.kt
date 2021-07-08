@@ -151,11 +151,13 @@ class PlayerManager {
                  }
 
             PlayerJoinEvent::class
-                .observable(EventPriority.LOWEST)
+                .observable(EventPriority.LOW)
                 .doOnError(Logger.trackError("PlayerManager.PlayerJoinEvent", "error occurs in event subscriber"))
                 .subscribe { event ->
                     event.joinMessage(null)
+
                     val player = event.player
+                    val playerState = globalManager.states.getPlayerState(event.player)
                     val ecPlayer = ECPlayer(event.player)
 
                     val userIp = player.address.address.hostAddress
@@ -183,6 +185,8 @@ class PlayerManager {
 
                     ecPlayer.playerJoinedAt = Instant.now()
                     ecPlayer.state = ECPlayerAuthState.LOGIN
+                    ecPlayer.gameState = playerState.gameState
+                    ecPlayer.gameName = playerState.gameName
                     players[player.uniqueId] = ecPlayer
                     globalManager.permission.injectPermission(player)
                     globalManager.runOffMainThread { globalManager.titles.checkPlayerTitleAvailability(player) }
@@ -288,12 +292,12 @@ class PlayerManager {
                     Logger.withTrackerPlayerEvent(player, event, "PlayerManager.PlayerQuitEvent" , "player ${player.uniqueId} error occurs when quit") {
                         val ecPlayer = players.remove(player.uniqueId)!!
 
-                        player.scoreboard.getTeam(player.name)?.unregister()
-
                         globalManager.states.updatePlayerState(player) { state ->
                             state.gameName = ecPlayer.gameName
                             state.gameState = ecPlayer.gameState
                         }
+
+                        player.scoreboard.getTeam(player.name)?.unregister()
 
                         ecPlayer.ensureUpdate("saving player", isAsync = true) {
                             Players.update({ Players.playerName eq player.name }) {

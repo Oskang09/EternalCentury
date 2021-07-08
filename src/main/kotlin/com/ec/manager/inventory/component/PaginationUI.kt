@@ -1,5 +1,6 @@
 package com.ec.manager.inventory.component
 
+import com.ec.manager.inventory.UIController
 import com.ec.manager.inventory.UIProvider
 import com.ec.model.Observable
 import dev.reactant.resquare.dom.Node
@@ -19,8 +20,8 @@ import org.bukkit.inventory.ItemStack
 
 class PaginationUIProps(
     val info: ItemStack = ItemStack(Material.AIR),
-    val items: () -> List<PaginationItem> = { mutableListOf() },
-    val extras: List<Node?> = listOf(),
+    val items: (UIController) -> List<PaginationItem> = { mutableListOf() },
+    val extras: (UIController) -> List<Node?> = { listOf() },
 )
 
 class PaginationItem(
@@ -69,11 +70,6 @@ abstract class PaginationUI<T>(val name: String): UIProvider<PaginationUIProps>(
     }
 
     private val itemsPerPage = 42
-    private val refresher = Observable<Boolean>()
-
-    protected fun refresh() {
-        refresher.onNext(true)
-    }
 
     open fun props(player: HumanEntity, props: T?): PaginationUIProps {
         return props(player)
@@ -87,13 +83,16 @@ abstract class PaginationUI<T>(val name: String): UIProvider<PaginationUIProps>(
         useCancelRawEvent()
 
         val (page, setPage) = useState(0)
-        var allItems = props.items()
-        val renderItems = allItems.drop(page * itemsPerPage).take(itemsPerPage)
-        var isFirst = page == 0
-        val isLast = allItems.size / itemsPerPage < page + 1
-        refresher.subscribeOnce { setPage(page) }
+        val (state, setState) = useState(mapOf<String, Any>())
+        val controller = UIController(state, setState, page, setPage)
 
-        val extras = props.extras.filterNotNull()
+        val allItems = props.items(controller)
+        val renderItems = allItems.drop(page * itemsPerPage).take(itemsPerPage)
+        val isFirst = page == 0
+        val isLast = allItems.size / itemsPerPage < page + 1
+        controller.setHasNext(!isLast)
+
+        val extras = props.extras(controller).filterNotNull()
         val extraLength = extras.size + if (isFirst) 0 else 1
 
         div(DivProps(
@@ -114,7 +113,7 @@ abstract class PaginationUI<T>(val name: String): UIProvider<PaginationUIProps>(
                             style = styles.leftBarItem,
                             item = globalManager.component.arrowPrevious(),
                             onClick = {
-                                setPage(page - 1)
+                                controller.previous()
                             }
                         ))),
                         +extras,
@@ -124,7 +123,7 @@ abstract class PaginationUI<T>(val name: String): UIProvider<PaginationUIProps>(
                             },
                             item = globalManager.component.arrowNext(),
                             onClick = {
-                                setPage(page + 1)
+                                controller.next()
                             }
                         )))
                     )

@@ -1,24 +1,23 @@
 package com.ec.manager.arena
 
 import com.ec.config.arena.ArenaConfig
-import com.ec.config.arena.MobArenaWaveConfig
 import com.ec.manager.GlobalManager
 import com.ec.manager.mob.IEntity
 import com.ec.minecraft.inventory.filter.YesOrNoUI
 import com.ec.model.player.ECPlayerGameState
 import com.ec.util.ChanceUtil
 import com.ec.util.StringUtil.toColorized
-import com.gmail.nossr50.datatypes.party.Party
 import io.reactivex.rxjava3.disposables.Disposable
-import org.bukkit.Bukkit
 import org.bukkit.Location
-import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.entity.EntityDeathEvent
+import org.bukkit.event.entity.EntityTargetEvent
+import org.bukkit.inventory.ItemStack
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.*
+import kotlin.math.pow
 
 class IArena(
     val globalManager: GlobalManager,
@@ -28,18 +27,25 @@ class IArena(
     private val lobby: Location,
 ) {
 
-    private val bossEntities = hashSetOf<Int>()
-    private val disposer = mutableListOf<Disposable>()
-
     val id = config.id + "@" + UUID.randomUUID().toString()
     var wave: Int = 0
-    val entities = hashSetOf<Int>()
     val players = hashSetOf(host)
     var isStarted: Boolean = false
+    val entities = hashSetOf<Int>()
 
+    private val bossEntities = hashSetOf<Int>()
+    private val disposer = mutableListOf<Disposable>()
+    private var droppedExp: Int = 0
+    private val drops = mutableListOf<ItemStack>()
     private val queue: Queue<Player> = ArrayDeque()
     private var queueTask: String = ""
     private var isRequest: Boolean = false
+
+    init {
+        val ecPlayer = globalManager.players.getByPlayer(host)
+        ecPlayer.gameState = ECPlayerGameState.ARENA
+        ecPlayer.gameName = id
+    }
 
     fun onJoin(player: Player) {
         if (config.cooldown != null) {
@@ -50,13 +56,18 @@ class IArena(
             }
         }
 
+        if (players.size >= config.limit) {
+            player.sendMessage(globalManager.message.system("副本已经满人了，下次请早。"))
+            return
+        }
+
         if (isStarted) {
             player.sendMessage(globalManager.message.system("副本已经开始了，下次请早。"))
             return
         }
 
-        if (players.size >= config.limit) {
-            player.sendMessage(globalManager.message.system("副本已经满人了，下次请早。"))
+        if (globalManager.players.getByPlayer(player).gameState != ECPlayerGameState.FREE) {
+            player.sendMessage(globalManager.message.system("您已经在副本或活动中了，无法加入其他副本。"))
             return
         }
 
@@ -73,11 +84,12 @@ class IArena(
 
                 val requester = queue.remove()
                 globalManager.inventory.displaySelection(
-                    player,
+                    host,
                     YesOrNoUI.YesOrNoUIProps(
                         title = "&f玩家 ${requester.name} 要加入您的副本".toColorized(),
                         onYes = onYes@{
                             isRequest = false
+                            host.closeInventory()
 
                             if (!requester.isOnline) {
                                 host.sendMessage("玩家 ${requester.name} 已经离线了。")
@@ -107,6 +119,8 @@ class IArena(
                         },
                         onNo = {
                             isRequest = false
+                            host.closeInventory()
+
                             requester.sendMessage(globalManager.message.system("房主拒绝了您的加入请求。"))
                         }
                     )
@@ -145,9 +159,10 @@ class IArena(
         }
 
         isStarted = true
-        players.parallelStream().forEach {
+        players.forEach {
             it.teleportAsync(lobby)
             entities.add(it.entityId)
+            globalManager.arenas.showEntityToPlayers(players, it)
             it.sendMessage(globalManager.message.system("副本在15秒后开始，请做好准备！"))
             if (config.cooldown != null) {
                 globalManager.states.updatePlayerState(it) { state ->
@@ -156,25 +171,69 @@ class IArena(
             }
         }
 
+        globalManager.events {
+            disposer.add(
+                EntityDeathEvent::class
+                    .observable(false, EventPriority.HIGHEST)
+                    .filter { it.entity.world.name == "dungeon" }
+                    .filter { entities.contains(it.entity.entityId) }
+                    .subscribe {
+                        drops.addAll(it.drops)
+                        it.drops.clear()
+
+                        droppedExp += it.droppedExp
+                        it.droppedExp = 0
+                    }
+            )
+        }
+
         globalManager.states.delayedTask(15) {
-            players.parallelStream().forEach { it.teleportAsync(config.spawn.random().location) }
+            players.forEach { it.teleportAsync(config.spawn.random().location) }
 
             when (config.type) {
-                "mobarena" -> globalManager.runOffMainThread { mobarenaProcessWave() }
+                "mobarena" -> mobarenaProcessWave()
             }
         }
+    }
+
+    fun onDisconnect(player: Player) {
+        player.teleportAsync(lobby)
+    }
+
+    fun onReconnect(player: Player) {
+        player.teleportAsync(config.spawn.random().location)
     }
 
     fun onEnd() {
         disposer.forEach { it.dispose() }
 
-        config.rewards.forEach { globalManager.sendRewardToPlayer(players.random(), it) }
-        players.parallelStream().forEach {
-            val ecPlayer = globalManager.players.getByPlayer(it)
-            ecPlayer.gameState = ECPlayerGameState.FREE
-            ecPlayer.gameName = ""
-            it.teleportAsync(spawn)
+        /**
+         * (allExp / numOfPlayers) ^ ( 1.0 + (numOfPlayers / 10 ))
+         * Example 3 players = 30 / 5 ^ 1.0 + 0.3 = 19
+         */
+        val onlinePlayers = players.filter { it.isOnline }
+        val numOfPlayers = onlinePlayers.size.toDouble()
+        val averageExp = (droppedExp / numOfPlayers).pow(1.0 + (numOfPlayers / 10))
+
+        val mappedDrops = mutableMapOf<Player, MutableList<ItemStack>>()
+        drops.forEach {
+            mappedDrops.getOrPut(onlinePlayers.random()) { mutableListOf() }.add(it)
         }
+
+        config.rewards.forEach { globalManager.sendRewardToPlayer(onlinePlayers.random(), it) }
+        mappedDrops.forEach { (p, i) -> globalManager.givePlayerItem(p.name, i) }
+        onlinePlayers.forEach { it.giveExp(averageExp.toInt()) }
+
+        globalManager.runInMainThread {
+            onlinePlayers.forEach {
+                val ecPlayer = globalManager.players.getByPlayer(it)
+                ecPlayer.gameState = ECPlayerGameState.FREE
+                ecPlayer.gameName = ""
+                it.teleportAsync(spawn)
+            }
+        }
+
+        globalManager.arenas.removeArenaById(id)
     }
 
     private fun mobarenaProcessWave() {
@@ -202,28 +261,17 @@ class IArena(
             .flatten()
             .forEach {
                 globalManager.runInMainThread {
-                    entities.add(it.spawnEntity(arenaSetting.locations.random().location).entityId)
+                    val spawned = it.spawnEntity(arenaSetting.locations.random().location)
+                    entities.add(spawned.entityId)
+                    globalManager.arenas.showEntityToPlayers(players, spawned)
                 }
             }
 
         globalManager.states.delayedTask(waveSetting.nextWave) {
-            if (wave < arenaSetting.waves.size) {
+            if (wave + 1 < arenaSetting.waves.size) {
                 wave += 1
                 mobarenaProcessWave()
                 return@delayedTask
-            }
-
-            globalManager.events {
-                disposer.add(
-                    EntityDeathEvent::class
-                    .observable(false, EventPriority.MONITOR)
-                    .filter { bossEntities.remove(it.entity.entityId) }
-                    .subscribe {
-                        if (bossEntities.isEmpty()) {
-                            onEnd()
-                        }
-                    }
-                )
             }
 
             arenaSetting.bossWave.mobs
@@ -247,10 +295,26 @@ class IArena(
                 .flatten()
                 .forEach {
                     globalManager.runInMainThread {
-                        entities.addAll(bossEntities)
-                        bossEntities.add(it.spawnEntity(arenaSetting.locations.random().location).entityId)
+                        val spawned = it.spawnEntity(arenaSetting.locations.random().location)
+                        entities.add(spawned.entityId)
+                        bossEntities.add(spawned.entityId)
+                        globalManager.arenas.showEntityToPlayers(players, spawned)
                     }
                 }
+
+            globalManager.events {
+                disposer.add(
+                    EntityDeathEvent::class
+                        .observable(false, EventPriority.MONITOR)
+                        .filter { it.entity.world.name == "dungeon" }
+                        .filter { bossEntities.remove(it.entity.entityId) }
+                        .subscribe {
+                            if (bossEntities.isEmpty()) {
+                                onEnd()
+                            }
+                        }
+                )
+            }
         }
     }
 

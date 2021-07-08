@@ -10,25 +10,23 @@ import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import picocli.CommandLine
 
-@CommandLine.Command(
-    name = "back",
-    description = ["回到上一次死亡的位置"]
-)
-internal class BackCommand(private val globalManager: GlobalManager): ReactantCommand() {
+@CommandLine.Command(name = "back", description = ["回到上一次死亡的位置"])
+internal class BackCommand(private val globalManager: GlobalManager) : ReactantCommand() {
 
-    private val lastDeathLocation= mutableMapOf<String, Location>()
+    private val lastDeathLocation = mutableMapOf<String, Location>()
 
     init {
         globalManager.events {
             PlayerDeathEvent::class
                 .observable(false, EventPriority.HIGHEST)
-                .filter { globalManager.players.getByPlayer(it.entity).gameState == ECPlayerGameState.FREE }
-                .subscribe {
-                    lastDeathLocation[it.entity.name] = it.entity.location
+                .filter {
+                    globalManager.players.getByPlayer(it.entity).gameState ==
+                        ECPlayerGameState.FREE
                 }
+                .subscribe { lastDeathLocation[it.entity.name] = it.entity.location }
 
             PlayerQuitEvent::class
-                .observable(true, EventPriority.HIGHEST)
+                .observable(true, EventPriority.LOWEST)
                 .subscribe {
                     lastDeathLocation.remove(it.player.name)
                 }
@@ -53,6 +51,4 @@ internal class BackCommand(private val globalManager: GlobalManager): ReactantCo
 
         player.teleportAsync(lastLocation)
     }
-
-
 }

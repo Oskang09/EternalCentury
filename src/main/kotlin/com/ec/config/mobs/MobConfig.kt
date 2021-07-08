@@ -6,6 +6,7 @@ data class MobConfig(
     val id: String = "",
     val type: String = "",
     val name: String = "",
+    val xp: Int = 0,
     val flag: MobFlagConfig = MobFlagConfig(),
     val attributes: Map<Attribute, Double> = mutableMapOf(),
     val loots: List<MobLootConfig> = listOf(),

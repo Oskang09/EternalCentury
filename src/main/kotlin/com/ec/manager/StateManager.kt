@@ -48,7 +48,7 @@ class StateManager(
         globalManager.events {
 
             PlayerQuitEvent::class
-                .observable(true, EventPriority.HIGHEST)
+                .observable(true, EventPriority.MONITOR)
                 .doOnError(Logger.trackError("StateManager.PlayerQuitEvent", "error occurs in event subscriber"))
                 .subscribe { event ->
                     val player = event.player
@@ -56,7 +56,6 @@ class StateManager(
                     teleportPlayers.values.removeIf { it == event.player.name }
 
                     val state = states.remove(player.name)!!
-
 
                     val today = Instant.now().epochSecond.toMalaysiaSystemDate()
                     state.content.inventory[today] = listOfNotNull(
@@ -70,7 +69,7 @@ class StateManager(
                 }
 
             PlayerJoinEvent::class
-                .observable(true, EventPriority.HIGHEST)
+                    .observable(true, EventPriority.LOWEST)
                 .doOnError(Logger.trackError("StateManager.PlayerJoinEvent", "error occurs in event subscriber"))
                 .subscribe { event ->
                     val player = event.player

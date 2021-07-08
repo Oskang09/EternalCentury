@@ -43,26 +43,28 @@ class PlayerAuctionUI: IteratorUI<Unit>("player-auction") {
                     "&7已拍卖数 &f- &a${count}"
                 ).toComponent())
             },
-            extras = listOf(
-                div(DivProps(
-                    style = styleOf {
-                        width = 1.px
-                        height = 1.px
-                    },
-                    item = globalManager.component.item(Material.OAK_SIGN) {
-                        it.displayName("&b[&5系统&b] &6拍卖物品".toComponent())
-                        it.lore(arrayListOf(
-                            "&f手上拿着您要卖的东西，然后",
-                            "&f使用指令 /sell (价格) 来进行拍卖"
-                        ).toComponent())
-                    },
-                ))
-            ),
+            extras = {
+                listOf(
+                    div(DivProps(
+                        style = styleOf {
+                            width = 1.px
+                            height = 1.px
+                        },
+                        item = globalManager.component.item(Material.OAK_SIGN) {
+                            it.displayName("&b[&5系统&b] &6拍卖物品".toComponent())
+                            it.lore(arrayListOf(
+                                "&f手上拿着您要卖的东西，然后",
+                                "&f使用指令 /sell (价格) 来进行拍卖"
+                            ).toComponent())
+                        },
+                    ))
+                )
+            },
             itemsGetter = { cursor -> transaction {
                 Malls.select { Malls.playerId eq ecPlayer.database[Players.id]}
                     .iterator(Malls.id, 42, cursor) }
             },
-            itemMapper = {
+            itemMapper = { it, controller ->
                 val display = it[Malls.item]
 
                 display.itemMeta<ItemMeta> {
@@ -96,7 +98,7 @@ class PlayerAuctionUI: IteratorUI<Unit>("player-auction") {
                                     player.inventory.addItem(item)
                                 }
                             }
-                            refresh()
+                            controller.refreshState()
                         }
                     }
                 )

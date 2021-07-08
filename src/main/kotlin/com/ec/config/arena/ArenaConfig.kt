@@ -6,6 +6,7 @@ import com.ec.model.app.Reward
 
 data class ArenaConfig(
     val id: String = "",
+    val name: String = "",
     val info: Item = Item(),
     val spawn: List<LocationConfig> = listOf(),
     val rewards: List<Reward> = listOf(),

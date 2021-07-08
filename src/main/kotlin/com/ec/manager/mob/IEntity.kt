@@ -86,8 +86,6 @@ class IEntity(val globalManager: GlobalManager, val config: MobConfig) {
         entity.customName(config.name.toComponent())
         entity.isCustomNameVisible = true
         entity.removeWhenFarAway = config.flag.removeWhenFarAway
-        entity.isVisualFire = config.flag.visualFire
-        entity.freezeTicks = config.flag.freezeTick
         entity.fireTicks = config.flag.fireTick
         entity.maximumNoDamageTicks = config.flag.noDamageTick
         entity.shieldBlockingDelay = config.flag.shieldBlockingDelay
