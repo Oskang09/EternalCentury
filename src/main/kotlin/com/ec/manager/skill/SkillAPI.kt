@@ -1,11 +1,14 @@
 package com.ec.manager.skill
 
+import com.ec.config.arena.ArenaType
 import com.ec.manager.GlobalManager
 import com.ec.model.Emoji
+import com.ec.model.player.ECPlayerGameState
 import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.block.Block
 import org.bukkit.entity.Entity
+import org.bukkit.entity.Player
 import org.bukkit.entity.Projectile
 import org.bukkit.event.entity.*
 
@@ -30,9 +33,66 @@ abstract class SkillAPI(val id: String) {
     abstract fun isSupportedMaterial(): List<Material>
     abstract fun skill(level: Int): SkillActor
 
-    data class SkillData(val level: Int)
+    data class SkillData(
+        val level: Int,
+        val globalManager: GlobalManager,
+    )
 
-    abstract class SkillActor(data: SkillData) {
+    abstract class SkillActor(val data: SkillData) {
+
+        fun nearbyEnemies(entity: Entity, radius: Double): List<Entity> {
+            val entities = entity.getNearbyEntities(radius, radius, radius)
+            return when (entity is Player) {
+                true -> {
+                    val ecPlayer = data.globalManager.players.getByPlayer(entity)
+                    return when (ecPlayer.gameState) {
+                        ECPlayerGameState.FREE -> entities.filterNot { it is Player }
+                        ECPlayerGameState.ACTIVITY -> when (ecPlayer.gameName) {
+                            "zombie-fight" -> entities.filterNot { it is Player }
+                            "nether-dg" -> entities.filterNot { it is Player }
+                            "end-dg" -> entities.filterNot { it is Player }
+                            else -> listOf()
+                        }
+                        ECPlayerGameState.ARENA -> {
+                            val arena = data.globalManager.arenas.getArenaById(ecPlayer.gameName)
+                            return when (arena.type) {
+                                ArenaType.MOBARENA -> entities
+                                    .filterNot { it is Player }
+                                    .filter { data.globalManager.arenas.isVisible(entity, it.entityId) }
+                            }
+                        }
+                    }
+                }
+                else -> entities.filterIsInstance<Player>()
+            }
+        }
+
+        fun nearbyAllies(entity: Entity, radius: Double): List<Entity> {
+            val entities = entity.getNearbyEntities(radius, radius, radius)
+            return when (entity is Player) {
+                true -> {
+                    val ecPlayer = data.globalManager.players.getByPlayer(entity)
+                    return when (ecPlayer.gameState) {
+                        ECPlayerGameState.FREE -> entities.filterIsInstance<Player>()
+                        ECPlayerGameState.ACTIVITY -> when (ecPlayer.gameName) {
+                            "zombie-fight" -> entities.filterIsInstance<Player>()
+                            "nether-dg" -> entities.filterNot { it is Player }
+                            "end-dg" -> entities.filterNot { it is Player }
+                            else -> listOf()
+                        }
+                        ECPlayerGameState.ARENA -> {
+                            val arena = data.globalManager.arenas.getArenaById(ecPlayer.gameName)
+                            return when (arena.type) {
+                                ArenaType.MOBARENA -> entities
+                                    .filterIsInstance<Player>()
+                                    .filter { data.globalManager.arenas.isVisible(entity, it.entityId) }
+                            }
+                        }
+                    }
+                }
+                else -> entities.filterNot { it is Player }
+            }
+        }
 
         /**
          * Ticking & WorldChange ( included WeatherChange )

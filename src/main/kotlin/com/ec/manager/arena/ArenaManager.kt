@@ -3,10 +3,10 @@ package com.ec.manager.arena
 import com.comphenix.protocol.PacketType
 import com.comphenix.protocol.ProtocolLibrary
 import com.comphenix.protocol.events.PacketAdapter
-import com.comphenix.protocol.events.PacketContainer
 import com.comphenix.protocol.events.PacketEvent
 import com.ec.ECCore
 import com.ec.config.arena.ArenaConfig
+import com.ec.config.arena.ArenaType
 import com.ec.logger.Logger
 import com.ec.manager.GlobalManager
 import com.ec.model.player.ECPlayerGameState
@@ -16,11 +16,9 @@ import dev.reactant.reactant.extra.config.type.MultiConfigs
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
-import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.event.entity.EntityTargetEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
-import org.bukkit.event.world.ChunkUnloadEvent
 
 @Component
 class ArenaManager(
@@ -49,7 +47,9 @@ class ArenaManager(
             PacketType.Play.Server.ENTITY_METADATA,
             PacketType.Play.Server.ENTITY_EFFECT,
             PacketType.Play.Server.REMOVE_ENTITY_EFFECT,
-            PacketType.Play.Server.BLOCK_BREAK_ANIMATION
+            PacketType.Play.Server.BLOCK_BREAK_ANIMATION,
+            PacketType.Play.Server.WORLD_PARTICLES,
+            PacketType.Play.Server.NAMED_SOUND_EFFECT,
         )
 
     }
@@ -152,13 +152,16 @@ class ArenaManager(
             return
         }
 
-        val arena = IArena(
-            globalManager,
-            arenaConfigs[configId]!!,
-            host,
-            globalManager.serverConfig.teleports["old-spawn"]!!.location,
-            globalManager.serverConfig.teleports["dungeon-lobby"]!!.location,
-        )
+        val config = arenaConfigs[configId]!!
+        val arena = when (config.arenaType) {
+            ArenaType.MOBARENA -> MobArena(
+                globalManager,
+                arenaConfigs[configId]!!,
+                host,
+                globalManager.serverConfig.teleports["old-spawn"]!!.location,
+                globalManager.serverConfig.teleports["dungeon-lobby"]!!.location,
+            )
+        }
 
         arenas[arena.id] = arena
     }
@@ -183,7 +186,7 @@ class ArenaManager(
         manager.updateEntity(entity, observers.toList())
     }
 
-    private fun isVisible(observer: Player, entityId: Int): Boolean {
+    fun isVisible(observer: Player, entityId: Int): Boolean {
         return try {
             val arenaId = globalManager.players.getByPlayer(observer).gameName
             val arena = arenas[arenaId]
