@@ -124,7 +124,7 @@ class PlayerUI: UIProvider<PlayerUI.PlayerUIProps>("player") {
             PlayerUIPropsData(
                 material = Material.NETHERITE_SWORD,
                 display = "&f&l前往 &b[&5系统&b] &6副本咨询",
-                routeTo = "dungeon"
+                routeTo = "arena"
             ),
             PlayerUIPropsData(
                 material = Material.ENDER_CHEST,

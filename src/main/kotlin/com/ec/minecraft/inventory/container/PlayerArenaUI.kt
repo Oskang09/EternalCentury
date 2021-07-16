@@ -16,7 +16,7 @@ import org.bukkit.entity.HumanEntity
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
-class PlayerDungeonUI: UIProvider<PlayerDungeonUI.PlayerDungeonUIProps>("player-dungeon") {
+class PlayerArenaUI: UIProvider<PlayerArenaUI.PlayerDungeonUIProps>("player-arena") {
 
     data class PlayerDungeonUIProps(
         val host: Player,
@@ -52,7 +52,7 @@ class PlayerDungeonUI: UIProvider<PlayerDungeonUI.PlayerDungeonUIProps>("player-
 
     override fun info(props: PlayerDungeonUIProps): UIBase {
         return UIBase(
-            title = "&b[&5系统&b] &6副本组队",
+            title = "&b[&5系统&b] &6战场组队",
             rows = 2
         )
     }
@@ -95,7 +95,7 @@ class PlayerDungeonUI: UIProvider<PlayerDungeonUI.PlayerDungeonUIProps>("player-
                         div(DivProps(
                             style = styles.display,
                             item = globalManager.component.item(Material.SLIME_BALL) {
-                                it.displayName("&f[&5系统&f] &a开启副本".toComponent())
+                                it.displayName("&f[&5系统&f] &a开启战场".toComponent())
                             },
                             onClick = {
                                 props.arena.onStart()

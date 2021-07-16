@@ -30,8 +30,8 @@ class UIManager {
         uis[name]?.displayTo(player)
     }
 
-    fun displayPlayerDungeon(player: Player) {
-        uis["player-dungeon"]!!.displayTo(player)
+    fun displayPlayerArena(player: Player) {
+        uis["player-arena"]!!.displayTo(player)
     }
 
     fun displayAdmin(player: Player) {

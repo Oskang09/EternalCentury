@@ -15,18 +15,18 @@ import org.bukkit.entity.HumanEntity
 import org.bukkit.entity.Player
 import org.bukkit.inventory.meta.ItemMeta
 
-class DungeonUI: PaginationUI<Unit>("dungeon") {
+class ArenaUI: PaginationUI<Unit>("arena") {
 
     override fun info(props: PaginationUIProps): UIBase {
         return UIBase(
-            title = "&b[&5系统&b] &6副本咨询"
+            title = "&b[&5系统&b] &6战场咨询"
         )
     }
 
     override fun props(player: HumanEntity): PaginationUIProps {
         return PaginationUIProps(
             info = globalManager.component.playerHead(player as Player) {
-                it.displayName("&b[&5系统&b] &6副本咨询".toComponent())
+                it.displayName("&b[&5系统&b] &6咨询".toComponent())
             },
             extras = extras@{ state ->
                 val ecPlayer = globalManager.players.getByPlayer(player)
@@ -40,7 +40,7 @@ class DungeonUI: PaginationUI<Unit>("dungeon") {
                             },
                             item = globalManager.items.getItem(arena.config.info),
                             onClick = {
-                                globalManager.inventory.displayPlayerDungeon(it.whoClicked as Player)
+                                globalManager.inventory.displayPlayerArena(it.whoClicked as Player)
                             }
                         )),
                     )
@@ -63,7 +63,7 @@ class DungeonUI: PaginationUI<Unit>("dungeon") {
                             state.refreshState()
                         },
                         item = globalManager.component.item(Material.SLIME_BALL) {
-                            it.displayName("&f[&5系统&f] &a选择并开启副本".toComponent())
+                            it.displayName("&f[&5系统&f] &a选择并开启战场".toComponent())
                         }
                     )),
                 )
@@ -77,7 +77,8 @@ class DungeonUI: PaginationUI<Unit>("dungeon") {
                             display.itemMeta<ItemMeta> {
                                 val lores = lore() ?: mutableListOf()
                                 lores.add("".toComponent())
-                                lores.add("&f副本 - &e${arena.config.name}".toComponent())
+                                lores.add("&f类型 - &e${arena.type}".toComponent())
+                                lores.add("&f战场 - &e${arena.config.name}".toComponent())
                                 lores.add("&f房主 - &r".toComponent().append(arena.host.displayName()))
                                 lores.add("&f玩家 - &f${arena.players.size}".toComponent())
 
