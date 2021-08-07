@@ -1,13 +1,17 @@
 package com.ec.manager.player
 
+import com.ec.config.SkillConfig
 import com.ec.database.Announcements
 import com.ec.database.Mails
 import com.ec.database.Players
 import com.ec.logger.Logger
 import com.ec.manager.GlobalManager
+import com.ec.model.EntityState
 import com.ec.model.player.ECPlayer
 import com.ec.model.player.ECPlayerAuthState
 import com.ec.model.player.ECPlayerGameState
+import com.ec.util.EntityUtil.applyState
+import com.ec.util.ModelUtil.toState
 import com.ec.util.StringUtil.generateUniqueID
 import com.ec.util.StringUtil.toComponent
 import dev.reactant.reactant.core.component.Component
@@ -37,6 +41,20 @@ class PlayerManager {
 
         globalManager.events {
 
+            PlayerItemHeldEvent::class
+                .observable(true, EventPriority.LOWEST)
+                .filter { globalManager.players.getByPlayer(it.player).authState == ECPlayerAuthState.AUTHENTICATED }
+                .subscribe { event ->
+                    val enchantments = globalManager.enchantments.getEntityEnchantments(event.player)
+                    val skills  = mutableListOf<SkillConfig>()
+                    enchantments.filter { it.key.skills != null }.forEach {
+                        skills.addAll(it.key.skills!!)
+                    }
+
+                    val state = EntityState(skills = skills.map { it.toState() })
+                    event.player.applyState(state)
+                }
+
              PlayerDeathEvent::class
                  .observable(true, EventPriority.LOWEST)
                  .filter { globalManager.players.getByPlayer(it.entity).gameState == ECPlayerGameState.FREE }
@@ -54,7 +72,7 @@ class PlayerManager {
 
             AsyncChatEvent::class
                 .observable(false, EventPriority.LOWEST)
-                .filter { globalManager.players.getByPlayer(it.player).state == ECPlayerAuthState.AUTHENTICATED }
+                .filter { globalManager.players.getByPlayer(it.player).authState == ECPlayerAuthState.AUTHENTICATED }
                 .subscribe {
                     if (!it.player.hasPermission("ec.colorchat")) {
                         it.message(it.originalMessage())
@@ -69,10 +87,18 @@ class PlayerManager {
                              it.line(index, globalManager.message.userComponent(line))
                          }
                      }
+            PlayerItemHeldEvent::class
+                .observable(true, EventPriority.LOWEST)
+                .filter { globalManager.players.getByPlayer(it.player).authState == ECPlayerAuthState.AUTHENTICATED }
+                .filter { it.player.isSneaking }
+                .subscribe {
+                    it.isCancelled = true
+                    globalManager.inventory.displayPlayer(it.player)
+                }
 
              PlayerSwapHandItemsEvent::class
                  .observable(true, EventPriority.LOWEST)
-                 .filter { globalManager.players.getByPlayer(it.player).state == ECPlayerAuthState.AUTHENTICATED }
+                 .filter { globalManager.players.getByPlayer(it.player).authState == ECPlayerAuthState.AUTHENTICATED }
                  .filter { it.player.isSneaking }
                  .subscribe {
                      it.isCancelled = true
@@ -101,28 +127,28 @@ class PlayerManager {
 
              PlayerInteractEvent::class
                  .observable(true, EventPriority.LOWEST)
-                 .filter { globalManager.players.getByPlayer(it.player).state != ECPlayerAuthState.AUTHENTICATED }
+                 .filter { globalManager.players.getByPlayer(it.player).authState != ECPlayerAuthState.AUTHENTICATED }
                  .subscribe {
                      it.isCancelled = true
                  }
 
              InventoryClickEvent::class
                  .observable(true, EventPriority.LOWEST)
-                 .filter { globalManager.players.getByPlayer(it.whoClicked as Player).state != ECPlayerAuthState.AUTHENTICATED }
+                 .filter { globalManager.players.getByPlayer(it.whoClicked as Player).authState != ECPlayerAuthState.AUTHENTICATED }
                  .subscribe {
                      it.isCancelled = true
                  }
 
              PlayerDropItemEvent::class
                  .observable(true, EventPriority.LOWEST)
-                 .filter { globalManager.players.getByPlayer(it.player).state != ECPlayerAuthState.AUTHENTICATED }
+                 .filter { globalManager.players.getByPlayer(it.player).authState != ECPlayerAuthState.AUTHENTICATED }
                  .subscribe {
                      it.isCancelled = true
                  }
 
              PlayerMoveEvent::class
                  .observable(true, EventPriority.LOWEST)
-                 .filter { globalManager.players.getByPlayer(it.player).state != ECPlayerAuthState.AUTHENTICATED }
+                 .filter { globalManager.players.getByPlayer(it.player).authState != ECPlayerAuthState.AUTHENTICATED }
                  .subscribe {
                      val previous = it.from
                      val to = it.to
@@ -135,7 +161,7 @@ class PlayerManager {
              PlayerCommandPreprocessEvent::class
                  .observable(true, EventPriority.LOWEST)
                  .subscribe {
-                     if (globalManager.players.getByPlayer(it.player).state != ECPlayerAuthState.AUTHENTICATED) {
+                     if (globalManager.players.getByPlayer(it.player).authState != ECPlayerAuthState.AUTHENTICATED) {
                          it.isCancelled = true
                          return@subscribe
                      }
@@ -181,10 +207,8 @@ class PlayerManager {
                         }
                     }
 
-                    event.player.scoreboardTags.clear()
-
                     ecPlayer.playerJoinedAt = Instant.now()
-                    ecPlayer.state = ECPlayerAuthState.LOGIN
+                    ecPlayer.authState = ECPlayerAuthState.LOGIN
                     ecPlayer.gameState = playerState.gameState
                     ecPlayer.gameName = playerState.gameName
                     players[player.uniqueId] = ecPlayer
@@ -260,14 +284,14 @@ class PlayerManager {
                     globalManager.runOffMainThread {
                         Logger.withTrackerPlayerEvent(player, event, "PlayerManager.PlayerJoinEvent" , "player ${player.uniqueId} error occurs when join") {
                             if (!globalManager.discord.checkIsVerifyRequired(ecPlayer.database[Players.id], userIp)) {
-                                ecPlayer.state = ECPlayerAuthState.AUTHENTICATED
+                                ecPlayer.authState = ECPlayerAuthState.AUTHENTICATED
                                 event.player.sendMessage(globalManager.message.system("Discord 自动登入验证成功！"))
                                 return@withTrackerPlayerEvent
                             }
 
                             globalManager.discord.sendVerifyMessage(playerId, userIp, "登入账号") {
                                 if (it) {
-                                    ecPlayer.state = ECPlayerAuthState.AUTHENTICATED
+                                    ecPlayer.authState = ECPlayerAuthState.AUTHENTICATED
 
                                     globalManager.runInMainThread {
                                         event.player.sendMessage(globalManager.message.system("Discord 登入验证成功！"))

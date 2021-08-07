@@ -1,6 +1,7 @@
 package com.ec.manager.skill
 
 import com.ec.manager.GlobalManager
+import com.ec.util.EntityUtil.getState
 import dev.reactant.reactant.core.component.Component
 import org.bukkit.Bukkit
 import org.bukkit.entity.Entity
@@ -131,12 +132,8 @@ class SkillManager {
     }
 
     private fun getEntitySkill(entity: Entity): List<SkillAPI.SkillActor> {
-        val tag = entity.scoreboardTags.find {  it.contains("skills@") } ?: return listOf()
-        return tag.trimStart(*"skills@".toCharArray()) .split(",").map {
-            val array = it.split("@")
-            return@map skills[array[0]]?.skill(array[1].toInt())
-        }.filterNotNull()
+        val state = entity.getState()
+        return state.skills.mapNotNull { skills[it.skill]?.skill(it.level) }
     }
-
 
 }

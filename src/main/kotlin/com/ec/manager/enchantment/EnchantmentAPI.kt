@@ -1,5 +1,6 @@
 package com.ec.manager.enchantment
 
+import com.ec.config.SkillConfig
 import com.ec.model.Emoji
 import com.ec.manager.GlobalManager
 import com.ec.util.RomanUtil.toRoman
@@ -21,6 +22,7 @@ abstract class EnchantmentAPI(val id: String) {
     abstract val maxLevel: Int
     abstract val startLevel: Int
     open val origin: Enchantment? = null
+    open val skills: List<SkillConfig>? = null
     abstract fun isSupportedMaterial(): List<Material>
 
     private fun baseSupportedMaterial(): List<Material> {

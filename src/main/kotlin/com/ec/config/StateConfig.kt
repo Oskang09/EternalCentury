@@ -9,5 +9,5 @@ data class StateConfig(
     val homes: MutableMap<String, LocationConfig> = mutableMapOf(),
     val battlePass: MutableMap<String, BattlePassConfig> = mutableMapOf(),
     var gameState: ECPlayerGameState = ECPlayerGameState.FREE,
-    var gameName: String = ""
+    var gameName: String = "",
 )

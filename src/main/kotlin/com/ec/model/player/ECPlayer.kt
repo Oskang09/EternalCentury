@@ -3,6 +3,8 @@ package com.ec.model.player
 import com.ec.database.Players
 import com.ec.database.Titles
 import com.ec.logger.Logger
+import com.ec.model.EntityState
+import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -22,13 +24,24 @@ data class ECPlayer(var player: Player) {
     private val mutex = Mutex()
 
     private var uuid: UUID? = player.uniqueId
+    private var objectMapper = ObjectMapper()
     var playerJoinedAt: Instant = Instant.now()
-    var state: ECPlayerAuthState = ECPlayerAuthState.LOGIN
+    var authState: ECPlayerAuthState = ECPlayerAuthState.LOGIN
     var gameState: ECPlayerGameState = ECPlayerGameState.FREE
     var gameName: String = ""
 
     var database: ResultRow = transaction {
         return@transaction Players.select { Players.playerName eq player.name }.single()
+    }
+
+    fun getPlayerState(): EntityState {
+        val first = player.scoreboardTags.first()
+        return objectMapper.readValue(first, EntityState::class.java)
+    }
+
+    fun refreshPlayerState(state: EntityState) {
+        player.scoreboardTags.clear()
+        player.scoreboardTags.add(objectMapper.writeValueAsString(state))
     }
 
     fun refreshPlayer() {

@@ -3,6 +3,10 @@ package com.ec.manager.mob
 import com.ec.ECCore
 import com.ec.config.mobs.MobConfig
 import com.ec.manager.GlobalManager
+import com.ec.model.EntityState
+import com.ec.model.EntityStateSkill
+import com.ec.util.EntityUtil.applyState
+import com.ec.util.ModelUtil.toState
 import com.ec.util.StringUtil.toComponent
 import org.bukkit.Location
 import org.bukkit.Material
@@ -102,9 +106,13 @@ class IEntity(val globalManager: GlobalManager, val config: MobConfig) {
     }
 
     fun injectEntity(entity: LivingEntity) {
-        entity.scoreboardTags.add("mobId@" + config.id)
-        entity.scoreboardTags.add("skills@" + config.skills.joinToString(","))
+        val state = EntityState(
+            mobId = config.id,
+            isMob = true,
+            skills = config.skills.map { it.toState() }
+        )
 
+        entity.applyState(state)
         entity.customName(config.name.toComponent())
         entity.isCustomNameVisible = true
         entity.removeWhenFarAway = config.flag.removeWhenFarAway

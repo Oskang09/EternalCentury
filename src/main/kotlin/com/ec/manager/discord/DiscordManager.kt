@@ -82,7 +82,7 @@ class DiscordManager: LifeCycleHook {
                 .doOnError(Logger.trackError("DiscordManager.AsyncChatEvent", "error occurs in event subscriber"))
                 .subscribe {
                     val ecPlayer = globalManager.players.getByPlayer(it.player)
-                    if (ecPlayer.state != ECPlayerAuthState.AUTHENTICATED) {
+                    if (ecPlayer.authState != ECPlayerAuthState.AUTHENTICATED) {
                         it.isCancelled = true
                         return@subscribe
                     }

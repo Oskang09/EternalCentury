@@ -1,10 +1,16 @@
 package com.ec.util
 
+import com.ec.config.SkillConfig
 import com.ec.database.Admins
 import com.ec.database.enums.ChatType
+import com.ec.model.EntityStateSkill
 import org.jetbrains.exposed.sql.ResultRow
 
 object ModelUtil {
+
+    fun SkillConfig.toState(): EntityStateSkill {
+        return EntityStateSkill(this.skill, this.level)
+    }
 
     fun ChatType.toDisplay(): String {
         return when (this) {
