@@ -5,6 +5,7 @@ import com.ec.model.EntityStateSkill
 import dev.reactant.reactant.core.component.Component
 import org.bukkit.Bukkit
 import org.bukkit.entity.Entity
+import org.bukkit.entity.LivingEntity
 import org.bukkit.event.EventPriority
 import org.bukkit.event.entity.*
 import org.bukkit.event.player.PlayerChangedWorldEvent
@@ -27,8 +28,9 @@ class SkillManager {
         }
 
         globalManager.states.asyncContinuousTask(1) { count ->
-            Bukkit.getWorlds().map {  it.entities }
+            Bukkit.getWorlds().map { it.entities }
                 .flatten()
+                .filterIsInstance<LivingEntity>()
                 .parallelStream()
                 .filter { it.isTicking }
                 .filter { getEntitySkill(it).isNotEmpty() }
@@ -52,8 +54,11 @@ class SkillManager {
             EntityRegainHealthEvent::class
                 .observable(false, EventPriority.MONITOR)
                 .subscribe {
-                    getEntitySkill(it.entity).forEach { skill ->
-                        skill.onRegain(it, it.entity)
+                    val entity = it.entity
+                    if (entity is LivingEntity) {
+                        getEntitySkill(entity).forEach { skill ->
+                            skill.onRegain(it, entity)
+                        }
                     }
                 }
 
@@ -62,7 +67,7 @@ class SkillManager {
                 .filter { it.entity.shooter != null }
                 .subscribe {
                     val victim = it.entity.shooter!!
-                    if (victim is Entity)
+                    if (victim is LivingEntity)
                         getEntitySkill(victim).forEach { skill ->
                         skill.onShoot(it, victim, it.entity)
                     }
@@ -79,7 +84,7 @@ class SkillManager {
             WeatherChangeEvent::class
                 .observable(false, EventPriority.MONITOR)
                 .subscribe {
-                    it.world.entities.filter { e -> e.isTicking }.forEach { e ->
+                    it.world.entities.filter { e -> e.isTicking }.filterIsInstance<LivingEntity>().forEach { e ->
                         getEntitySkill(e).parallelStream().forEach { skill ->
                             skill.onChange(e, it.world)
                         }
@@ -93,7 +98,7 @@ class SkillManager {
                     val projectile = it.entity
                     val shooter = it.entity.shooter!!
                     val victim = it.hitBlock!!
-                    if (shooter is Entity) {
+                    if (shooter is LivingEntity) {
                         getEntitySkill(shooter).forEach { skill ->
                             skill.onProjectileHitBlock(it, shooter, projectile, victim)
                         }
@@ -107,7 +112,7 @@ class SkillManager {
                     val projectile = it.entity
                     val shooter = it.entity.shooter!!
                     val victim = it.hitEntity!!
-                    if (shooter is Entity) {
+                    if (shooter is LivingEntity && victim is LivingEntity) {
                         getEntitySkill(shooter).forEach { skill ->
                             skill.onProjectileHitEntity(it, shooter, projectile, victim, SkillAPI.Type.ATTACK)
                         }
@@ -124,26 +129,28 @@ class SkillManager {
                 .subscribe {
                     val attacker = it.damager
                     val victim = it.entity
-                    getEntitySkill(attacker).forEach { skill -> skill.onDamage(it, attacker, victim, SkillAPI.Type.ATTACK) }
-                    getEntitySkill(victim).forEach { skill -> skill.onDamage(it, victim, attacker, SkillAPI.Type.DEFEND) }
+                    if (attacker is LivingEntity && victim is LivingEntity) {
+                        getEntitySkill(attacker).forEach { skill -> skill.onDamage(it, attacker, victim, SkillAPI.Type.ATTACK) }
+                        getEntitySkill(victim).forEach { skill -> skill.onDamage(it, victim, attacker, SkillAPI.Type.DEFEND) }
+                    }
                 }
 
         }
     }
 
     // Should always run asynchronously
-    fun mountSkills(entity: Entity, skills: List<EntityStateSkill>) {
+    fun mountSkills(entity: LivingEntity, skills: List<EntityStateSkill>) {
         val allSkills = skills.mapNotNull { this.skills[it.skill]?.skill(it.level) }
         allSkills.forEach { it.onMount(entity) }
     }
 
     // Should always run asynchronously
-    fun disposeSkills(entity: Entity, skills: List<EntityStateSkill>)  {
+    fun disposeSkills(entity: LivingEntity, skills: List<EntityStateSkill>)  {
         val allSkills = skills.mapNotNull { this.skills[it.skill]?.skill(it.level) }
         allSkills.forEach { it.onMount(entity) }
     }
 
-    private fun getEntitySkill(entity: Entity): List<SkillAPI.SkillActor> {
+    private fun getEntitySkill(entity: LivingEntity): List<SkillAPI.SkillActor> {
         val state = globalManager.states.getState(entity)
         return state.skills.mapNotNull { skills[it.skill]?.skill(it.level) }
     }

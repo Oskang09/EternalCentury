@@ -19,6 +19,7 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.bukkit.Bukkit
 import org.bukkit.entity.Entity
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.PlayerJoinEvent
@@ -164,7 +165,7 @@ class StateManager(
         return key
     }
 
-    fun applyState(entity: Entity, state: EntityState) {
+    fun applyState(entity: LivingEntity, state: EntityState) {
         val previousState = getState(entity)
         if (previousState.skills.isNotEmpty()) {
             globalManager.runOffMainThread {
@@ -183,7 +184,7 @@ class StateManager(
         }
     }
 
-    fun getState(entity: Entity): EntityState {
+    fun getState(entity: LivingEntity): EntityState {
         val first = entity.scoreboardTags.firstOrNull()
         if (first == null || first === "") {
             return EntityState()

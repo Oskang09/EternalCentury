@@ -1,7 +1,8 @@
 package com.ec.minecraft.skill
 
 import com.ec.manager.skill.SkillAPI
-import org.bukkit.entity.Entity
+import com.ec.util.LocationUtil.handLocation
+import org.bukkit.entity.LivingEntity
 import xyz.xenondevs.particle.ParticleBuilder
 import xyz.xenondevs.particle.ParticleEffect
 
@@ -15,7 +16,14 @@ class LiXingHuo: SkillAPI("LiXingHuo") {
     override fun actor(data: SkillData): SkillActor {
         return object: SkillActor(data) {
 
-            override fun onTick(entity: Entity, times: Int) {
+            override fun onTick(entity: LivingEntity, times: Int) {
+
+                if (times.mod(2) == 0) {
+                    baseParticle
+                        .setLocation(entity.handLocation())
+                        .setAmount(30)
+                        .display()
+                }
 
                 if (times.mod(5) == 0) {
                     nearbyEnemies(entity, 5.0).forEach {

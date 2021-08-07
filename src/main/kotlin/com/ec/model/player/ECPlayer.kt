@@ -59,18 +59,6 @@ data class ECPlayer(var player: Player) {
         }
     }
 
-    fun getHandLocation(): Location {
-        val location = player.eyeLocation.subtract(.0, .6, .0)
-        val angle = location.yaw / 60
-        val vector = Vector(
-            cos(angle).toDouble(),
-            0.0,
-            sin(angle).toDouble()
-        )
-        return location.clone().subtract(vector.normalize().multiply(.45))
-
-    }
-
     @Throws(Exception::class)
     fun ensureUpdate(action: String, isAsync: Boolean = false, update: () -> Unit): Boolean {
         var id: String? = null
