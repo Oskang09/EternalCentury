@@ -27,7 +27,7 @@ class TeleportUI: PaginationUI<Unit>("teleport") {
     }
 
     override fun props(player: HumanEntity): PaginationUIProps {
-        val playerState = globalManager.states.getPlayerState(player as Player)
+        val playerState = globalManager.states.getStateConfig(player as Player)
         return PaginationUIProps(
             info = globalManager.component.item(Material.END_PORTAL_FRAME) {
                 it.displayName("&b[&5系统&b] &6传送咨询".toComponent())

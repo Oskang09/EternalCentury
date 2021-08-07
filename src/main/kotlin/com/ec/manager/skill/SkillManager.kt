@@ -1,7 +1,7 @@
 package com.ec.manager.skill
 
 import com.ec.manager.GlobalManager
-import com.ec.util.EntityUtil.getState
+import com.ec.model.EntityStateSkill
 import dev.reactant.reactant.core.component.Component
 import org.bukkit.Bukkit
 import org.bukkit.entity.Entity
@@ -131,8 +131,20 @@ class SkillManager {
         }
     }
 
+    // Should always run asynchronously
+    fun mountSkills(entity: Entity, skills: List<EntityStateSkill>) {
+        val allSkills = skills.mapNotNull { this.skills[it.skill]?.skill(it.level) }
+        allSkills.forEach { it.onMount(entity) }
+    }
+
+    // Should always run asynchronously
+    fun disposeSkills(entity: Entity, skills: List<EntityStateSkill>)  {
+        val allSkills = skills.mapNotNull { this.skills[it.skill]?.skill(it.level) }
+        allSkills.forEach { it.onMount(entity) }
+    }
+
     private fun getEntitySkill(entity: Entity): List<SkillAPI.SkillActor> {
-        val state = entity.getState()
+        val state = globalManager.states.getState(entity)
         return state.skills.mapNotNull { skills[it.skill]?.skill(it.level) }
     }
 

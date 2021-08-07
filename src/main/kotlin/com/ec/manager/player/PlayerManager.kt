@@ -10,7 +10,6 @@ import com.ec.model.EntityState
 import com.ec.model.player.ECPlayer
 import com.ec.model.player.ECPlayerAuthState
 import com.ec.model.player.ECPlayerGameState
-import com.ec.util.EntityUtil.applyState
 import com.ec.util.ModelUtil.toState
 import com.ec.util.StringUtil.generateUniqueID
 import com.ec.util.StringUtil.toComponent
@@ -18,7 +17,6 @@ import dev.reactant.reactant.core.component.Component
 import io.papermc.paper.event.player.AsyncChatEvent
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
-import org.bukkit.Particle
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.block.SignChangeEvent
@@ -52,7 +50,7 @@ class PlayerManager {
                     }
 
                     val state = EntityState(skills = skills.map { it.toState() })
-                    event.player.applyState(state)
+                    globalManager.states.applyState(event.player, state)
                 }
 
              PlayerDeathEvent::class
@@ -183,7 +181,7 @@ class PlayerManager {
                     event.joinMessage(null)
 
                     val player = event.player
-                    val playerState = globalManager.states.getPlayerState(event.player)
+                    val playerState = globalManager.states.getStateConfig(event.player)
                     val ecPlayer = ECPlayer(event.player)
 
                     val userIp = player.address.address.hostAddress
@@ -213,7 +211,20 @@ class PlayerManager {
                     ecPlayer.gameName = playerState.gameName
                     players[player.uniqueId] = ecPlayer
                     globalManager.permission.injectPermission(player)
-                    globalManager.runOffMainThread { globalManager.titles.checkPlayerTitleAvailability(player) }
+                    globalManager.runOffMainThread {
+                        globalManager.titles.checkPlayerTitleAvailability(player)
+                    }
+
+                    globalManager.runOffMainThread {
+                        val enchantments = globalManager.enchantments.getEntityEnchantments(event.player)
+                        val skills  = mutableListOf<SkillConfig>()
+                        enchantments.filter { it.key.skills != null }.forEach {
+                            skills.addAll(it.key.skills!!)
+                        }
+
+                        val state = EntityState(skills = skills.map { it.toState() })
+                        globalManager.states.applyState(event.player, state)
+                    }
 
                     globalManager.runOffMainThread {
                         val announcement = transaction {
@@ -316,7 +327,7 @@ class PlayerManager {
                     Logger.withTrackerPlayerEvent(player, event, "PlayerManager.PlayerQuitEvent" , "player ${player.uniqueId} error occurs when quit") {
                         val ecPlayer = players.remove(player.uniqueId)!!
 
-                        globalManager.states.updatePlayerState(player) { state ->
+                        globalManager.states.updateStateConfig(player) { state ->
                             state.gameName = ecPlayer.gameName
                             state.gameState = ecPlayer.gameState
                         }

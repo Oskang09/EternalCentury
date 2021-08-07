@@ -40,7 +40,7 @@ abstract class IArena(
 
     fun onJoin(player: Player) {
         if (config.cooldown != null) {
-            val lastAt = globalManager.states.getPlayerState(player).cooldown[config.cooldown.id]
+            val lastAt = globalManager.states.getStateConfig(player).cooldown[config.cooldown.id]
             if (lastAt != null && ChronoUnit.SECONDS.between(Instant.ofEpochSecond(lastAt), Instant.now()) < config.cooldown.second) {
                 player.sendMessage(globalManager.message.system("您的副本还在冷却中。"))
                 return
@@ -166,7 +166,7 @@ abstract class IArena(
             entities.add(it.entityId)
             globalManager.arenas.showEntityToPlayers(players, it)
             if (config.cooldown != null) {
-                globalManager.states.updatePlayerState(it) { state ->
+                globalManager.states.updateStateConfig(it) { state ->
                     state.cooldown[config.cooldown.id] = Instant.now().epochSecond
                 }
             }

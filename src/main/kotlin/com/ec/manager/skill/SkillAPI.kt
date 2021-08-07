@@ -8,6 +8,7 @@ import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.block.Block
 import org.bukkit.entity.Entity
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.entity.Projectile
 import org.bukkit.event.entity.*
@@ -20,18 +21,18 @@ abstract class SkillAPI(val id: String) {
         this.globalManager = globalManager
     }
 
+    fun skill(level: Int): SkillActor {
+        return actor(SkillData(level, globalManager))
+    }
+
     enum class Type {
         ATTACK,
         DEFEND
     }
 
-    abstract val description: List<String>
-    abstract val emoji: Emoji
-    abstract val display: String
     abstract val maxLevel: Int
     abstract val startLevel: Int
-    abstract fun isSupportedMaterial(): List<Material>
-    abstract fun skill(level: Int): SkillActor
+    abstract fun actor(data: SkillData): SkillActor
 
     data class SkillData(
         val level: Int,
@@ -40,8 +41,8 @@ abstract class SkillAPI(val id: String) {
 
     abstract class SkillActor(val data: SkillData) {
 
-        fun nearbyEnemies(entity: Entity, radius: Double): List<Entity> {
-            val entities = entity.getNearbyEntities(radius, radius, radius)
+        fun nearbyEnemies(entity: Entity, radius: Double): List<LivingEntity> {
+            val entities = entity.getNearbyEntities(radius, radius, radius).filterIsInstance<LivingEntity>()
             return when (entity is Player) {
                 true -> {
                     val ecPlayer = data.globalManager.players.getByPlayer(entity)
@@ -67,8 +68,8 @@ abstract class SkillAPI(val id: String) {
             }
         }
 
-        fun nearbyAllies(entity: Entity, radius: Double): List<Entity> {
-            val entities = entity.getNearbyEntities(radius, radius, radius)
+        fun nearbyAllies(entity: Entity, radius: Double): List<LivingEntity> {
+            val entities = entity.getNearbyEntities(radius, radius, radius).filterIsInstance<LivingEntity>()
             return when (entity is Player) {
                 true -> {
                     val ecPlayer = data.globalManager.players.getByPlayer(entity)
@@ -95,11 +96,19 @@ abstract class SkillAPI(val id: String) {
         }
 
         /**
-         * Ticking & WorldChange ( included WeatherChange )
+         * onTick, onChange, onMount, onDispose
          * is running on async thread, any bukkit api call
          * required to run with `globalManager.runInMainThread`
          */
         open fun onTick(entity: Entity, times: Int) {
+
+        }
+
+        open fun onMount(entity: Entity) {
+
+        }
+
+        open fun onDispose(entity: Entity) {
 
         }
 

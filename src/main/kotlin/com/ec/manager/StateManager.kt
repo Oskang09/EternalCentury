@@ -1,11 +1,11 @@
 package com.ec.manager
 
 import com.ec.ECCore
-import com.ec.config.BattlePassConfig
 import com.ec.config.StateConfig
 import com.ec.database.Players
-import com.ec.database.enums.BattlePassType
 import com.ec.logger.Logger
+import com.ec.model.EntityState
+import com.ec.model.EntityStateSkill
 import com.ec.model.ObservableMap
 import com.ec.util.InstantUtil.toMalaysiaSystemDate
 import com.ec.util.ItemUtil.toBas64
@@ -18,6 +18,7 @@ import dev.reactant.reactant.service.spec.config.Config
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.bukkit.Bukkit
+import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.PlayerJoinEvent
@@ -25,8 +26,6 @@ import org.bukkit.event.player.PlayerQuitEvent
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.Instant
-import java.time.ZoneId
-import java.time.ZonedDateTime
 
 @Component
 class StateManager(
@@ -37,6 +36,7 @@ class StateManager(
     private val tickPerSecond = 20L
     private lateinit var globalManager: GlobalManager
 
+    private val mapper = jacksonObjectMapper()
     private val taskMapper = mutableMapOf<String, Disposable>()
     private val states = mutableMapOf<String, Config<StateConfig>>()
     private val ranks = mutableMapOf<String, Pair<Int, Double>>()
@@ -112,11 +112,11 @@ class StateManager(
         }
     }
 
-    fun getPlayerState(player: Player): StateConfig {
+    fun getStateConfig(player: Player): StateConfig {
         return states[player.name]!!.content
     }
 
-    fun updatePlayerState(player: Player, updater: (StateConfig) -> Unit) {
+    fun updateStateConfig(player: Player, updater: (StateConfig) -> Unit) {
         val config = states[player.name]!!
         updater(config.content)
         config.save().subscribe()
@@ -163,4 +163,33 @@ class StateManager(
         taskMapper[key] = disposer
         return key
     }
+
+    fun applyState(entity: Entity, state: EntityState) {
+        val previousState = getState(entity)
+        if (previousState.skills.isNotEmpty()) {
+            globalManager.runOffMainThread {
+                globalManager.skills.disposeSkills(
+                    entity, previousState.skills.filterNot { state.skills.contains(EntityStateSkill(it.skill, it.level)) }
+                )
+            }
+        }
+
+        entity.scoreboardTags.clear()
+        entity.scoreboardTags.add(mapper.writeValueAsString(state))
+        globalManager.runOffMainThread {
+            globalManager.skills.mountSkills(
+                entity, state.skills.filterNot { previousState.skills.contains(EntityStateSkill(it.skill, it.level)) }
+            )
+        }
+    }
+
+    fun getState(entity: Entity): EntityState {
+        val first = entity.scoreboardTags.firstOrNull()
+        if (first == null || first === "") {
+            return EntityState()
+        }
+
+        return mapper.readValue(first, EntityState::class.java)
+    }
+
 }

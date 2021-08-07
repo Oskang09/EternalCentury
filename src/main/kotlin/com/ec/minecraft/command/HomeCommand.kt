@@ -30,7 +30,7 @@ internal class HomeCommand(private val globalManager: GlobalManager): ReactantCo
         }
 
         val name = homeName ?: "default"
-        val homes = globalManager.states.getPlayerState(player).homes
+        val homes = globalManager.states.getStateConfig(player).homes
         val home = homes[name]
         if (home == null) {
             player.sendMessage(globalManager.message.system("您没有家园名为$name。"))

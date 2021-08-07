@@ -64,13 +64,13 @@ class BattlePassManager : LifeCycleHook {
     private val premiumPage = mutableMapOf<String, Int>()
 
     fun getByPlayer(player: Player): BattlePassConfig {
-        return globalManager.states.getPlayerState(player).battlePass[currentSeason]
+        return globalManager.states.getStateConfig(player).battlePass[currentSeason]
                 ?: BattlePassConfig(BattlePassType.NORMAL, 1, 0, mutableListOf(), mutableListOf())
     }
 
     fun addXpToPlayer(player: Player, xp: Int) {
         val bp = getByPlayer(player)
-        globalManager.states.updatePlayerState(player) {
+        globalManager.states.updateStateConfig(player) {
             bp.experience += xp
             bp.level = activeBattlePass.levelByXp(xp)
             it.battlePass[currentSeason] = bp
@@ -81,7 +81,7 @@ class BattlePassManager : LifeCycleHook {
 
     fun onPurchasePremium(player: Player) {
         val bp = getByPlayer(player)
-        globalManager.states.updatePlayerState(player) {
+        globalManager.states.updateStateConfig(player) {
             bp.type = BattlePassType.PREMIUM
             it.battlePass[currentSeason] = bp
         }
@@ -125,7 +125,7 @@ class BattlePassManager : LifeCycleHook {
             }
 
             globalManager.sendRewardToPlayer(player, reward.reward)
-            globalManager.states.updatePlayerState(player) {
+            globalManager.states.updateStateConfig(player) {
                 val pass = getByPlayer(player)
                 if (type == BattlePassType.NORMAL) {
                     pass.rewards.add(level)

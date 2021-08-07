@@ -42,13 +42,13 @@ class CooldownModule: ModuleAPI() {
         */
 
         override fun action(player: Player) {
-            globalManager.states.updatePlayerState(player) {
+            globalManager.states.updateStateConfig(player) {
                 it.cooldown[key] = Instant.now().epochSecond
             }
         }
 
         override fun check(player: Player): Boolean {
-            val state = globalManager.states.getPlayerState(player)
+            val state = globalManager.states.getStateConfig(player)
             val current = Instant.now().epochSecond
             val doneAt = state.cooldown[key] ?: return true
             return current - doneAt >= second

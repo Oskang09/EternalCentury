@@ -23,14 +23,14 @@ internal class DeleteHomeCommand(private val globalManager: GlobalManager): Reac
 
         val player = sender as Player
         val name = homeName ?: "default"
-        val homes = globalManager.states.getPlayerState(player).homes
+        val homes = globalManager.states.getStateConfig(player).homes
         val home = homes[name]
         if (home == null) {
             player.sendMessage(globalManager.message.system("您没有家园名为$name。"))
             return
         }
 
-        globalManager.states.updatePlayerState(player) {
+        globalManager.states.updateStateConfig(player) {
             it.homes.remove(name)
         }
         player.sendMessage(globalManager.message.system("家园 $name 已经被删除了！"))

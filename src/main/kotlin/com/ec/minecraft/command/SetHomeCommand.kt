@@ -32,13 +32,13 @@ internal class SetHomeCommand(private val globalManager: GlobalManager): Reactan
         }
 
         val name = homeName ?: "default"
-        val homes = globalManager.states.getPlayerState(player).homes
+        val homes = globalManager.states.getStateConfig(player).homes
         if (!homes.keys.contains(name) && homes.keys.size + 1 > ecPlayer.database[Players.homeLimit]) {
             player.sendMessage(globalManager.message.system("您的家园数量已达上限！"))
             return
         }
 
-        globalManager.states.updatePlayerState(player) {
+        globalManager.states.updateStateConfig(player) {
             it.homes[name] = LocationConfig(player.location)
         }
         player.sendMessage(globalManager.message.system("您的家园设置成功！"))

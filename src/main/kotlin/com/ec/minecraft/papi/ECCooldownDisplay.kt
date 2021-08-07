@@ -15,7 +15,7 @@ class ECCooldownDisplay: PlaceholderAPI() {
     }
 
     override fun onPlaceholderRequest(player: Player, text: String): String {
-        val state = globalManager.states.getPlayerState(player)
+        val state = globalManager.states.getStateConfig(player)
         val doneAt = state.cooldown[text] ?: return "您还没完成过这个任务"
         return doneAt.toMalaysiaReadableTime()
     }

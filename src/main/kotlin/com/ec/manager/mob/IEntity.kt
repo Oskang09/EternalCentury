@@ -4,8 +4,6 @@ import com.ec.ECCore
 import com.ec.config.mobs.MobConfig
 import com.ec.manager.GlobalManager
 import com.ec.model.EntityState
-import com.ec.model.EntityStateSkill
-import com.ec.util.EntityUtil.applyState
 import com.ec.util.ModelUtil.toState
 import com.ec.util.StringUtil.toComponent
 import org.bukkit.Location
@@ -112,7 +110,7 @@ class IEntity(val globalManager: GlobalManager, val config: MobConfig) {
             skills = config.skills.map { it.toState() }
         )
 
-        entity.applyState(state)
+        globalManager.states.applyState(entity, state)
         entity.customName(config.name.toComponent())
         entity.isCustomNameVisible = true
         entity.removeWhenFarAway = config.flag.removeWhenFarAway
