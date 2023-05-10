@@ -2,6 +2,10 @@
 
 Mainly plan to build up own game server but lack of time to maintain it, so will treat it as a learning journey.
 
+# Project Info
+
+This project been production tested which did go live for 1-2 month, with around 20~50 online concurrently online and stable. The reason tear down just work take too much time and this type of server is unmaintainable when you have no time...
+
 # Thing were build 
 
 1. Using [Exposed](https://github.com/JetBrains/Exposed) as ORM connecting with PostgreSQL.
