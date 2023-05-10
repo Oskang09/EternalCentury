@@ -2,10 +2,6 @@
 
 Mainly plan to build up own game server but lack of time to maintain it, so will treat it as a learning journey.
 
-# Core Branch
-
-https://github.com/Oskang09/EternalCentury/tree/sandbox
-
 # Thing were build 
 
 1. Using [Exposed](https://github.com/JetBrains/Exposed) as ORM connecting with PostgreSQL.
